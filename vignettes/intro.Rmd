@@ -1,0 +1,71 @@
+---
+title: "Introduction to Bayesian kernel machine regression"
+author: "Jennifer F. Bobb"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to Bayesian kernel machine regression}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r options, echo=FALSE}
+## if the current working directory is the directory where this file is located rather than the project directory, set the working directory to the project directory
+if(grepl("vignettes", getwd())) knitr::opts_knit$set(root.dir = paste(getwd(), "..", sep = "/"))
+#knitr::opts_chunk$set(fig.width = 7, fig.height = 5, message = FALSE)
+```
+
+```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+devtools::document()
+devtools::load_all()
+```
+
+## Simulate some data
+
+```{r simdata}
+set.seed(5)
+dat <- SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2)
+y <- dat$y
+expos <- dat$expos
+covar <- dat$covar
+```
+
+## Conduct some exploratory data analysis
+
+```{r boxplots, fig.height=4, fig.width=6}
+boxplot(expos)
+```
+
+## Prior distributions for the $r_m$ parameters
+
+```{r investigate prior}
+fits <- InvestigatePrior(y = y, expos = expos, covar = covar)
+```
+
+Here we plot the estimated univariate exposure-response relationships for `r_m` fixed to different values.
+```{r investigate prior 2, fig.height=7, fig.width=7}
+PlotPriorFits(y = y, expos = expos, covar = covar, fits = fits, 
+              which.q = c(1,3,4,6), which.expos = 1:3)
+```
+
+## Fit BKMR 
+
+```{r fit, eval=FALSE}
+set.seed(123)
+runtime <- system.time({
+    fitstan <- StanBKMR(y = y, expos = expos, covar = covar, iter = 300, chains = 4)
+})
+```
+
+Because the above code took 51 minutes to run on my computer, I have saved the output as the dataset `fitstan` that is provided with this package. 
+```{r load}
+print(fitstan, par = c("beta", "r", "sigma_sq", "h[1]", "h[2]", "h[100]"))
+```
+
+We see that the estimated $\beta$ and $\sigma^2$ are close to their true values.
+
+
+
+
+
+
