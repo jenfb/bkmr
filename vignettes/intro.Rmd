@@ -81,6 +81,19 @@ fitbkmr
 
 ## Summarize BKMR output
 
+### Summary statistics of the exposure-response function
+
+```{r overall}
+risks.overall.approx <- OverallRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
+```
+
+```{r plot overall}
+library(ggplot2)
+ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + geom_pointrange()
+```
+
+
+
 ### Plot the exposure-response function
 
 
