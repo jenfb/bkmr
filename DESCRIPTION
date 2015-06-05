@@ -10,6 +10,8 @@ LazyData: true
 Imports: dplyr,
     magrittr,
     nlme,
-    Rcpp
+    Rcpp,
+    fields,
+    truncnorm
 Suggests: knitr
 VignetteBuilder: knitr

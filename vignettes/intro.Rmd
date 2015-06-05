@@ -50,7 +50,9 @@ PlotPriorFits(y = y, expos = expos, covar = covar, fits = fits,
 
 ## Fit BKMR 
 
-```{r fit, eval=FALSE}
+### Using Stan software
+
+```{r fit stan, eval=FALSE}
 set.seed(123)
 runtime <- system.time({
     fitstan <- StanBKMR(y = y, expos = expos, covar = covar, iter = 300, chains = 4)
@@ -63,6 +65,32 @@ print(fitstan, par = c("beta", "r", "sigma_sq", "h[1]", "h[2]", "h[100]"))
 ```
 
 We see that the estimated $\beta$ and $\sigma^2$ are close to their true values.
+
+### Using R code
+
+```{r fit orig}
+runtime <- system.time(
+    fit <- kmbayes(y = y, expos = expos, covar = covar, iter = 5000)
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
