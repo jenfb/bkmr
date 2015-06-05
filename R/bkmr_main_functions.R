@@ -50,7 +50,8 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 }
 
 #' @export
-kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest) {
+#' @param equalr Set to \code{TRUE} if you want to allow each exposure variable to have a separate smoothing parameter
+kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest, equalr = FALSE) {
 
     X <- covar
     Z <- expos
@@ -84,7 +85,7 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
 				  lambda = matrix(NA, nsamp, data.comps$nlambda),
 				  sigsq.eps = rep(NA, nsamp),
 				  r = matrix(NA, nsamp, ncol(Z)),
-				  acc.r = rep(0, nsamp),
+				  acc.r = matrix(0, nsamp, ncol(Z)),
 				  acc.lambda = matrix(0, nsamp, data.comps$nlambda),
 				  delta = matrix(1, nsamp, ncol(Z))
 				  )
@@ -187,16 +188,26 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
 		chain$lambda[s,] <- lambdaSim
 
 		## r
-		rSim <- chain$r[s-1,]
-		## common r for those variables not being selected
-		comp <- which(!1:ncol(Z) %in% ztest)
+        rSim <- chain$r[s-1,]
+        comp <- which(!1:ncol(Z) %in% ztest)
 		if(length(comp) != 0) {
-			varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params)
-			rSim <- varcomps$r
-			if(varcomps$acc) {
-				Vcomps <- varcomps$Vcomps
-				chain$acc.r[s] <- varcomps$acc
-			}
+            if(equalr) { ## common r for those variables not being selected
+                varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params)
+                rSim <- varcomps$r
+                if(varcomps$acc) {
+                    Vcomps <- varcomps$Vcomps
+                    chain$acc.r[s, comp] <- varcomps$acc
+                }
+            } else { ## allow a different r_m
+                for(whichr in comp) {
+                    varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params)
+                    rSim <- varcomps$r
+                    if(varcomps$acc) {
+                        Vcomps <- varcomps$Vcomps
+                        chain$acc.r[s, whichr] <- varcomps$acc
+                    }
+                }
+            }
 		}
 		## for those variables being selected: joint posterior of (r,delta)
 		if(modsel) {
@@ -233,7 +244,7 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
 		if(s%%(nsamp/10)==0 & !quiet) {
 			print(s)
 			cat(round(colMeans(chain$acc.lambda[1:s, ,drop=FALSE]),4), "   lam accept rate\n")
-			cat(round(mean(chain$acc.r[2:s]),4), "   r nosel accept rate\n")
+			cat(round(colMeans(chain$acc.r[2:s, ]),4), "   r nosel accept rate\n")
 			if(modsel) {
 				cat(round(mean(chain$acc.rdelta[2:s]),4), "   rdelt accept rate\n")
 				cat(round(mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 1]),4), "   rdelt[move 1] accept rate\n")
