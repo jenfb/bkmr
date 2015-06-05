@@ -3,12 +3,11 @@
 \name{ComputePostmeanHnew}
 \alias{ComputePostmeanHnew}
 \usage{
-ComputePostmeanHnew(fit, y, expos, covar, exposNew, method = c("stan", "r"),
-  sel = NULL)
+ComputePostmeanHnew(fit, y, expos, covar, exposNew, sel = NULL)
 }
 \arguments{
-\item{method}{The method used to fit the object \code{fit}}
-
 \item{sel}{A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.}
+
+\item{method}{The method used to fit the object \code{fit}}
 }
 
