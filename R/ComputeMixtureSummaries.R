@@ -47,14 +47,14 @@ OverallRiskSummaries <- function(fit, y, expos, covar, qs = seq(0.25, 0.75, by =
     risks.overall <- data.frame(quantile = qs, risks.overall)
 }
 
-SingPolRiskSummary <- function(whichpol = 1, fit, expos, covar, y, qs.diff = c(0.25, 0.75), q.fixed = 0.5, preds.method = "approx", ...) {
+SingPolRiskSummary <- function(whichpol = 1, fit, y, expos, covar, qs.diff = c(0.25, 0.75), q.fixed = 0.5, preds.method = "approx", ...) {
     point2 <- point1 <- apply(expos, 2, quantile, q.fixed)
     point2[whichpol] <- quantile(expos[, whichpol], qs.diff[2])
     point1[whichpol] <- quantile(expos[, whichpol], qs.diff[1])
     # point1 <- makePoint(whichpol, expos, qs.diff[1], q.fixed)
     # point2 <- makePoint(whichpol, expos, qs.diff[2], q.fixed)
     if(preds.method == "approx") {
-        preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, X = covar, Z = expos, y = y, Znew = znew)
+        preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = znew)
         riskSummary <- riskSummary.approx
     } else if(preds.method == "samp") {
         preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, expos = expos, covar = covar, y = y, ...)
@@ -63,20 +63,19 @@ SingPolRiskSummary <- function(whichpol = 1, fit, expos, covar, y, qs.diff = c(0
     riskSummary(point1 = point1, point2 = point2, preds.fun = preds.fun, ...)
 }
 
-SingPolRiskSummaries <- function(fit, expos, covar, y, pollutants = 1:ncol(expos), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), preds.method = "approx", expos.names = colnames(expos), ...) {
-    require(dplyr)
-
+#' @export
+SingPolRiskSummaries <- function(fit, y, expos, covar, pollutants = 1:ncol(expos), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), preds.method = "approx", expos.names = colnames(expos), ...) {
     if(is.null(expos.names)) expos.names <- paste0("expos", 1:ncol(expos))
 
-    df <- data_frame()
+    df <- dplyr::data_frame()
     for(i in seq_along(q.fixed)) {
         for(j in seq_along(pollutants)) {
-            risk <- SingPolRiskSummary(whichpol = pollutants[j], fit = fit, expos = expos, covar = covar, y = y, qs.diff = qs.diff, q.fixed = q.fixed[i], preds.method = preds.method, ...)
-            df0 <- data_frame(q.fixed = q.fixed[i], exposure = expos.names[j], est = risk["est"], se = risk["se"])
-            df <- bind_rows(df, df0)
+            risk <- SingPolRiskSummary(whichpol = pollutants[j], fit = fit, y = y, expos = expos, covar = covar, qs.diff = qs.diff, q.fixed = q.fixed[i], preds.method = preds.method, ...)
+            df0 <- dplyr::data_frame(q.fixed = q.fixed[i], exposure = expos.names[j], est = risk["est"], se = risk["se"])
+            df <- dplyr::bind_rows(df, df0)
         }
     }
-    df <- mutate(df, exposure = factor(exposure, levels = expos.names[pollutants]), q.fixed = as.factor(q.fixed))
+    df <- dplyr::mutate(df, exposure = factor(exposure, levels = expos.names[pollutants]), q.fixed = as.factor(q.fixed))
     attr(df, "qs.diff") <- qs.diff
     df
 }
