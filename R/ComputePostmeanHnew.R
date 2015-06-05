@@ -2,32 +2,33 @@
 #' @export
 #' @param method The method used to fit the object \code{fit}
 #' @param sel A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.
-ComputePostmeanHnew <- function(fit, y, expos, covar, exposNew, method = c("stan", "r"), sel = NULL) {
-    if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
-    if(class(Znew) == "data.frame") Znew <- data.matrix(Znew)
-    if(is.null(dim(X))) X <- matrix(X, ncol=1)
+ComputePostmeanHnew <- function(fit, y, expos, covar, exposNew, sel = NULL) {
 
     X <- covar
     Z <- expos
     Znew <- exposNew
 
-    ests <- ExtractEsts(fit, method = method, sel = sel)
-    sigsq.eps <- ests$sigsq.eps
-    r <- ests$r
-    beta <- ests$beta
-    lambda <- ests$lambda
+    if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
+    if(class(Znew) == "data.frame") Znew <- data.matrix(Znew)
+    if(is.null(dim(X))) X <- matrix(X, ncol=1)
+
+    ests <- ExtractEsts(fit, sel = sel)
+    sigsq.eps <- ests$sigsq.eps[, "mean"]
+    r <- ests$r[, "mean"]
+    beta <- ests$beta[, "mean"]
+    lambda <- ests$lambda[, "mean"]
 
     # if(is.null(data.comps$knots)) {
     n0 <- nrow(Z)
     n1 <- nrow(Znew)
     nall <- n0 + n1
-    Kpartall <- MakeKpart(r, rbind(Z, Znew))
+    Kpartall <- makeKpart(r, rbind(Z, Znew))
     Kmat <- exp(-Kpartall)
     Kmat0 <- Kmat[1:n0,1:n0 ,drop=FALSE]
     Kmat1 <- Kmat[(n0+1):nall,(n0+1):nall ,drop=FALSE]
     Kmat10 <- Kmat[(n0+1):nall,1:n0 ,drop=FALSE]
 
-    Kpart <- MakeKpartGauss(r, Z)
+    Kpart <- makeKpart(r, Z)
     V <- diag(1, nrow(Z), nrow(Z)) + lambda[1]*exp(-Kpart)
     cholV <- chol(V)
     Vinv <- chol2inv(cholV)
