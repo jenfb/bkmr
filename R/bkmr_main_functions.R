@@ -117,7 +117,7 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
 	}
 
 	## control parameters
-	control.params <- modifyList(list(lambda.jump=1, mu.lambda=1, sigma.lambda=10, a.p0=1, b.p0=1, r.prior="gamma", a.sigsq=1e-3, b.sigsq=1e-3, r.params=list(mu.r=5, sigma.r=5, r.muprop=1, r.jump=0.2, r.jump1 = 2, r.jump2 = 0.2)), control.params)
+	control.params <- modifyList(list(lambda.jump=10, mu.lambda=10, sigma.lambda=10, a.p0=1, b.p0=1, r.prior="gamma", a.sigsq=1e-3, b.sigsq=1e-3, r.params=list(mu.r=5, sigma.r=5, r.muprop=1, r.jump=0.2, r.jump1 = 2, r.jump2 = 0.2)), control.params)
 
 	## components if grouped model selection is being done
 	if(!missing(groups)) {
@@ -141,7 +141,16 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
     rm(e, rfn)
 
 	## initial values
-	starting.values <- modifyList(list(h.hat=1, beta=10, sigsq.eps=1, r=1, lambda=1, delta=1), starting.values)
+    if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
+        lmfit0 <- lm(y ~ expos + covar)
+        if (is.null(starting.values$beta)) {
+            starting.values$beta <- coef(lmfit0)[grep("covar", names(coef(lmfit0)))]
+        }
+        if (is.null(starting.values$sigsq.eps)) {
+            starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
+        }
+    }
+	starting.values <- modifyList(list(h.hat=1, beta=1, sigsq.eps=1, r=1, lambda=10, delta=1), starting.values)
 	chain$h.hat[1,] <- starting.values$h.hat
 	chain$beta[1,] <- starting.values$beta
 	chain$lambda[1,] <- starting.values$lambda
@@ -257,7 +266,7 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
 		}
 	}
 	chain$time2 <- Sys.time()
-	chain$nsamp <- nsamp
+	chain$iter <- nsamp
 	chain$starting.values <- starting.values
 	chain$control.params <- control.params
 	chain$X <- X
@@ -266,5 +275,12 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
 	chain$ztest <- ztest
 	chain$data.comps <- data.comps
 	if(!missing(Znew)) chain$Znew <- Znew
+    class(chain) <- c("bkmrfit", class(chain))
 	chain
+}
+
+print.bkmrfit <- function(x, q = c(0.025, 0.975), digits = 5, ...) {
+    ests <- ExtractEsts(x, q = q)
+    summ <- with(ests, rbind(sigsq.eps, beta, r))
+    print(round(summ, digits = digits))
 }
