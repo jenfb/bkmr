@@ -75,6 +75,7 @@ runtime <- system.time(
 )
 ```
 
+This code was much faster, taking about 2 minute to run. However, to make this vigette run faster I have also saved the output from fitting this model as the dataset `fitbkmr` that is provided with this package.
 ```{r load orig}
 fitbkmr
 ```
@@ -83,16 +84,28 @@ fitbkmr
 
 ### Summary statistics of the exposure-response function
 
+Compute the overall effect of the mixture, by comparing when all exposures are at a particular percentile to when all are at the 50th percentile.
+
 ```{r overall}
 risks.overall.approx <- OverallRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
 ```
 
 ```{r plot overall}
 library(ggplot2)
-ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + geom_pointrange()
+ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+    geom_pointrange()
 ```
 
+Compute summary statistics summarizing the single pollutant health effects; compare risk when a single pollutant is at the 75th versus 25th percentile, when all of the other exposures are fixed at a particular percentile
 
+```{r single pol}
+risks.singpol <- SingPolRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
+```
+
+```{r plot single pol}
+ggplot(risks.singpol, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96*se, col = q.fixed)) + 
+    geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
+```
 
 ### Plot the exposure-response function
 
