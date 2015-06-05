@@ -1,3 +1,6 @@
+#' Wrapper function to fit BKMR using Stan
+#'
+#' @export
 StanBKMR <- function(y, expos, covar, file, ...) {
     if (missing(file)) {
         file <- system.file("stan", "gp-multi-fit.stan", package = "bkmr")
@@ -7,3 +10,7 @@ StanBKMR <- function(y, expos, covar, file, ...) {
 
     fitstan <- stan(file = system.file("stan", "gp-multi-fit.stan", package = "bkmr"), data = data, ...)
 }
+
+
+
+
