@@ -128,14 +128,16 @@ kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting
 	}
 
 	## specify functions for doing the Metropolis-Hastings steps to update r
-	r.MH.functions <- set.r.MH.functions(r.prior = control.params$r.prior)
-	assign("rprior.logdens", r.MH.functions$rprior.logdens, envir = globalenv())
-	assign("rprop.gen1", r.MH.functions$rprop.gen1, envir = globalenv())
-	assign("rprop.logdens1", r.MH.functions$rprop.logdens1, envir = globalenv())
-	assign("rprop.gen2", r.MH.functions$rprop.gen2, envir = globalenv())
-	assign("rprop.logdens2", r.MH.functions$rprop.logdens2, envir = globalenv())
-	assign("rprop.gen", r.MH.functions$rprop.gen, envir = globalenv())
-	assign("rprop.logdens", r.MH.functions$rprop.logdens, envir = globalenv())
+    e <- environment()
+    rfn <- set.r.MH.functions(r.prior = control.params$r.prior)
+	assign("rprior.logdens", rfn$rprior.logdens, envir = parent.env(e))
+	assign("rprop.gen1", rfn$rprop.gen1, envir = parent.env(e))
+	assign("rprop.logdens1", rfn$rprop.logdens1, envir = parent.env(e))
+	assign("rprop.gen2", rfn$rprop.gen2, envir = parent.env(e))
+	assign("rprop.logdens2", rfn$rprop.logdens2, envir = parent.env(e))
+	assign("rprop.gen", rfn$rprop.gen, envir = parent.env(e))
+	assign("rprop.logdens", rfn$rprop.logdens, envir = parent.env(e))
+    rm(e, rfn)
 
 	## initial values
 	starting.values <- modifyList(list(h.hat=1, beta=10, sigsq.eps=1, r=1, lambda=1, delta=1), starting.values)
