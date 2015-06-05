@@ -68,11 +68,37 @@ We see that the estimated $\beta$ and $\sigma^2$ are close to their true values.
 
 ### Using R code
 
-```{r fit orig}
+```{r fit orig, eval=FALSE}
+set.seed(456)
 runtime <- system.time(
-    fit <- kmbayes(y = y, expos = expos, covar = covar, iter = 5000)
+    fitbkmr <- kmbayes(y = y, expos = expos, covar = covar, iter = 10000, quiet = FALSE)
 )
 ```
+
+```{r load orig}
+fitbkmr
+```
+
+## Summarize BKMR output
+
+### Plot the exposure-response function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
