@@ -8,7 +8,7 @@ StanBKMR <- function(y, expos, covar, file, ...) {
 
     data <- list(D = ncol(expos), K = ncol(covar), N = length(y), expos = expos, covar = covar, y = y)
 
-    fitstan <- stan(file = system.file("stan", "gp-multi-fit.stan", package = "bkmr"), data = data, ...)
+    fitstan <- rstan::stan(file = file, data = data, ...)
 }
 
 
