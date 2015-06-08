@@ -12,7 +12,7 @@ vignette: >
 ```{r options, echo=FALSE}
 ## if the current working directory is the directory where this file is located rather than the project directory, set the working directory to the project directory
 if(grepl("vignettes", getwd())) knitr::opts_knit$set(root.dir = paste(getwd(), "..", sep = "/"))
-#knitr::opts_chunk$set(fig.width = 7, fig.height = 5, message = FALSE)
+knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
 ```
 
 ```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
@@ -32,8 +32,8 @@ covar <- dat$covar
 
 ## Conduct some exploratory data analysis
 
-```{r boxplots, fig.height=4, fig.width=6}
-boxplot(expos)
+```{r cormat}
+PlotCorr(expos, print.vals = TRUE)
 ```
 
 ## Prior distributions for the $r_m$ parameters
@@ -43,7 +43,7 @@ fits <- InvestigatePrior(y = y, expos = expos, covar = covar)
 ```
 
 Here we plot the estimated univariate exposure-response relationships for `r_m` fixed to different values.
-```{r investigate prior 2, fig.height=7, fig.width=7}
+```{r investigate prior 2, fig.height=6, fig.width=6}
 PlotPriorFits(y = y, expos = expos, covar = covar, fits = fits, 
               which.q = c(1,3,4,6), which.expos = 1:3)
 ```
@@ -103,7 +103,8 @@ risks.singpol <- SingPolRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar
 ```
 
 ```{r plot single pol}
-ggplot(risks.singpol, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96*se, col = q.fixed)) + 
+ggplot(risks.singpol, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96*se, 
+                          col = q.fixed)) + 
     geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
 ```
 
@@ -122,11 +123,31 @@ ggplot(risks.int, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96*se)
 
 ### Plot the exposure-response function
 
+Single-pollutant exposure-response function for other exposures fixed at their 50th percentile.
 
+```{r expos-resp}
+expos.resp.univar <- ExposureResponseUnivar(fit = fitbkmr, y = y, expos = expos, covar = covar)
+```
 
+```{r plot expos-resp, fig.height=4, fig.width=6}
+ggplot(expos.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+    geom_smooth(stat = "identity") + 
+    facet_wrap(~ exposure)
+```
 
+Two-pollutant exposure-response function for other exposures fixed at their 50th percentile.
 
+```{r expos-resp2, message=FALSE}
+expos.resp.bivar <- ExposureResponseBivar(fit = fitbkmr, y = y, expos = expos, covar = covar, 
+                                          min.plot.dist = 1)
+```
 
+```{r plot expos-resp2, fig.height=5, fig.width=6.5}
+## this plot could be improved upon
+expos.resp.bivar %>% ggplot(aes(z1, z2)) + 
+    geom_raster(aes(fill = est)) + 
+    facet_grid(exposure1 ~ exposure2)
+```
 
 
 
