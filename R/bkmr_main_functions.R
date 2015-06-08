@@ -51,7 +51,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 
 #' @export
 #' @param equalr Set to \code{TRUE} if you want to allow each exposure variable to have a separate smoothing parameter
-kmbayes <- function(y, covar, expos, iter = 1000, id, quiet=TRUE, Znew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest, equalr = FALSE) {
+kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest, equalr = FALSE) {
 
     X <- covar
     Z <- expos
