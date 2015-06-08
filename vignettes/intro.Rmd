@@ -96,7 +96,7 @@ ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est
     geom_pointrange()
 ```
 
-Compute summary statistics summarizing the single pollutant health effects; compare risk when a single pollutant is at the 75th versus 25th percentile, when all of the other exposures are fixed at a particular percentile
+Compute summary statistics summarizing the single pollutant health effects; compare risk when a single pollutant is at the 75th versus 25th percentile, when all of the other exposures are fixed at a particular percentile. We refer to this as the single-pollutant health risks.
 
 ```{r single pol}
 risks.singpol <- SingPolRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
@@ -105,6 +105,19 @@ risks.singpol <- SingPolRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar
 ```{r plot single pol}
 ggplot(risks.singpol, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96*se, col = q.fixed)) + 
     geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
+```
+
+Compute summary statistics summarizing interaction; compare the single-pollutant health risks when all of the other pollutants are fixed to their 75th percentile to when all of the other pollutants are fixed to their 25th percentile.
+
+```{r int}
+risks.int <- SingPolIntSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
+```
+
+If the 95% credible interval does not cover zero for a particular pollutant, this suggests that that pollutant may interact with one of the other pollutants.
+```{r plot int}
+ggplot(risks.int, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+    geom_hline(y_intercept = 0, col = "brown", lty = 2) +
+    geom_pointrange()
 ```
 
 ### Plot the exposure-response function

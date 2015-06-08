@@ -40,13 +40,17 @@ OverallRiskSummaries <- function(fit, y, expos, covar, qs = seq(0.25, 0.75, by =
         preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = znew)
         riskSummary <- riskSummary.approx
     } else if(preds.method == "samp") {
-        preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, expos = expos, covar = covar, y = y, ...)
-        riskSummary <- riskSummary.samp
+        stop("not yet implemented")
+#         preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, expos = expos, covar = covar, y = y, ...)
+#         riskSummary <- riskSummary.samp
     }
     risks.overall <- t(sapply(qs, function(quant) riskSummary(point1 = point1, point2 = apply(expos, 2, quantile, quant), preds.fun = preds.fun)))
     risks.overall <- data.frame(quantile = qs, risks.overall)
 }
 
+#' Compare estimated exposure-response function when a single pollutant is at the 75th versus 25th percentile, when all of the other exposures are fixed at a particular percentile
+#'
+#' @export
 SingPolRiskSummary <- function(whichpol = 1, fit, y, expos, covar, qs.diff = c(0.25, 0.75), q.fixed = 0.5, preds.method = "approx", ...) {
     point2 <- point1 <- apply(expos, 2, quantile, q.fixed)
     point2[whichpol] <- quantile(expos[, whichpol], qs.diff[2])
@@ -57,8 +61,9 @@ SingPolRiskSummary <- function(whichpol = 1, fit, y, expos, covar, qs.diff = c(0
         preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = znew)
         riskSummary <- riskSummary.approx
     } else if(preds.method == "samp") {
-        preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, expos = expos, covar = covar, y = y, ...)
-        riskSummary <- riskSummary.samp
+        stop("not yet implemented")
+#         preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, expos = expos, covar = covar, y = y, ...)
+#         riskSummary <- riskSummary.samp
     }
     riskSummary(point1 = point1, point2 = point2, preds.fun = preds.fun, ...)
 }
@@ -83,8 +88,10 @@ SingPolRiskSummaries <- function(fit, y, expos, covar, pollutants = 1:ncol(expos
 
 
 
-
-SingPolIntSummary <- function(whichpol = 1, fit, expos, covar, y, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", ...) {
+#' Compare the single-pollutant health risks when all of the other pollutants are fixed to their 75th percentile to when all of the other pollutants are fixed to their 25th percentile.
+#'
+#' @export
+SingPolIntSummary <- function(whichpol = 1, fit, y, expos, covar, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", ...) {
     q.fixed <- qs.fixed[1]
     point2 <- point1 <- apply(expos, 2, quantile, q.fixed)
     point2[whichpol] <- quantile(expos[, whichpol], qs.diff[2])
@@ -98,25 +105,25 @@ SingPolIntSummary <- function(whichpol = 1, fit, expos, covar, y, qs.diff = c(0.
     newz.q2 <- rbind(point1, point2)
 
     if(preds.method == "approx") {
-        preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, X = covar, Z = expos, y = y, Znew = znew)
+        preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = znew)
         interactionSummary <- interactionSummary.approx
     } else if(preds.method == "samp") {
-        preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, expos = expos, covar = covar, y = y, ...)
-        interactionSummary <- interactionSummary.samp
+        stop("not yet implemented")
+#         preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, expos = expos, covar = covar, y = y, ...)
+#         interactionSummary <- interactionSummary.samp
     }
     interactionSummary(newz.q1, newz.q2, preds.fun, ...)
 }
 
-SingPolIntSummaries <- function(fit, expos, covar, y, pollutants = 1:ncol(expos), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", expos.names = colnames(expos), ...) {
-    require(dplyr)
-
+#' @export
+SingPolIntSummaries <- function(fit, y, expos, covar, pollutants = 1:ncol(expos), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", expos.names = colnames(expos), ...) {
     if(is.null(expos.names)) expos.names <- paste0("expos", 1:ncol(expos))
 
     ints <- sapply(pollutants, function(whichpol)
         SingPolIntSummary(whichpol = whichpol, fit = fit, expos = expos, covar = covar, y = y, qs.diff = qs.diff, qs.fixed = qs.fixed, preds.method, ...)
     )
 
-    df <- data_frame(exposure = factor(expos.names[pollutants], levels = expos.names), est = ints["est", ], se = ints["se", ])
+    df <- dplyr::data_frame(exposure = factor(expos.names[pollutants], levels = expos.names), est = ints["est", ], se = ints["se", ])
 }
 
 
