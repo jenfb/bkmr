@@ -134,15 +134,21 @@ SingPolIntSummaries <- function(fit, y, expos, covar, pollutants = 1:ncol(expos)
 SeqPolRiskSummaries <- function(fit, y, expos, covar, pollutants = 1:ncol(expos), qs.diff = c(0.25, 0.75), q.fixed = 0.50, preds.method = "approx", expos.names = colnames(expos), ...) {
     if(is.null(expos.names)) expos.names <- paste0("expos", 1:ncol(expos))
 
+    if (is.character(colnames(expos))) {
+        expos.names <- expos.names[match(pollutants, expos.names)]
+    } else {
+        expos.names <- expos.names[pollutants]
+    }
+
     df <- dplyr::data_frame()
     for(i in seq_along(q.fixed)) {
         for(j in seq_along(pollutants)) {
             risk <- PolRiskSummary(whichpol = pollutants[1:j], fit = fit, y = y, expos = expos, covar = covar, qs.diff = qs.diff, q.fixed = q.fixed[i], preds.method = preds.method, ...)
-            df0 <- dplyr::data_frame(q.fixed = q.fixed[i], exposure = expos.names[j], est = risk["est"], se = risk["se"])
+            df0 <- dplyr::data_frame(q.fixed = q.fixed[i], added.exposure = expos.names[j], est = risk["est"], se = risk["se"])
             df <- dplyr::bind_rows(df, df0)
         }
     }
-    df <- dplyr::mutate(df, exposure = factor(exposure, levels = expos.names[pollutants]), q.fixed = as.factor(q.fixed))
+    df <- dplyr::mutate(df, added.exposure = factor(added.exposure, levels = expos.names), q.fixed = as.factor(q.fixed))
     attr(df, "qs.diff") <- qs.diff
     df
 }
