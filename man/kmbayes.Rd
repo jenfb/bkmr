@@ -3,7 +3,7 @@
 \name{kmbayes}
 \alias{kmbayes}
 \usage{
-kmbayes(y, covar, expos, iter = 1000, id, quiet = TRUE, Znew,
+kmbayes(y, expos, covar, iter = 1000, id, quiet = TRUE, Znew,
   starting.values = list(), control.params = list(), modsel = FALSE,
   groups, knots, ztest, equalr = FALSE)
 }
