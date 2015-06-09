@@ -1,5 +1,5 @@
-CalcR2 <- function(fit, covar) {
-    ests <- ExtractEsts(fit)
+CalcR2 <- function(fit, covar, sel = NULL) {
+    ests <- ExtractEsts(fit, sel = sel)
 
     ## http://en.wikipedia.org/wiki/Coefficient_of_determination
     preds <- with(ests, h[, "mean"] + covar %*% beta[, "mean"])
