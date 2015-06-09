@@ -58,7 +58,7 @@ InvestigatePrior <- function(y, expos, covar, ngrid = 50, q.seq = c(2, 1, 1/2, 1
         }
     }
 
-    res <- list(q.seq = q.seq, r.seq = r.seq, Znew = Znew.mat, resids = resids, preds = preds, h.hat = h.hat.ests)
+    res <- list(q.seq = q.seq, r.seq = r.seq, Drange = Drange, Znew = Znew.mat, resids = resids, preds = preds, h.hat = h.hat.ests)
 }
 
 PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = NULL, plot.resid = TRUE) {
@@ -68,7 +68,7 @@ PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = N
     preds <- fits$preds
 
     if (is.null(which.expos)) which.expos <- 1:ncol(expos)
-    if (is.null(which.q)) which.expos <- 1:length(q.seq)
+    if (is.null(which.q)) which.q <- 1:length(q.seq)
 
     q.seq <- q.seq[which.q]
     r.seq <- r.seq[which.q]
@@ -82,7 +82,7 @@ PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = N
         lim <- range(res)
     }
 
-    opar <- par(mfrow=c(1 + ncol(expos), length(q.seq)), mar=c(4.1, 4.1, 1.6, 1.1))
+    opar <- par(mfrow=c(1 + length(which.expos), length(which.q)), mar=c(4.1, 4.1, 1.6, 1.1))
     on.exit(par(opar), add = TRUE)
 
     for(r in r.seq) {
@@ -90,8 +90,9 @@ PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = N
     }
     for(i in 1:ncol(expos)) {
         for(j in seq_along(r.seq)) {
-            plot(Znew[, i], preds[[i]][, j], ylim = lim, ylab = expression(hat(h)), xlab = colnames(expos)[i], cex.lab = 1.5, type="l", xlim = range(Znew))
+            plot(0, type = "n", ylim = lim, ylab = expression(hat(h)), xlab = colnames(expos)[i], cex.lab = 1.5, xlim = range(Znew))
             if (plot.resid) points(expos[, i], res, col="red", pch=19, cex=0.5)
+            lines(Znew[, i], preds[[i]][, j])
         }
     }
 }
