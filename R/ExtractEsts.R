@@ -63,3 +63,39 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
 
     list(sigsq.eps = data.frame(sigsq.eps), beta = beta, lambda = lambda, h = h, r = r)
 }
+
+#' Extract samples of each parameter from the BKMR fit
+#'
+#' @export
+ExtractSamps <- function(fit, sel = NULL) {
+    if(inherits(fit, "stanfit")) {
+        samps <- rstan::extract(fit)
+
+        sig.eps <- samps$sigma
+        sigsq.eps <- samps$sigma_sq
+        r <- samps$r
+        beta <- samps$beta
+        tau <- samps$tau
+        lambda <- samps$tau/samps$sigma_sq
+        h <- samps$h
+
+    } else if (inherits(fit, "bkmrfit")) {
+        if (is.null(sel)) {
+            sel <- with(fit, seq(floor(iter/2) + 1, iter))
+        }
+
+        sigsq.eps <- fit$sigsq.eps[sel]
+        sig.eps <- sqrt(sigsq.eps)
+        r <- fit$r[sel, ]
+        beta <- fit$beta[sel, ]
+        lambda <- fit$lambda[sel, ]
+        tau <- lambda*sigsq.eps
+        h <- fit$h[sel, ]
+    }
+
+    if(!is.null(ncol(beta))) colnames(beta) <- paste0("beta", 1:ncol(beta))
+    colnames(r) <- paste0("r", 1:ncol(r))
+    colnames(h) <- paste0("h", 1:ncol(h))
+
+    res <- list(sigsq.eps = sigsq.eps, sig.eps = sig.eps, r = r, beta = beta, lambda = lambda, tau = tau, h = h)
+}
