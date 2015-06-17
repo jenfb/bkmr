@@ -8,10 +8,10 @@ LinearKernel <- function(expos) {
     tcrossprod(expos)/n
 }
 
-PolynomialKernel <- function(expos, rho, d) {
+PolynomialKernel <- function(expos, rho = 1, d = 2) {
     (rho + tcrossprod(expos))^d
 }
 
-QuadraticKernel <- function(expos, rho) {
+QuadraticKernel <- function(expos, rho = 1) {
     PolynomialKernel(expos, rho, d = 2)
 }
