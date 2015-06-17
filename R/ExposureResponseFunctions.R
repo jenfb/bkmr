@@ -146,4 +146,46 @@ ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset
     df <- dplyr::mutate(df, exposure1 = factor(exposure1, levels = expos.names), exposure2 = factor(exposure2, levels = expos.names))
 }
 
+#' Function to plot the exposure response function of a particular pollutant at different levels (quantiles) of a second pollutant
+#' @export
+#' @param expos.resp.df object obtained from running the function \code{ExposureResponseBivar()}
+#' @param qs vector of quantiles of the second pollutant
+ExposureResponseBivarLevels <- function(expos.resp.df, expos, qs = c(0.1,0.5,0.9)) {
+    pol.pairs <- dplyr::distinct(dplyr::select(expos.resp.df, exposure1, exposure2))
 
+    df <- data.frame()
+    for(i in 1:nrow(pol.pairs)) {
+        exp1 <- as.character(unlist(pol.pairs[i, "exposure1"]))
+        exp2 <- as.character(unlist(pol.pairs[i, "exposure2"]))
+        quants <- quantile(expos[, exp2], qs)
+
+        preds <- subset(expos.resp.df, exposure1 == exp1 & exposure2 == unlist(pol.pairs[i, "exposure2"]))
+        ngrid <- sqrt(nrow(preds))
+
+        preds.plot <- preds$est
+        se.plot <- preds$se
+
+        hgrid <- matrix(preds.plot, ngrid, ngrid)
+        se.grid <- matrix(se.plot, ngrid, ngrid)
+        lb.grid <- hgrid - 2*se.grid
+        ub.grid <- hgrid + 2*se.grid
+        z1 <- preds$z1[1:ngrid]
+        z2 <- preds$z2[seq(1, by = ngrid, length.out = ngrid)]
+
+        ## relation of z1 with outcome at different levels of z2
+        se.grid.sub <- hgrid.sub <- matrix(NA, ngrid, length(qs))
+        for(k in seq_along(quants)) {
+            sub.sel <- which.min(abs(z2 - quants[k]))
+            hgrid.sub[, k] <- hgrid[, sub.sel]
+            se.grid.sub[, k] <- se.grid[, sub.sel]
+        }
+        colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
+        hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, est, convert = TRUE)
+        se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, se)
+
+        df.curr <- data.frame(exposure1 = exp1, exposure2 = exp2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se)
+        df <- rbind(df, df.curr)
+    }
+    df <- dplyr::tbl_df(df)
+    df
+}

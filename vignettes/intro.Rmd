@@ -142,14 +142,24 @@ expos.resp.bivar <- ExposureResponseBivar(fit = fitbkmr, y = y, expos = expos, c
                                           min.plot.dist = 1)
 ```
 
+Sometimes the image plots are hard to visualize:
 ```{r plot expos-resp2, fig.height=5, fig.width=6.5}
-## this plot could be improved upon
 expos.resp.bivar %>% ggplot(aes(z1, z2)) + 
     geom_raster(aes(fill = est)) + 
     facet_grid(exposure1 ~ exposure2)
 ```
 
+Another option for investigating bivariate exposure-response relations is to plot the exposure-response function of a single pollutant for the second pollutant fixed at various quantiles.
+```{r expos-resp2 opt2, message=FALSE}
+expos.resp.bivar.levels <- ExposureResponseBivarLevels(expos.resp.df = expos.resp.bivar, expos = expos, qs = c(0.25, 0.5, 0.75))
+```
 
+```{r plot expos-resp2 opt2, fig.height=5, fig.width=6.5, warning=FALSE}
+expos.resp.bivar.levels %>% ggplot(aes(z1, est)) + 
+    geom_smooth(aes(col = quantile), stat = "identity") + 
+    facet_grid(exposure1 ~ exposure2) +
+    ggtitle("f(z1 | quantiles of z2)")
+```
 
 
 

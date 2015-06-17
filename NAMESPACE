@@ -3,6 +3,7 @@
 export("%>%")
 export(ComputePostmeanHnew)
 export(ExposureResponseBivar)
+export(ExposureResponseBivarLevels)
 export(ExposureResponseBivarPair)
 export(ExposureResponseUnivar)
 export(ExposureResponseUnivarPol)
