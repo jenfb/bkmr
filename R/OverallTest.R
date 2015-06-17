@@ -24,7 +24,7 @@ OverallTest <- function(y, expos, covar = NULL, kernel = "gaussian", rho = 1, d 
         } else if (kernel == "linear") {
             K <- LinearKernel(expos = Z)
         } else if (kernel == "quadratic") {
-            K <- LinearKernel(expos = Z)
+            K <- QuadraticKernel(expos = Z)
         } else if (kernel == "polynomal") {
             K <- PolynomialKernel(expos = Z, rho = rho, d = d)
         }
