@@ -61,7 +61,7 @@ InvestigatePrior <- function(y, expos, covar, ngrid = 50, q.seq = c(2, 1, 1/2, 1
     res <- list(q.seq = q.seq, r.seq = r.seq, Drange = Drange, Znew = Znew.mat, resids = resids, preds = preds, h.hat = h.hat.ests)
 }
 
-PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = NULL, plot.resid = TRUE) {
+PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = NULL, plot.resid = TRUE, ylim = NULL, ...) {
     q.seq <- fits$q.seq
     r.seq <- fits$r.seq
     Znew <- fits$Znew
@@ -79,7 +79,7 @@ PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = N
     if (plot.resid) {
         lm0 <- lm(y ~ covar)
         res <- resid(lm0) + coef(lm0)["(Intercept)"]
-        lim <- range(res)
+        if (is.null(ylim)) ylim <- range(res)
     }
 
     opar <- par(mfrow=c(1 + length(which.expos), length(which.q)), mar=c(4.1, 4.1, 1.6, 1.1))
@@ -90,9 +90,11 @@ PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = N
     }
     for(i in 1:ncol(expos)) {
         for(j in seq_along(r.seq)) {
-            plot(0, type = "n", ylim = lim, ylab = expression(hat(h)), xlab = colnames(expos)[i], cex.lab = 1.5, xlim = range(Znew))
+            est <- preds[[i]][, j]
+            if (is.null(ylim)) ylim <- range(est, na.rm = TRUE)
+            plot(0, type = "n", ylim = ylim, ylab = expression(hat(h)), xlab = colnames(expos)[i], cex.lab = 1.5, xlim = range(Znew), ...)
             if (plot.resid) points(expos[, i], res, col="red", pch=19, cex=0.5)
-            lines(Znew[, i], preds[[i]][, j])
+            lines(Znew[, i], est)
         }
     }
 }
