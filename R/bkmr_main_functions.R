@@ -50,8 +50,8 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 }
 
 #' @export
-#' @param equalr Set to \code{TRUE} if you want to allow each exposure variable to have a separate smoothing parameter
-kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest, equalr = FALSE) {
+#' @param rmethod For those exposure variables not being selected, the method for sampling the \code{r_m} values. Takes the value of 'varying' to allow separate \code{r_m} for each pollutant; 'equal' to force the same \code{r_m} for each pollutant; or 'fixed' to fix the \code{r_m} to their starting values
+kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest, rmethod = "varying") {
 
     X <- covar
     Z <- expos
@@ -199,15 +199,15 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 		## r
         rSim <- chain$r[s-1,]
         comp <- which(!1:ncol(Z) %in% ztest)
-		if(length(comp) != 0) {
-            if(equalr) { ## common r for those variables not being selected
+		if (length(comp) != 0) {
+            if (rmethod == "equal") { ## common r for those variables not being selected
                 varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params)
                 rSim <- varcomps$r
                 if(varcomps$acc) {
                     Vcomps <- varcomps$Vcomps
                     chain$acc.r[s, comp] <- varcomps$acc
                 }
-            } else { ## allow a different r_m
+            } else if (rmethod == "varying") { ## allow a different r_m
                 for(whichr in comp) {
                     varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params)
                     rSim <- varcomps$r
@@ -219,7 +219,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
             }
 		}
 		## for those variables being selected: joint posterior of (r,delta)
-		if(modsel) {
+		if (modsel) {
 			varcomps <- rdelta.update(r = rSim, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params)
 			chain$delta[s,] <- varcomps$delta
 			rSim <- varcomps$r
@@ -251,7 +251,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 		###################################################
 		## print details of the model fit so far
 		if(s%%(nsamp/10)==0 & !quiet) {
-			print(s)
+			message("iter: ", s)
 			cat(round(colMeans(chain$acc.lambda[1:s, ,drop=FALSE]),4), "   lam accept rate\n")
 			cat(round(colMeans(chain$acc.r[2:s, ]),4), "   r nosel accept rate\n")
 			if(modsel) {

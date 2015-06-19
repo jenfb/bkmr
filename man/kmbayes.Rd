@@ -5,9 +5,9 @@
 \usage{
 kmbayes(y, expos, covar, iter = 1000, id, quiet = TRUE, Znew,
   starting.values = list(), control.params = list(), modsel = FALSE,
-  groups, knots, ztest, equalr = FALSE)
+  groups, knots, ztest, rmethod = "varying")
 }
 \arguments{
-\item{equalr}{Set to \code{TRUE} if you want to allow each exposure variable to have a separate smoothing parameter}
+\item{rmethod}{For those exposure variables not being selected, the method for sampling the \code{r_m} values. Takes the value of 'varying' to allow separate \code{r_m} for each pollutant; 'equal' to force the same \code{r_m} for each pollutant; or 'fixed' to fix the \code{r_m} to their starting values}
 }
 
