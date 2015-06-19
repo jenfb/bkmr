@@ -150,42 +150,57 @@ ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset
 #' @export
 #' @param expos.resp.df object obtained from running the function \code{ExposureResponseBivar()}
 #' @param qs vector of quantiles of the second pollutant
-ExposureResponseBivarLevels <- function(expos.resp.df, expos, qs = c(0.1,0.5,0.9)) {
+ExposureResponseBivarLevels <- function(expos.resp.df, expos, qs = c(0.25, 0.5, 0.75)) {
     pol.pairs <- dplyr::distinct(dplyr::select(expos.resp.df, exposure1, exposure2))
 
     df <- data.frame()
-    for(i in 1:nrow(pol.pairs)) {
+    for (i in 1:nrow(pol.pairs)) {
         exp1 <- as.character(unlist(pol.pairs[i, "exposure1"]))
         exp2 <- as.character(unlist(pol.pairs[i, "exposure2"]))
-        quants <- quantile(expos[, exp2], qs)
+        preds <- subset(expos.resp.df, exposure1 == exp1 & exposure2 == exp2)
 
-        preds <- subset(expos.resp.df, exposure1 == exp1 & exposure2 == unlist(pol.pairs[i, "exposure2"]))
         ngrid <- sqrt(nrow(preds))
-
         preds.plot <- preds$est
         se.plot <- preds$se
 
         hgrid <- matrix(preds.plot, ngrid, ngrid)
         se.grid <- matrix(se.plot, ngrid, ngrid)
-        lb.grid <- hgrid - 2*se.grid
-        ub.grid <- hgrid + 2*se.grid
         z1 <- preds$z1[1:ngrid]
         z2 <- preds$z2[seq(1, by = ngrid, length.out = ngrid)]
 
-        ## relation of z1 with outcome at different levels of z2
-        se.grid.sub <- hgrid.sub <- matrix(NA, ngrid, length(qs))
-        for(k in seq_along(quants)) {
-            sub.sel <- which.min(abs(z2 - quants[k]))
-            hgrid.sub[, k] <- hgrid[, sub.sel]
-            se.grid.sub[, k] <- se.grid[, sub.sel]
-        }
-        colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
-        hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, est, convert = TRUE)
-        se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, se)
+        for (j in 1:2) {
+            if (j == 1) {
+                quants <- quantile(expos[, exp2], qs)
+            } else if (j == 2) { ## switch the roles of z1, z2
+                exp1new <- exp2
+                exp2 <- exp1
+                exp1 <- exp1new
 
-        df.curr <- data.frame(exposure1 = exp1, exposure2 = exp2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se)
-        df <- rbind(df, df.curr)
+                z1new <- z2
+                z2 <- z1
+                z1 <- z1new
+
+                quants <- quantile(expos[, exp1], qs)
+                hgrid <- t(hgrid)
+                se.grid <- t(se.grid)
+            }
+
+            ## relation of z1 with outcome at different levels of z2
+            se.grid.sub <- hgrid.sub <- matrix(NA, ngrid, length(qs))
+            for (k in seq_along(quants)) {
+                sub.sel <- which.min(abs(z2 - quants[k]))
+                hgrid.sub[, k] <- hgrid[, sub.sel]
+                se.grid.sub[, k] <- se.grid[, sub.sel]
+            }
+            colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
+            hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, est, convert = TRUE)
+            se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, se)
+
+            df.curr <- data.frame(exposure1 = exp1, exposure2 = exp2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se, stringsAsFactors = FALSE)
+            df <- rbind(df, df.curr)
+        }
     }
-    df <- dplyr::tbl_df(df)
+    df <- dplyr::tbl_df(df) %>%
+        dplyr::arrange(exposure1, exposure2)
     df
 }
