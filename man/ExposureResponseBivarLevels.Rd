@@ -4,7 +4,7 @@
 \alias{ExposureResponseBivarLevels}
 \title{Function to plot the exposure response function of a particular pollutant at different levels (quantiles) of a second pollutant}
 \usage{
-ExposureResponseBivarLevels(expos.resp.df, expos, qs = c(0.1, 0.5, 0.9))
+ExposureResponseBivarLevels(expos.resp.df, expos, qs = c(0.25, 0.5, 0.75))
 }
 \arguments{
 \item{expos.resp.df}{object obtained from running the function \code{ExposureResponseBivar()}}
