@@ -5,7 +5,7 @@
 \title{Compare estimated exposure-response function when all exposures are at a particular percentile to when all are at the 50th percentile}
 \usage{
 OverallRiskSummaries(fit, y, expos, covar, qs = seq(0.25, 0.75, by = 0.05),
-  q.fixed = 0.5, preds.method = "approx")
+  q.fixed = 0.5, preds.method = "approx", sel = NULL)
 }
 \description{
 Compare estimated exposure-response function when all exposures are at a particular percentile to when all are at the 50th percentile

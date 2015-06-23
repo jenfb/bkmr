@@ -5,7 +5,8 @@
 \title{Compare the single-pollutant health risks when all of the other pollutants are fixed to their 75th percentile to when all of the other pollutants are fixed to their 25th percentile.}
 \usage{
 SingPolIntSummary(whichpol = 1, fit, y, expos, covar, qs.diff = c(0.25,
-  0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", ...)
+  0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL,
+  ...)
 }
 \description{
 Compare the single-pollutant health risks when all of the other pollutants are fixed to their 75th percentile to when all of the other pollutants are fixed to their 25th percentile.

@@ -1,9 +1,9 @@
 #' @export
-ExposureResponseUnivarPol <- function(whichpol = 1, fit, y, expos, covar, preds.method = "approx", ngrid = 50, q.fixed = 0.5, min.plot.dist = Inf, center = TRUE, expos.names = colnames(expos), ...) {
+ExposureResponseUnivarPol <- function(whichpol = 1, fit, y, expos, covar, preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, expos.names = colnames(expos), ...) {
 
-    if(ncol(expos) < 2) stop("requires there to be at least 2 exposure variables")
+    if (ncol(expos) < 2) stop("requires there to be at least 2 exposure variables")
 
-    if(is.null(expos.names)) {
+    if (is.null(expos.names)) {
         colnames(expos) <- paste0("espos", 1:ncol(expos))
     } else {
         colnames(expos) <- expos.names
@@ -17,9 +17,9 @@ ExposureResponseUnivarPol <- function(whichpol = 1, fit, y, expos, covar, preds.
     colnames(newz.grid) <- colnames(expos)[ord]
     newz.grid <- newz.grid[,colnames(expos)]
 
-    if(!is.null(min.plot.dist)) {
+    if (!is.null(min.plot.dist)) {
         mindists <- rep(NA,nrow(newz.grid))
-        for(i in seq_along(mindists)) {
+        for (i in seq_along(mindists)) {
             pt <- as.numeric(newz.grid[i, colnames(expos)[ord[1]]])
             dists <- fields::rdist(matrix(pt, nrow = 1), expos[, colnames(expos)[ord[1]]])
             mindists[i] <- min(dists)
@@ -27,7 +27,7 @@ ExposureResponseUnivarPol <- function(whichpol = 1, fit, y, expos, covar, preds.
     }
 
     if(preds.method == "approx") {
-        preds <- ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = newz.grid)
+        preds <- ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = newz.grid, sel = sel)
         preds.plot <- preds$postmean
         se.plot <- sqrt(diag(preds$postvar))
     } else if(preds.method == "samp") {
@@ -46,10 +46,10 @@ ExposureResponseUnivarPol <- function(whichpol = 1, fit, y, expos, covar, preds.
 }
 
 #' @export
-ExposureResponseUnivar <- function(fit, y, expos, covar, pollutants = 1:ncol(expos), preds.method = "approx", ngrid = 50, q.fixed = 0.5, min.plot.dist = Inf, center = TRUE, expos.names = colnames(expos), ...) {
+ExposureResponseUnivar <- function(fit, y, expos, covar, pollutants = 1:ncol(expos), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, expos.names = colnames(expos), ...) {
     df <- dplyr::data_frame()
     for(i in pollutants) {
-        res <- ExposureResponseUnivarPol(whichpol = i, fit = fit, y = y, expos = expos, covar = covar, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, min.plot.dist = min.plot.dist, center = center, expos.names = expos.names, ...)
+        res <- ExposureResponseUnivarPol(whichpol = i, fit = fit, y = y, expos = expos, covar = covar, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, expos.names = expos.names, ...)
         df0 <- dplyr::mutate(res, exposure = expos.names[i]) %>%
             dplyr::select(exposure, z, est, se)
         df <- dplyr::bind_rows(df, df0)
@@ -61,7 +61,7 @@ ExposureResponseUnivar <- function(fit, y, expos, covar, pollutants = 1:ncol(exp
 
 
 #' @export
-ExposureResponseBivarPair <- function(fit, y, expos, covar, whichpol1 = 1, whichpol2 = 2, whichpol3, preds.method = "approx", prob = 0.5, q.fixed = 0.5, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
+ExposureResponseBivarPair <- function(fit, y, expos, covar, whichpol1 = 1, whichpol2 = 2, whichpol3, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
     if(ncol(expos) < 3) stop("requires there to be at least 3 exposure variables")
 
     if(is.null(colnames(expos))) colnames(expos) <- paste0("espos", 1:ncol(expos))
@@ -95,7 +95,7 @@ ExposureResponseBivarPair <- function(fit, y, expos, covar, whichpol1 = 1, which
     }
 
     if(preds.method == "approx") {
-        preds <- ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = newz.grid)
+        preds <- ComputePostmeanHnew(fit = fit, y = y, expos = expos, covar = covar, exposNew = newz.grid, sel = sel)
         preds.plot <- preds$postmean
         se.plot <- sqrt(diag(preds$postvar))
     } else if(preds.method == "samp") {
@@ -116,7 +116,7 @@ ExposureResponseBivarPair <- function(fit, y, expos, covar, whichpol1 = 1, which
 }
 
 #' @export
-ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset(expand.grid(x = 1:ncol(expos), y = 1:ncol(expos)), x < y), preds.method = "approx", ngrid = 50, q.fixed = 0.5, min.plot.dist = 0.5, center = TRUE, expos.names = colnames(expos), quiet = FALSE, ...) {
+ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset(expand.grid(x = 1:ncol(expos), y = 1:ncol(expos)), x < y), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, expos.names = colnames(expos), quiet = FALSE, ...) {
 
     df <- dplyr::data_frame()
     for(i in 1:nrow(pollutant.pairs)) {
@@ -137,7 +137,7 @@ ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset
         }
         if(compute) {
             if(!quiet) message("Pair ", i, " out of ", nrow(pollutant.pairs))
-            res <- ExposureResponseBivarPair(fit = fit, y = y, expos = expos, covar = covar, whichpol1 = whichpol1, whichpol2 = whichpol2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, min.plot.dist = min.plot.dist, center = center, expos.names = expos.names, ...)
+            res <- ExposureResponseBivarPair(fit = fit, y = y, expos = expos, covar = covar, whichpol1 = whichpol1, whichpol2 = whichpol2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, expos.names = expos.names, ...)
             df0 <- dplyr::mutate(res, exposure1 = expos.name1, exposure2 = expos.name2) %>%
                 dplyr::select(exposure1, exposure2, z1, z2, est, se)
             df <- dplyr::bind_rows(df, df0)

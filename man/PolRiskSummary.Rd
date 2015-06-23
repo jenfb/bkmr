@@ -5,7 +5,7 @@
 \title{Compare estimated exposure-response function when a single pollutant (or a set of pollutants) is at the 75th versus 25th percentile, when all of the other exposures are fixed at a particular percentile}
 \usage{
 PolRiskSummary(whichpol = 1, fit, y, expos, covar, qs.diff = c(0.25, 0.75),
-  q.fixed = 0.5, preds.method = "approx", ...)
+  q.fixed = 0.5, preds.method = "approx", sel = NULL, ...)
 }
 \arguments{
 \item{whichpol}{a scalar or vector selecting which pollutants to compute the summary for (the other pollutants will be fixed at the value \code{q.fixed})}

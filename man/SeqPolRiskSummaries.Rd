@@ -6,7 +6,7 @@
 \usage{
 SeqPolRiskSummaries(fit, y, expos, covar, pollutants = 1:ncol(expos),
   qs.diff = c(0.25, 0.75), q.fixed = 0.5, preds.method = "approx",
-  expos.names = colnames(expos), ...)
+  sel = NULL, expos.names = colnames(expos), ...)
 }
 \description{
 Sequentially add pollutants to compute the overall risk, when the set of polutants are all at their 75th vs. 25th percentile, for all of the other pollutants fixed at a particular percentile
