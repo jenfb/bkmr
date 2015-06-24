@@ -2,10 +2,16 @@
 % Please edit documentation in R/ExtractEsts.R
 \name{SummarySamps}
 \alias{SummarySamps}
+\title{Compute summary statistics}
 \usage{
 SummarySamps(s, q = c(0.025, 0.25, 0.5, 0.75, 0.975))
 }
 \arguments{
 \item{s}{vector of posterior samples}
+
+\item{q}{}
+}
+\description{
+Compute summary statistics
 }
 

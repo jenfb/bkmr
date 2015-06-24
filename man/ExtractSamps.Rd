@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExtractEsts.R
 \name{ExtractSamps}
 \alias{ExtractSamps}
-\title{Extract samples of each parameter from the BKMR fit}
+\title{Extract samples}
 \usage{
 ExtractSamps(fit, sel = NULL)
 }

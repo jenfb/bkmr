@@ -1,6 +1,14 @@
-## function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
+#' Compute the posterior mean and variance of \code{h} at a new exposure profile
+#'
+#' Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
+#'
 #' @export
-#' @param method The method used to fit the object \code{fit}
+#'
+#' @param fit
+#' @param y
+#' @param expos
+#' @param covar
+#' @param exposNew
 #' @param sel A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.
 ComputePostmeanHnew <- function(fit, y, expos, covar, exposNew, sel = NULL) {
 

@@ -2,12 +2,24 @@
 % Please edit documentation in R/ComputePostmeanHnew.R
 \name{ComputePostmeanHnew}
 \alias{ComputePostmeanHnew}
+\title{Compute the posterior mean and variance of \code{h} at a new exposure profile}
 \usage{
 ComputePostmeanHnew(fit, y, expos, covar, exposNew, sel = NULL)
 }
 \arguments{
-\item{sel}{A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.}
+\item{fit}{}
 
-\item{method}{The method used to fit the object \code{fit}}
+\item{y}{}
+
+\item{expos}{}
+
+\item{covar}{}
+
+\item{exposNew}{}
+
+\item{sel}{A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.}
+}
+\description{
+Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
 }
 

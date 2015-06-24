@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExtractEsts.R
 \name{ExtractEsts}
 \alias{ExtractEsts}
-\title{Obtain summary statistics of each parameter from the BKMR fit}
+\title{Extract summary statistics}
 \usage{
 ExtractEsts(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL)
 }

@@ -2,12 +2,42 @@
 % Please edit documentation in R/bkmr_main_functions.R
 \name{kmbayes}
 \alias{kmbayes}
+\title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, expos, covar, iter = 1000, id, quiet = TRUE, Znew,
+kmbayes(y, expos, covar, iter = 1000, id, quiet = TRUE, exposNew,
   starting.values = list(), control.params = list(), modsel = FALSE,
   groups, knots, ztest, rmethod = "varying")
 }
 \arguments{
-\item{rmethod}{For those exposure variables not being selected, the method for sampling the \code{r_m} values. Takes the value of 'varying' to allow separate \code{r_m} for each pollutant; 'equal' to force the same \code{r_m} for each pollutant; or 'fixed' to fix the \code{r_m} to their starting values}
+\item{y}{A vector of outcome data.}
+
+\item{expos}{A matrix of exposure data where each row represents an observation and each column represents an exposure variable.}
+
+\item{covar}{A matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+
+\item{iter}{Number of iterations to run the sampler}
+
+\item{id}{Optional numeric vector of group IDs. If \code{id} is provided a random intercept will be included in the model.}
+
+\item{quiet}{If \code{quiet == FALSE} prints out diagnostic information during the model fitting}
+
+\item{exposNew}{Optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
+
+\item{starting.values}{List of starting values for each parameter. If not specified default values will be chosen.}
+
+\item{control.params}{List of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
+
+\item{modsel}{}
+
+\item{groups}{}
+
+\item{knots}{}
+
+\item{ztest}{}
+
+\item{rmethod}{For those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values}
+}
+\description{
+Fits the Bayesian kernel machine regression (BKMR) model using Markov chain Monte Carlo (MCMC) methods.
 }
 

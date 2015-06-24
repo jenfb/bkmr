@@ -1,3 +1,6 @@
+#' Compute summary statistics
+#'
+#' @param q
 #' @param s vector of posterior samples
 SummarySamps <- function(s, q = c(0.025, 0.25, 0.5, 0.75, 0.975)) {
     qs <- quantile(s, q)
@@ -6,11 +9,13 @@ SummarySamps <- function(s, q = c(0.025, 0.25, 0.5, 0.75, 0.975)) {
     summ <- matrix(summ, nrow = 1, dimnames = list(NULL, names(summ)))
 }
 
+#' Extract summary statistics
+#'
 #' Obtain summary statistics of each parameter from the BKMR fit
 #'
 #' @export
 ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
-    if(inherits(fit, "stanfit")) {
+    if (inherits(fit, "stanfit")) {
         samps <- rstan::extract(fit)
 
         sigsq.eps <- SummarySamps(samps$sigma_sq, q = q)
@@ -37,7 +42,7 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
         r <- t(apply(fit$r[sel, ], 2, SummarySamps, q = q))
         rownames(r) <- paste0("r", 1:nrow(r))
 
-        beta <- t(apply(fit$beta[sel, , drop=FALSE], 2, SummarySamps, q = q))
+        beta <- t(apply(fit$beta[sel, , drop = FALSE], 2, SummarySamps, q = q))
 
         lambda <- t(apply(fit$lambda[sel, ,drop = FALSE], 2, SummarySamps, q = q))
         if (nrow(lambda) > 1) {
@@ -64,11 +69,13 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
     list(sigsq.eps = data.frame(sigsq.eps), beta = beta, lambda = lambda, h = h, r = r)
 }
 
+#' Extract samples
+#'
 #' Extract samples of each parameter from the BKMR fit
 #'
 #' @export
 ExtractSamps <- function(fit, sel = NULL) {
-    if(inherits(fit, "stanfit")) {
+    if (inherits(fit, "stanfit")) {
         samps <- rstan::extract(fit)
 
         sig.eps <- samps$sigma
@@ -93,7 +100,7 @@ ExtractSamps <- function(fit, sel = NULL) {
         h <- fit$h[sel, ]
     }
 
-    if(!is.null(ncol(beta))) colnames(beta) <- paste0("beta", 1:ncol(beta))
+    if (!is.null(ncol(beta))) colnames(beta) <- paste0("beta", 1:ncol(beta))
     colnames(r) <- paste0("r", 1:ncol(r))
     colnames(h) <- paste0("h", 1:ncol(h))
 

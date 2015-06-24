@@ -2,6 +2,7 @@
 % Please edit documentation in R/SimData.R
 \name{SimData1}
 \alias{SimData1}
+\title{Simulate dataset}
 \usage{
 SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2,
   GenCovar = NULL, GenExpos = NULL, HFun = NULL)
@@ -12,5 +13,8 @@ SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2,
 \item{GenExpos}{A function that takes as input a vector of length \code{M}}
 
 \item{HFun}{A function that takes as input a vector of length \code{M} and outputs a scalar}
+}
+\description{
+Simulate dataset
 }
 

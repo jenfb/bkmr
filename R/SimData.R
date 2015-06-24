@@ -9,7 +9,12 @@ GenExposDefault <- function(n, M) {
 
 HFun1 <- function(z, ind = 1) 4*plogis(z[ind], 0, 0.3)
 
+#' Simulate dataset
+#'
+#' Simulate dataset
+#'
 #' @export
+#'
 #' @param GenExpos A function that takes as input a vector of length \code{M}
 #' @param GenCovar A function that takes as input a vector of length \code{M}
 #' @param HFun A function that takes as input a vector of length \code{M} and outputs a scalar
