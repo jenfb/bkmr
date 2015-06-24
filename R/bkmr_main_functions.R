@@ -13,7 +13,7 @@ makeKpart <- function(r, Z1, Z2) {
 	Kpart
 }
 makeVcomps <- function(r, lambda, Z, data.comps) {
-	if(is.null(data.comps$knots)) {
+	if (is.null(data.comps$knots)) {
 		Kpart <- makeKpart(r, Z)
 		V <- diag(1, nrow(Z), nrow(Z)) + lambda[1]*exp(-Kpart)
 		if(data.comps$nlambda == 2) {
@@ -49,15 +49,33 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 	Vcomps
 }
 
+#' Fit Bayesian kernel machine regression
+#'
+#' Fits the Bayesian kernel machine regression (BKMR) model using Markov chain Monte Carlo (MCMC) methods.
+#'
 #' @export
-#' @param rmethod For those exposure variables not being selected, the method for sampling the \code{r_m} values. Takes the value of 'varying' to allow separate \code{r_m} for each pollutant; 'equal' to force the same \code{r_m} for each pollutant; or 'fixed' to fix the \code{r_m} to their starting values
-kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest, rmethod = "varying") {
+#'
+#' @param y A vector of outcome data of length \code{n}.
+#' @param expos An \code{n}-by-\code{M} matrix of exposure data where each row represents an observation and each column represents an exposure variable.
+#' @param covar An \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
+#' @param iter Number of iterations to run the sampler
+#' @param id Optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.
+#' @param quiet If \code{quiet == FALSE} prints out diagnostic information during the model fitting
+#' @param exposNew Optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
+#' @param starting.values List of starting values for each parameter. If not specified default values will be chosen.
+#' @param control.params List of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
+#' @param modsel Indicator for whether to conduct variable selection on the exposure variables
+#' @param groups Optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.
+#' @param knots Optional
+#' @param ztest
+#' @param rmethod For those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values
+kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, exposNew, starting.values=list(), control.params=list(), modsel=FALSE, groups, knots, ztest, rmethod = "varying") {
 
     X <- covar
     Z <- expos
     nsamp <- iter
 
-	if(!missing(id)) { ## for random intercept model
+	if (!missing(id)) { ## for random intercept model
 		randint <- TRUE
 		id <- as.numeric(as.factor(id))
 		nid <- length(unique(id))
@@ -95,7 +113,8 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 	}
 
 	## components to predict h(Znew)
-	if(!missing(Znew)) {
+	if (!missing(exposNew)) {
+	    Znew <- exposNew
 		if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
 		if(class(Znew) == "data.frame") Znew <- data.matrix(Znew)
 		if(ncol(Z) != ncol(Znew)) {
@@ -117,7 +136,8 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 	}
 
 	## control parameters
-	control.params <- modifyList(list(lambda.jump=10, mu.lambda=10, sigma.lambda=10, a.p0=1, b.p0=1, r.prior="gamma", a.sigsq=1e-3, b.sigsq=1e-3, r.params=list(mu.r=5, sigma.r=5, r.muprop=1, r.jump=0.2, r.jump1 = 2, r.jump2 = 0.2)), control.params)
+	control.params <- modifyList(list(lambda.jump = 10, mu.lambda = 10, sigma.lambda = 10, a.p0 = 1, b.p0 = 1, r.prior = "gamma", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.2, r.jump1 = 2, r.jump2 = 0.2), control.params)
+	control.params$r.params <- with(control.params, list(mu.r = mu.r, sigma.r = sigma.r, r.muprop = r.muprop, r.jump = r.jump, r.jump1 = r.jump1, r.jump2 = r.jump2))
 
 	## components if grouped model selection is being done
 	if(!missing(groups)) {
@@ -131,14 +151,21 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 	## specify functions for doing the Metropolis-Hastings steps to update r
     e <- environment()
     rfn <- set.r.MH.functions(r.prior = control.params$r.prior)
-	assign("rprior.logdens", rfn$rprior.logdens, envir = parent.env(e))
-	assign("rprop.gen1", rfn$rprop.gen1, envir = parent.env(e))
-	assign("rprop.logdens1", rfn$rprop.logdens1, envir = parent.env(e))
-	assign("rprop.gen2", rfn$rprop.gen2, envir = parent.env(e))
-	assign("rprop.logdens2", rfn$rprop.logdens2, envir = parent.env(e))
-	assign("rprop.gen", rfn$rprop.gen, envir = parent.env(e))
-	assign("rprop.logdens", rfn$rprop.logdens, envir = parent.env(e))
-    rm(e, rfn)
+    rprior.logdens <- rfn$rprior.logdens
+    environment(rprior.logdens) <- e
+	rprop.gen1 <- rfn$rprop.gen1
+	environment(rprop.gen1) <- e
+	rprop.logdens1 <- rfn$rprop.logdens1
+	environment(rprop.logdens1) <- e
+	rprop.gen2 <- rfn$rprop.gen2
+	environment(rprop.gen2) <- e
+	rprop.logdens2 <- rfn$rprop.logdens2
+	environment(rprop.logdens2) <- e
+	rprop.gen <- rfn$rprop.gen
+	environment(rprop.gen) <- e
+	rprop.logdens <- rfn$rprop.logdens
+	environment(rprop.logdens) <- e
+	rm(e, rfn)
 
 	## initial values
     if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
@@ -201,7 +228,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
         comp <- which(!1:ncol(Z) %in% ztest)
 		if (length(comp) != 0) {
             if (rmethod == "equal") { ## common r for those variables not being selected
-                varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params)
+                varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
                 rSim <- varcomps$r
                 if(varcomps$acc) {
                     Vcomps <- varcomps$Vcomps
@@ -209,7 +236,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
                 }
             } else if (rmethod == "varying") { ## allow a different r_m
                 for(whichr in comp) {
-                    varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params)
+                    varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
                     rSim <- varcomps$r
                     if(varcomps$acc) {
                         Vcomps <- varcomps$Vcomps
@@ -220,7 +247,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 		}
 		## for those variables being selected: joint posterior of (r,delta)
 		if (modsel) {
-			varcomps <- rdelta.update(r = rSim, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params)
+			varcomps <- rdelta.update(r = rSim, delta = chain$delta[s-1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
 			chain$delta[s,] <- varcomps$delta
 			rSim <- varcomps$r
 			chain$move.type[s] <- varcomps$move.type
@@ -236,7 +263,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 
 		hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = y, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z)
 		chain$h.hat[s,] <- hcomps$hsamp
-		if(!is.null(hcomps$hsamp.star)) { ## GPP
+		if (!is.null(hcomps$hsamp.star)) { ## GPP
 			Vcomps$hsamp.star <- hcomps$hsamp.star
 		}
 		rm(hcomps)
@@ -244,15 +271,15 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 		###################################################
 		## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
 
-		if(!missing(Znew)) {
+		if (!missing(exposNew)) {
 			chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = y, X = X, beta = chain$beta[s,], data.comps = data.comps)
 		}
 
 		###################################################
 		## print details of the model fit so far
-		if(s%%(nsamp/10)==0 & !quiet) {
+		if (s %% (nsamp/10) == 0 & !quiet) {
 			message("iter: ", s)
-			cat(round(colMeans(chain$acc.lambda[1:s, ,drop=FALSE]),4), "   lam accept rate\n")
+			cat(round(colMeans(chain$acc.lambda[1:s, ,drop=FALSE]), 4), "   lam accept rate\n")
 			cat(round(colMeans(chain$acc.r[2:s, ]),4), "   r nosel accept rate\n")
 			if(modsel) {
 				cat(round(mean(chain$acc.rdelta[2:s]),4), "   rdelt accept rate\n")
@@ -265,6 +292,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 			print(difftime(Sys.time(), chain$time1))
 		}
 	}
+	control.params$r.params <- NULL
 	chain$time2 <- Sys.time()
 	chain$iter <- nsamp
 	chain$starting.values <- starting.values
@@ -274,7 +302,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, id, quiet=TRUE, Znew, starting
 	chain$y <- y
 	chain$ztest <- ztest
 	chain$data.comps <- data.comps
-	if(!missing(Znew)) chain$Znew <- Znew
+	if (!missing(exposNew)) chain$exposNew <- Znew
     class(chain) <- c("bkmrfit", class(chain))
 	chain
 }
