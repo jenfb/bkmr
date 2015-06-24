@@ -8,7 +8,15 @@ SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2,
   GenCovar = NULL, GenExpos = NULL, HFun = NULL)
 }
 \arguments{
-\item{GenCovar}{A function that takes as input a vector of length \code{M}}
+\item{n}{}
+
+\item{M}{Number of exposure variables to generate}
+
+\item{sigsq.true}{Variance of normally distributed residual error}
+
+\item{beta.true}{Coefficient on the covariate}
+
+\item{GenCovar}{A function that takes as input a vector of length \code{M}. Defaults to \code\link{GenCovarDefault}.}
 
 \item{GenExpos}{A function that takes as input a vector of length \code{M}}
 
@@ -16,5 +24,9 @@ SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2,
 }
 \description{
 Simulate dataset
+}
+\examples{
+set.seed(5)
+dat <- SimData1()
 }
 

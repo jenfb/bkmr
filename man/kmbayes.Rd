@@ -4,38 +4,40 @@
 \alias{kmbayes}
 \title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, expos, covar, iter = 1000, id, quiet = TRUE, exposNew,
-  starting.values = list(), control.params = list(), modsel = FALSE,
-  groups, knots, ztest, rmethod = "varying")
+kmbayes(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE,
+  exposNew, starting.values = list(), control.params = list(),
+  modsel = FALSE, groups, knots, ztest, rmethod = "varying")
 }
 \arguments{
-\item{y}{A vector of outcome data.}
+\item{y}{a vector of outcome data of length \code{n}.}
 
-\item{expos}{A matrix of exposure data where each row represents an observation and each column represents an exposure variable.}
+\item{expos}{an \code{n}-by-\code{M} matrix of exposure data where each row represents an observation and each column represents an exposure variable.}
 
-\item{covar}{A matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+\item{covar}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
-\item{iter}{Number of iterations to run the sampler}
+\item{iter}{number of iterations to run the sampler}
 
-\item{id}{Optional numeric vector of group IDs. If \code{id} is provided a random intercept will be included in the model.}
+\item{family}{a description of the error distribution and link function to be used in the model. Currently only implemented for \code{family == gaussian}.}
 
-\item{quiet}{If \code{quiet == FALSE} prints out diagnostic information during the model fitting}
+\item{id}{optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.}
 
-\item{exposNew}{Optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
+\item{quiet}{if \code{quiet == FALSE} prints out diagnostic information during the model fitting}
 
-\item{starting.values}{List of starting values for each parameter. If not specified default values will be chosen.}
+\item{exposNew}{optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
 
-\item{control.params}{List of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
+\item{starting.values}{list of starting values for each parameter. If not specified default values will be chosen.}
 
-\item{modsel}{}
+\item{control.params}{list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
 
-\item{groups}{}
+\item{modsel}{indicator for whether to conduct variable selection on the exposure variables}
 
-\item{knots}{}
+\item{groups}{optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.}
 
-\item{ztest}{}
+\item{knots}{optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.}
 
-\item{rmethod}{For those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values}
+\item{ztest}{optional vector indicating on which exposure variables to conduct variable selection (the remaining variables will be forced into the model).}
+
+\item{rmethod}{for those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values}
 }
 \description{
 Fits the Bayesian kernel machine regression (BKMR) model using Markov chain Monte Carlo (MCMC) methods.
