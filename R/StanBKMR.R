@@ -11,18 +11,20 @@
 #'
 #' @examples
 #' \dontrun{
-#' set.seed(5)
-#' dat <- SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2)
+#' set.seed(1)
+#' dat <- SimData1(n = 50, M = 4, sigsq.true = 0.5, beta.true = 2)
 #' y <- dat$y
 #' expos <- dat$expos
 #' covar <- dat$covar
-#' set.seed(123)
+#' set.seed(111)
 #' runtime <- system.time({
-#'     fitstanex1 <- StanBKMR(y = y, expos = expos, covar = covar, iter = 300, chains = 4)
+#'     fitstanex1 <- StanBKMR(y = y, expos = expos, covar = covar, iter = 400, chains = 3)
 #' })
-#' print(fitstanex1, par = c("beta", "sigma", "h[1]", "h[100]", "lp__"))
+#' print(fitstanex1, par = c("beta", "sigma_sq", "h[1]", "h[100]", "lp__"))
 #' }
 StanBKMR <- function(y, expos, covar, file = NULL, ...) {
+    require(rstan)
+
     if (is.null(file)) {
         file <- system.file("stan", "gp-multi-fit.stan", package = "bkmr")
     }
