@@ -59,13 +59,13 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param expos an \code{n}-by-\code{M} matrix of exposure data where each row represents an observation and each column represents an exposure variable.
 #' @param covar an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
 #' @param iter number of iterations to run the sampler
-#' @param family a description of the error distribution and link function to be used in the model. Currently only implemented for \code{family == gaussian}.
+#' @param family a description of the error distribution and link function to be used in the model. Currently only implemented for \code{gaussian} family.
 #' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.
-#' @param quiet if \code{quiet == FALSE} prints out diagnostic information during the model fitting
+#' @param quiet TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting
 #' @param exposNew optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
 #' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
 #' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
-#' @param modsel indicator for whether to conduct variable selection on the exposure variables
+#' @param modsel quiet TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables
 #' @param groups optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which exposure variables to conduct variable selection (the remaining variables will be forced into the model).
@@ -304,6 +304,8 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 	chain$ztest <- ztest
 	chain$data.comps <- data.comps
 	if (!missing(exposNew)) chain$exposNew <- Znew
+	if (!missing(groups)) chain$groups <- groups
+	chain$modsel <- modsel
     class(chain) <- c("bkmrfit", class(chain))
 	chain
 }
