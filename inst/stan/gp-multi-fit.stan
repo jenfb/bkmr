@@ -10,7 +10,7 @@ data {
 }
 transformed data {
   vector[N] zero;
-  for (i in 1:N) 
+  for (i in 1:N)
     zero[i] <- 0;
 }
 parameters {
@@ -27,16 +27,16 @@ transformed parameters {
 model {
   matrix[N,N] Sigma;
   vector[N] theta;
-  vector<lower=0>[D] rsqrt;
+  vector[D] rsqrt;
 
   for(k in 1:D)
     rsqrt[k] <- sqrt(r[k]);
-  
+
   // off-diagonal elements
   for (i in 1:(N-1)) {
     for (j in (i+1):N) {
       Sigma[i,j] <- tau * exp(-dot_self((expos[i] - expos[j]) .* rsqrt));
-      Sigma[j,i] <- Sigma[i,j];	
+      Sigma[j,i] <- Sigma[i,j];
     }
   }
 

@@ -11,8 +11,9 @@
 #'
 #' @examples
 #' \dontrun{
+#' library(rstan)
 #' set.seed(1)
-#' dat <- SimData1(n = 50, M = 4, sigsq.true = 0.5, beta.true = 2)
+#' dat <- SimData(n = 50, M = 4, sigsq.true = 0.5, beta.true = 2)
 #' y <- dat$y
 #' expos <- dat$expos
 #' covar <- dat$covar
