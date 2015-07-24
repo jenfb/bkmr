@@ -13,5 +13,6 @@ Imports: dplyr,
     fields,
     truncnorm,
     ggplot2
-Suggests: knitr
+Suggests: knitr,
+	rstan
 VignetteBuilder: knitr
