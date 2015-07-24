@@ -4,7 +4,8 @@
 \alias{TracePlot}
 \title{Trace plot}
 \usage{
-TracePlot(fit, par, comp = 1, main = "", ...)
+TracePlot(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration",
+  ylab = "parameter value", ...)
 }
 \description{
 Trace plot

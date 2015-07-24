@@ -2,11 +2,19 @@
 % Please edit documentation in R/OverallTest.R
 \name{OverallTest}
 \alias{OverallTest}
-\title{Conduct an overall test of the mixture using the approach of Liu, Lin, and Ghosh (2007) Biometrics.}
+\title{Overall kernel test}
 \usage{
 OverallTest(y, expos, covar = NULL, kernel = "gaussian", rho = 1, d = 2)
 }
 \arguments{
+\item{y}{}
+
+\item{expos}{}
+
+\item{covar}{}
+
+\item{kernel}{}
+
 \item{rho}{tuning parameter for various kernel functions}
 
 \item{d}{tuning parameter for dth polynomial kernel}

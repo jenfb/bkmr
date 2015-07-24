@@ -11,6 +11,7 @@ Imports: dplyr,
     nlme,
     Rcpp,
     fields,
-    truncnorm
+    truncnorm,
+    ggplot2
 Suggests: knitr
 VignetteBuilder: knitr

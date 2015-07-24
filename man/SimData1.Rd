@@ -16,7 +16,7 @@ SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2,
 
 \item{beta.true}{Coefficient on the covariate}
 
-\item{GenCovar}{A function that takes as input a vector of length \code{M}. Defaults to \code\link{GenCovarDefault}.}
+\item{GenCovar}{A function that takes as input a vector of length \code{M}. Defaults to \code{\link{GenCovarDefault}}.}
 
 \item{GenExpos}{A function that takes as input a vector of length \code{M}}
 

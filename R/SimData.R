@@ -9,6 +9,10 @@ GenExposDefault <- function(n, M) {
 
 HFun1 <- function(z, ind = 1) 4*plogis(z[ind], 0, 0.3)
 
+HFun2 <- function(z, ind1 = 1, ind2 = 2) 1/4*(z[ind1] + z[ind2] + 1/2*z[ind1]*z[ind2])
+
+HFun3 <- function(z, ind1 = 1, ind2 = 2) 4*plogis(1/4*(z[ind1] + z[ind2] + 1/2*z[ind1]*z[ind2]), 0, 0.3)
+
 #' Simulate dataset
 #'
 #' Simulate dataset
@@ -16,7 +20,7 @@ HFun1 <- function(z, ind = 1) 4*plogis(z[ind], 0, 0.3)
 #' @export
 #'
 #' @param GenExpos A function that takes as input a vector of length \code{M}
-#' @param GenCovar A function that takes as input a vector of length \code{M}. Defaults to \code\link{GenCovarDefault}.
+#' @param GenCovar A function that takes as input a vector of length \code{M}. Defaults to \code{\link{GenCovarDefault}}.
 #' @param n
 #' @param M Number of exposure variables to generate
 #' @param sigsq.true Variance of normally distributed residual error

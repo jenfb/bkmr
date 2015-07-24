@@ -61,6 +61,21 @@ InvestigatePrior <- function(y, expos, covar, ngrid = 50, q.seq = c(2, 1, 1/2, 1
     res <- list(q.seq = q.seq, r.seq = r.seq, Drange = Drange, Znew = Znew.mat, resids = resids, preds = preds, h.hat = h.hat.ests)
 }
 
+#' PlotPriorFits
+#'
+#' @param y
+#' @param covar
+#' @param expos
+#' @param fits
+#' @param which.expos
+#' @param which.q
+#' @param plot.resid
+#' @param ylim
+#' @param ...
+#'
+#' @return fitted objects
+#' @export
+#'
 PlotPriorFits <- function(y, covar, expos, fits, which.expos = NULL, which.q = NULL, plot.resid = TRUE, ylim = NULL, ...) {
     q.seq <- fits$q.seq
     r.seq <- fits$r.seq

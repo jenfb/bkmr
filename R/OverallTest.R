@@ -1,7 +1,14 @@
+#' Overall kernel test
+#'
 #' Conduct an overall test of the mixture using the approach of Liu, Lin, and Ghosh (2007) Biometrics.
 #'
 #' @param rho tuning parameter for various kernel functions
+#' @param y
+#' @param expos
+#' @param covar
+#' @param kernel
 #' @param d tuning parameter for dth polynomial kernel
+#' @export
 OverallTest <- function(y, expos, covar = NULL, kernel = "gaussian", rho = 1, d = 2) {
     X <- covar
     Z <- expos
