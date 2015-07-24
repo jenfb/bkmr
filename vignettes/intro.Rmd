@@ -9,22 +9,23 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-```{r options, echo=FALSE}
+```{r options, echo=FALSE, message=FALSE}
 ## if the current working directory is the directory where this file is located rather than the project directory, set the working directory to the project directory
 if(grepl("vignettes", getwd())) knitr::opts_knit$set(root.dir = paste(getwd(), "..", sep = "/"))
 knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
 ```
 
 ```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+##library(bkmr)
 devtools::document()
-devtools::load_all()
+##devtools::load_all()
 ```
 
 ## Simulate some data
 
 ```{r simdata}
-set.seed(5)
-dat <- SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2)
+set.seed(111)
+dat <- SimData(n = 50, M = 4, sigsq.true = 0.5, beta.true = 2, HFun = HFun3)
 y <- dat$y
 expos <- dat$expos
 covar <- dat$covar
@@ -39,55 +40,43 @@ PlotCorr(expos, print.vals = TRUE)
 ## Prior distributions for the $r_m$ parameters
 
 ```{r investigate prior}
-fits <- InvestigatePrior(y = y, expos = expos, covar = covar)
+priorfits <- InvestigatePrior(y = y, expos = expos, covar = covar)
 ```
 
 Here we plot the estimated univariate exposure-response relationships for `r_m` fixed to different values.
 ```{r investigate prior 2, fig.height=6, fig.width=6}
-PlotPriorFits(y = y, expos = expos, covar = covar, fits = fits, 
-              which.q = c(1,3,4,6), which.expos = 1:3)
+PlotPriorFits(y = y, expos = expos, covar = covar, 
+              fits = priorfits, which.q = c(1,3,4,6))
 ```
 
 ## Fit BKMR 
 
-### Using Stan software
-
-```{r fit stan, eval=FALSE}
-set.seed(123)
-runtime <- system.time({
-    fitstan <- StanBKMR(y = y, expos = expos, covar = covar, iter = 300, chains = 4)
-})
-```
-
-Because the above code took 51 minutes to run on my computer, I have saved the output as the dataset `fitstan` that is provided with this package. 
-```{r load}
-print(fitstan, par = c("beta", "r", "sigma_sq", "h[1]", "h[2]", "h[100]"))
-```
-
-We see that the estimated $\beta$ and $\sigma^2$ are close to their true values.
-
-### Using R code
-
-```{r fit orig, eval=FALSE}
-set.seed(456)
+```{r fit orig}
+set.seed(111)
 runtime <- system.time(
-    fitbkmr <- kmbayes(y = y, expos = expos, covar = covar, iter = 10000, quiet = FALSE)
+    fitkm <- kmbayes(y = y, expos = expos, covar = covar, iter = 10000, quiet = TRUE, modsel = TRUE)
 )
 ```
 
-This code was much faster, taking about 2 minute to run. However, to make this vigette run faster I have also saved the output from fitting this model as the dataset `fitbkmr` that is provided with this package.
-```{r load orig}
-fitbkmr
+## Investigate model convergence
+
+Let's visually inspect the trace plots, showing how various parameter values change as the sampler runs.
+
+```{r trace plots, fig.height=2.5, fig.width=6}
+TracePlot(fit = fitkm, par = "beta")
+TracePlot(fit = fitkm, par = "sigsq.eps")
+TracePlot(fit = fitkm, par = "r", comp = 1)
+TracePlot(fit = fitkm, par = "h", comp = 20)
 ```
 
-## Summarize BKMR output
+## Summarize output
 
 ### Summary statistics of the exposure-response function
 
 Compute the overall effect of the mixture, by comparing when all exposures are at a particular percentile to when all are at the 50th percentile.
 
 ```{r overall}
-risks.overall.approx <- OverallRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
+risks.overall.approx <- OverallRiskSummaries(fit = fitkm, y = y, expos = expos, covar = covar)
 ```
 
 ```{r plot overall}
@@ -99,7 +88,7 @@ ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est
 Compute summary statistics summarizing the single pollutant health effects; compare risk when a single pollutant is at the 75th versus 25th percentile, when all of the other exposures are fixed at a particular percentile. We refer to this as the single-pollutant health risks.
 
 ```{r single pol}
-risks.singpol <- SingPolRiskSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
+risks.singpol <- SingPolRiskSummaries(fit = fitkm, y = y, expos = expos, covar = covar)
 ```
 
 ```{r plot single pol}
@@ -111,7 +100,7 @@ ggplot(risks.singpol, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96
 Compute summary statistics summarizing interaction; compare the single-pollutant health risks when all of the other pollutants are fixed to their 75th percentile to when all of the other pollutants are fixed to their 25th percentile.
 
 ```{r int}
-risks.int <- SingPolIntSummaries(fit = fitbkmr, y = y, expos = expos, covar = covar)
+risks.int <- SingPolIntSummaries(fit = fitkm, y = y, expos = expos, covar = covar)
 ```
 
 If the 95% credible interval does not cover zero for a particular pollutant, this suggests that that pollutant may interact with one of the other pollutants.
@@ -126,7 +115,7 @@ ggplot(risks.int, aes(exposure, est, ymin = est - 1.96*se, ymax = est + 1.96*se)
 Single-pollutant exposure-response function for other exposures fixed at their 50th percentile.
 
 ```{r expos-resp}
-expos.resp.univar <- ExposureResponseUnivar(fit = fitbkmr, y = y, expos = expos, covar = covar)
+expos.resp.univar <- ExposureResponseUnivar(fit = fitkm, y = y, expos = expos, covar = covar)
 ```
 
 ```{r plot expos-resp, fig.height=4, fig.width=6}
@@ -138,24 +127,25 @@ ggplot(expos.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se
 Two-pollutant exposure-response function for other exposures fixed at their 50th percentile.
 
 ```{r expos-resp2, message=FALSE}
-expos.resp.bivar <- ExposureResponseBivar(fit = fitbkmr, y = y, expos = expos, covar = covar, 
+expos.resp.bivar <- ExposureResponseBivar(fit = fitkm, y = y, expos = expos, covar = covar, 
                                           min.plot.dist = 1)
 ```
 
 Sometimes the image plots are hard to visualize:
 ```{r plot expos-resp2, fig.height=5, fig.width=6.5}
-expos.resp.bivar %>% ggplot(aes(z1, z2)) + 
+ggplot(expos.resp.bivar, aes(z1, z2)) + 
     geom_raster(aes(fill = est)) + 
     facet_grid(exposure1 ~ exposure2)
 ```
 
 Another option for investigating bivariate exposure-response relations is to plot the exposure-response function of a single pollutant for the second pollutant fixed at various quantiles.
 ```{r expos-resp2 opt2, message=FALSE}
-expos.resp.bivar.levels <- ExposureResponseBivarLevels(expos.resp.df = expos.resp.bivar, expos = expos, qs = c(0.25, 0.5, 0.75))
+expos.resp.bivar.levels <- ExposureResponseBivarLevels(expos.resp.df = expos.resp.bivar, 
+                                                       expos = expos, qs = c(0.25, 0.5, 0.75))
 ```
 
 ```{r plot expos-resp2 opt2, fig.height=5, fig.width=6.5, warning=FALSE}
-expos.resp.bivar.levels %>% ggplot(aes(z1, est)) + 
+ggplot(expos.resp.bivar.levels, aes(z1, est)) + 
     geom_smooth(aes(col = quantile), stat = "identity") + 
     facet_grid(exposure1 ~ exposure2) +
     ggtitle("f(z1 | quantiles of z2)")

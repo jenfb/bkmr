@@ -16,7 +16,7 @@ knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
 ```
 
 ```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-devtools::document()
+##library(bkmr)
 devtools::load_all()
 ```
 
@@ -29,7 +29,7 @@ library(dplyr)
 
 ```{r simdata}
 set.seed(5)
-dat <- SimData1(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2)
+dat <- SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, HFun = HFun3)
 y <- dat$y
 expos <- dat$expos
 covar <- dat$covar

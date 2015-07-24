@@ -19,17 +19,17 @@ HFun3 <- function(z, ind1 = 1, ind2 = 2) 4*plogis(1/4*(z[ind1] + z[ind2] + 1/2*z
 #'
 #' @export
 #'
-#' @param GenExpos A function that takes as input a vector of length \code{M}
+#' @param GenExpos A function that takes as input a vector of length \code{M} Defaults to \code{\link{GenExposDefault}}.
 #' @param GenCovar A function that takes as input a vector of length \code{M}. Defaults to \code{\link{GenCovarDefault}}.
-#' @param n
+#' @param n Number of observations
 #' @param M Number of exposure variables to generate
 #' @param sigsq.true Variance of normally distributed residual error
 #' @param beta.true Coefficient on the covariate
 #' @param HFun A function that takes as input a vector of length \code{M} and outputs a scalar
 #' @examples
 #' set.seed(5)
-#' dat <- SimData1()
-SimData1 <- function(n = 100, M = 5, sigsq.true = 0.5,
+#' dat <- SimData()
+SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                      beta.true = 2, GenCovar = NULL,
                      GenExpos = NULL, HFun = NULL) {
     if (is.null(GenCovar)) {
