@@ -76,7 +76,7 @@ ExtractPIPs <- function(fit, sel = NULL, expos.names = NULL) {
     if (inherits(fit, "stanfit")) {
         stop("This model was fit using rstan. Stan does not currently support discrete parameter space. Therefore posterior inclusion probabilities are not directly computed.")
     } else if (inherits(fit, "bkmrfit")) {
-        if (!fit$modsel) {
+        if (!fit$varsel) {
             stop("This model was not fit with variable selection.")
         }
         if (is.null(sel)) {

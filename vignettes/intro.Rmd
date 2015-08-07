@@ -87,7 +87,7 @@ PlotPriorFits(y = y, expos = expos, covar = covar,
 ```{r fit orig}
 set.seed(111)
 runtime <- system.time(
-    fitkm <- kmbayes(y = y, expos = expos, covar = covar, iter = 10000, quiet = TRUE, modsel = TRUE)
+    fitkm <- kmbayes(y = y, expos = expos, covar = covar, iter = 10000, quiet = TRUE, varsel = TRUE)
 )
 ```
 

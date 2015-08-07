@@ -6,7 +6,7 @@
 \usage{
 kmbayes(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE,
   exposNew, starting.values = list(), control.params = list(),
-  modsel = FALSE, groups, knots, ztest, rmethod = "varying")
+  varsel = FALSE, groups, knots, ztest, rmethod = "varying")
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}
@@ -29,7 +29,7 @@ kmbayes(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE,
 
 \item{control.params}{list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
 
-\item{modsel}{quiet TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables}
+\item{varsel}{quiet TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables}
 
 \item{groups}{optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.}
 

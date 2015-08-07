@@ -65,12 +65,12 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param exposNew optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
 #' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
 #' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
-#' @param modsel quiet TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables
+#' @param varsel quiet TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables
 #' @param groups optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which exposure variables to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values
-kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE, exposNew, starting.values = list(), control.params = list(), modsel = FALSE, groups, knots, ztest, rmethod = "varying") {
+kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE, exposNew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
 
     X <- covar
     Z <- expos
@@ -108,7 +108,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 				  acc.lambda = matrix(0, nsamp, data.comps$nlambda),
 				  delta = matrix(1, nsamp, ncol(Z))
 				  )
-	if (modsel) {
+	if (varsel) {
 		chain$acc.rdelta <- rep(0, nsamp)
 		chain$move.type <- rep(0, nsamp)
 	}
@@ -127,7 +127,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 	}
 
 	## components if model selection is being done
-	if (modsel) {
+	if (varsel) {
 		if (missing(ztest)) {
 			ztest <- 1:ncol(Z)
 		}
@@ -142,8 +142,8 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 
 	## components if grouped model selection is being done
 	if (!missing(groups)) {
-		if (!modsel) {
-			stop("if doing grouped variable selection, must set modsel = TRUE")
+		if (!varsel) {
+			stop("if doing grouped variable selection, must set varsel = TRUE")
 		}
 		rdelta.update <- rdelta.group.update
 		control.params$group.params <- list(groups = groups, sel.groups = sapply(unique(groups), function(x) min(seq_along(groups)[groups == x])), neach.group = sapply(unique(groups), function(x) sum(groups %in% x)))
@@ -184,7 +184,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 	chain$lambda[1, ] <- starting.values$lambda
 	chain$sigsq.eps[1] <- starting.values$sigsq.eps
 	chain$r[1, ] <- starting.values$r
-	if (modsel) {
+	if (varsel) {
 		chain$delta[1,ztest] <- starting.values$delta
 	}
 	if (!missing(groups)) {
@@ -247,7 +247,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
             }
 		}
 		## for those variables being selected: joint posterior of (r,delta)
-		if (modsel) {
+		if (varsel) {
 			varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
 			chain$delta[s,] <- varcomps$delta
 			rSim <- varcomps$r
@@ -282,7 +282,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 			message("iter: ", s)
 			cat(round(colMeans(chain$acc.lambda[1:s, ,drop = FALSE]), 4), "   lam accept rate\n")
 			cat(round(colMeans(chain$acc.r[2:s, ]),4), "   r nosel accept rate\n")
-			if (modsel) {
+			if (varsel) {
 				cat(round(mean(chain$acc.rdelta[2:s]),4), "   rdelt accept rate\n")
 				cat(round(mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 1]),4), "   rdelt[move 1] accept rate\n")
 				cat(round(mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 2]),4), "   rdelt[move 2] accept rate\n")
@@ -305,7 +305,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 	chain$data.comps <- data.comps
 	if (!missing(exposNew)) chain$exposNew <- Znew
 	if (!missing(groups)) chain$groups <- groups
-	chain$modsel <- modsel
+	chain$varsel <- varsel
     class(chain) <- c("bkmrfit", class(chain))
 	chain
 }
