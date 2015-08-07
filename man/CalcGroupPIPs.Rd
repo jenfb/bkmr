@@ -12,6 +12,6 @@ CalcGroupPIPs(fit, sel = NULL)
 \item{sel}{}
 }
 \description{
-Calculate posterior inclusion probabilities for each group of pollutants
+Calculate posterior inclusion probabilities for each group of variables
 }
 

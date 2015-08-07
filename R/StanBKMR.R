@@ -15,22 +15,22 @@
 #' set.seed(1)
 #' dat <- SimData(n = 50, M = 4, sigsq.true = 0.5, beta.true = 2)
 #' y <- dat$y
-#' expos <- dat$expos
-#' covar <- dat$covar
+#' Z <- dat$Z
+#' X <- dat$X
 #' set.seed(111)
 #' runtime <- system.time({
-#'     fitstanex1 <- StanBKMR(y = y, expos = expos, covar = covar, iter = 400, chains = 3)
+#'     fitstanex1 <- StanBKMR(y = y, Z = Z, X = X, iter = 400, chains = 3)
 #' })
 #' print(fitstanex1, par = c("beta", "sigma_sq", "h[1]", "h[100]", "lp__"))
 #' }
-StanBKMR <- function(y, expos, covar, file = NULL, ...) {
+StanBKMR <- function(y, Z, X, file = NULL, ...) {
     require(rstan)
 
     if (is.null(file)) {
         file <- system.file("stan", "gp-multi-fit.stan", package = "bkmr")
     }
 
-    data <- list(D = ncol(expos), K = ncol(covar), N = length(y), expos = expos, covar = covar, y = y)
+    data <- list(D = ncol(Z), K = ncol(X), N = length(y), Z = Z, X = X, y = y)
 
     fitstan <- rstan::stan(file = file, data = data, ...)
 }

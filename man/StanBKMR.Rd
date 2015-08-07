@@ -4,14 +4,14 @@
 \alias{StanBKMR}
 \title{Wrapper function to fit BKMR using Stan}
 \usage{
-StanBKMR(y, expos, covar, file = NULL, ...)
+StanBKMR(y, Z, X, file = NULL, ...)
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}
 
-\item{expos}{an \code{n}-by-\code{M} matrix of exposure data where each row represents an observation and each column represents an exposure variable.}
+\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
 
-\item{covar}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
 \item{...}{}
 
@@ -29,11 +29,11 @@ library(rstan)
 set.seed(1)
 dat <- SimData(n = 50, M = 4, sigsq.true = 0.5, beta.true = 2)
 y <- dat$y
-expos <- dat$expos
-covar <- dat$covar
+Z <- dat$Z
+X <- dat$X
 set.seed(111)
 runtime <- system.time({
-    fitstanex1 <- StanBKMR(y = y, expos = expos, covar = covar, iter = 400, chains = 3)
+    fitstanex1 <- StanBKMR(y = y, Z = Z, X = X, iter = 400, chains = 3)
 })
 print(fitstanex1, par = c("beta", "sigma_sq", "h[1]", "h[100]", "lp__"))
 }

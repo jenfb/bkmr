@@ -2,7 +2,7 @@
 % Please edit documentation in R/CalcPIPs.R
 \name{CalcPIPs}
 \alias{CalcPIPs}
-\title{Calculate pollutant-specific posterior inclusion probabilities}
+\title{Calculate variable-specific posterior inclusion probabilities}
 \usage{
 CalcPIPs(fit, sel = NULL)
 }
@@ -12,6 +12,6 @@ CalcPIPs(fit, sel = NULL)
 \item{sel}{}
 }
 \description{
-Calculate pollutant-specific posterior inclusion probabilities
+Calculate variable-specific posterior inclusion probabilities
 }
 

@@ -2,20 +2,20 @@
 % Please edit documentation in R/ComputePostmeanHnew.R
 \name{ComputePostmeanHnew}
 \alias{ComputePostmeanHnew}
-\title{Compute the posterior mean and variance of \code{h} at a new exposure profile}
+\title{Compute the posterior mean and variance of \code{h} at a new predictor values}
 \usage{
-ComputePostmeanHnew(fit, y, expos, covar, exposNew, sel = NULL)
+ComputePostmeanHnew(fit, y, Z, X, Znew, sel = NULL)
 }
 \arguments{
 \item{fit}{}
 
 \item{y}{}
 
-\item{expos}{}
+\item{Z}{}
 
-\item{covar}{}
+\item{X}{}
 
-\item{exposNew}{}
+\item{Znew}{}
 
 \item{sel}{A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.}
 }

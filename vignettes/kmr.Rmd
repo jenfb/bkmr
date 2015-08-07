@@ -31,8 +31,8 @@ library(dplyr)
 set.seed(5)
 dat <- SimData(n = 100, M = 5)
 y <- dat$y
-expos <- dat$expos
-covar <- dat$covar
+Z <- dat$Z
+X <- dat$X
 ```
 
 ## Conduct overall test
@@ -46,7 +46,7 @@ df <- data.frame()
 for (i in 1:nrow(kernel.seq)) {
     kernel <- kernel.seq[i, "kernel"]
     rho <- kernel.seq[i, "rho"]
-    tst <- OverallTest(y = y, expos = expos, covar = covar, kernel = kernel, rho = rho)
+    tst <- OverallTest(y = y, Z = Z, X = X, kernel = kernel, rho = rho)
     df <- rbind(df, data.frame(kernel = kernel, rho = rho, tst))
 }
 overall.test <- df
@@ -59,11 +59,11 @@ transmute(overall.test, kernel, rho, p = round(p.val, 5))
 ## Conduct garrote kernel test
 
 ```{r garrote, message=FALSE}
-garrote.test <- GarroteKernelTest(y = y, expos = expos, covar = covar)
+garrote.test <- GarroteKernelTest(y = y, Z = Z, X = X)
 ```
 
 ```{r garrote results}
-transmute(garrote.test, pollutant, p = round(p.val, 5))
+transmute(garrote.test, variable, p = round(p.val, 5))
 ```
 
 

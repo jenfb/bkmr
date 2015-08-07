@@ -9,22 +9,22 @@ SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3)
 \arguments{
 \item{n}{Number of observations}
 
-\item{M}{Number of exposure variables to generate}
+\item{M}{Number of predictor variables to generate}
 
 \item{sigsq.true}{Variance of normally distributed residual error}
 
 \item{beta.true}{Coefficient on the covariate}
 
-\item{hfun}{An integer from 1 to 3 identifying which exposure response function to generate}
+\item{hfun}{An integer from 1 to 3 identifying which predictor-response function to generate}
 }
 \description{
-Simulate exposure, covariate, and outcome data
+Simulate predictor, covariate, and outcome data
 }
 \details{
 \itemize{
- \item{"hfun = 1"}{A nonlinear function of the first exposure variable}
- \item{"hfun = 2"}{A linear function of the first two exposure variables and their product term}
- \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two exposure variables}
+ \item{"hfun = 1"}{A nonlinear function of the first predictor}
+ \item{"hfun = 2"}{A linear function of the first two predictors and their product term}
+ \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two predictor variables}
 }
 }
 \examples{

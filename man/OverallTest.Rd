@@ -4,14 +4,14 @@
 \alias{OverallTest}
 \title{Overall kernel test}
 \usage{
-OverallTest(y, expos, covar = NULL, kernel = "gaussian", rho = 1, d = 2)
+OverallTest(y, Z, X = NULL, kernel = "gaussian", rho = 1, d = 2)
 }
 \arguments{
 \item{y}{}
 
-\item{expos}{}
+\item{Z}{}
 
-\item{covar}{}
+\item{X}{}
 
 \item{kernel}{}
 

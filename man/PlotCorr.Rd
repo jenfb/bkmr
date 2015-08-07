@@ -4,8 +4,7 @@
 \alias{PlotCorr}
 \title{Plot of correlation matrix}
 \usage{
-PlotCorr(expos, reorder = TRUE, print.vals = FALSE, plot = TRUE,
-  digits = 2)
+PlotCorr(Z, reorder = TRUE, print.vals = FALSE, plot = TRUE, digits = 2)
 }
 \arguments{
 \item{digits}{If the correlation values are to be printed in the plot (\code{vals == TRUE}), how many digits should be displayed}

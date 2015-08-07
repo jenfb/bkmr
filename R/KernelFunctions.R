@@ -1,17 +1,17 @@
-GaussianKernel <- function(expos, rho = 1) {
-    Kpart <- fields::rdist(expos)^2
+GaussianKernel <- function(Z, rho = 1) {
+    Kpart <- fields::rdist(Z)^2
     exp(-Kpart/rho)
 }
 
-LinearKernel <- function(expos) {
-    n <- ncol(expos)
-    tcrossprod(expos)/n
+LinearKernel <- function(Z) {
+    n <- ncol(Z)
+    tcrossprod(Z)/n
 }
 
-PolynomialKernel <- function(expos, rho = 1, d = 2) {
-    (rho + tcrossprod(expos))^d
+PolynomialKernel <- function(Z, rho = 1, d = 2) {
+    (rho + tcrossprod(Z))^d
 }
 
-QuadraticKernel <- function(expos, rho = 1) {
-    PolynomialKernel(expos, rho, d = 2)
+QuadraticKernel <- function(Z, rho = 1) {
+    PolynomialKernel(Z, rho, d = 2)
 }

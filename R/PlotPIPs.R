@@ -1,4 +1,4 @@
-ComputePIPs <- function(fit, rthresh = 10^(-(0:6)), expos.names = NULL, sel = NULL) {
+ComputePIPs <- function(fit, rthresh = 10^(-(0:6)), z.names = NULL, sel = NULL) {
     if(inherits(fit, "stanfit")) {
         rsamps <- rstan::extract(fit)$r
     } else if (inherits(fit, "bkmrfit")) {
@@ -7,9 +7,9 @@ ComputePIPs <- function(fit, rthresh = 10^(-(0:6)), expos.names = NULL, sel = NU
         }
         rsamps <- fit$r[sel, ]
     }
-    if(is.null(expos.names)) expos.names <- paste0("expos", 1:ncol(rsamps))
+    if(is.null(z.names)) z.names <- paste0("z", 1:ncol(rsamps))
 
-    mat <- matrix(NA, length(rthresh), ncol(rsamps), dimnames = list(paste0("rthresh", seq_along(rthresh)), expos.names))
+    mat <- matrix(NA, length(rthresh), ncol(rsamps), dimnames = list(paste0("rthresh", seq_along(rthresh)), z.names))
     for(i in seq_along(rthresh)) {
         mat[i, ] <- colMeans(abs(rsamps) >= rthresh[i])
     }
@@ -28,14 +28,14 @@ PlotPIPs <- function(pips, rthresh = NULL, plot = TRUE) {
     df <- pips %>%
         data.frame %>%
         dplyr::mutate(thresh = rthresh) %>%
-        tidyr::gather(exposure, pip, -thresh)
+        tidyr::gather(variable, pip, -thresh)
 
     plt <- ggplot(df, aes(thresh, pip)) +
         geom_path() +
         geom_point() +
         scale_x_log10() +
         coord_cartesian(ylim = c(0, 1)) +
-        facet_wrap(~ exposure) +
+        facet_wrap(~ variable) +
         labs(x = "Threshold R", y = "Prob(r > R)")
 
     if(plot) plot(plt)

@@ -56,24 +56,22 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @export
 #'
 #' @param y a vector of outcome data of length \code{n}.
-#' @param expos an \code{n}-by-\code{M} matrix of exposure data where each row represents an observation and each column represents an exposure variable.
-#' @param covar an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
+#' @param Z an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.
+#' @param X an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
 #' @param iter number of iterations to run the sampler
 #' @param family a description of the error distribution and link function to be used in the model. Currently only implemented for \code{gaussian} family.
 #' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.
 #' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting
-#' @param exposNew optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
+#' @param Znew optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
 #' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
 #' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
-#' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables
+#' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the variables in \code{h}
 #' @param groups optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
-#' @param ztest optional vector indicating on which exposure variables to conduct variable selection (the remaining variables will be forced into the model).
-#' @param rmethod for those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values
-kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, verbose = FALSE, exposNew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
+#' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
+#' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
+kmbayes <- function(y, Z, X, iter = 1000, family = gaussian, id, verbose = FALSE, Znew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
 
-    X <- covar
-    Z <- expos
     nsamp <- iter
 
 	if (!missing(id)) { ## for random intercept model
@@ -114,8 +112,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, verbose
 	}
 
 	## components to predict h(Znew)
-	if (!missing(exposNew)) {
-	    Znew <- exposNew
+	if (!missing(Znew)) {
 		if (is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
 		if (class(Znew) == "data.frame") Znew <- data.matrix(Znew)
 		if (ncol(Z) != ncol(Znew)) {
@@ -170,9 +167,9 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, verbose
 
 	## initial values
     if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
-        lmfit0 <- lm(y ~ expos + covar)
+        lmfit0 <- lm(y ~ Z + X)
         if (is.null(starting.values$beta)) {
-            starting.values$beta <- coef(lmfit0)[grep("covar", names(coef(lmfit0)))]
+            starting.values$beta <- coef(lmfit0)[grep("X", names(coef(lmfit0)))]
         }
         if (is.null(starting.values$sigsq.eps)) {
             starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
@@ -272,7 +269,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, verbose
 		###################################################
 		## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
 
-		if (!missing(exposNew)) {
+		if (!missing(Znew)) {
 			chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = y, X = X, beta = chain$beta[s,], data.comps = data.comps)
 		}
 
@@ -303,7 +300,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, verbose
 	chain$y <- y
 	chain$ztest <- ztest
 	chain$data.comps <- data.comps
-	if (!missing(exposNew)) chain$exposNew <- Znew
+	if (!missing(Znew)) chain$Znew <- Znew
 	if (!missing(groups)) chain$groups <- groups
 	chain$varsel <- varsel
     class(chain) <- c("bkmrfit", class(chain))

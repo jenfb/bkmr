@@ -4,15 +4,13 @@
 #'
 #' @param rho tuning parameter for various kernel functions
 #' @param y
-#' @param expos
-#' @param covar
+#' @param Z
+#' @param X
 #' @param kernel
 #' @param d tuning parameter for dth polynomial kernel
 #' @export
-OverallTest <- function(y, expos, covar = NULL, kernel = "gaussian", rho = 1, d = 2) {
-    X <- covar
-    Z <- expos
-
+OverallTest <- function(y, Z, X = NULL, kernel = "gaussian", rho = 1, d = 2) {
+    
     n = length(y)
     p = ncol(X)
     m = ncol(Z)
@@ -27,13 +25,13 @@ OverallTest <- function(y, expos, covar = NULL, kernel = "gaussian", rho = 1, d 
         K <- kernel
     } else {
         if (tolower(kernel) == "gaussian") {
-            K <- GaussianKernel(expos = Z, rho = rho)
+            K <- GaussianKernel(Z = Z, rho = rho)
         } else if (kernel == "linear") {
-            K <- LinearKernel(expos = Z)
+            K <- LinearKernel(Z = Z)
         } else if (kernel == "quadratic") {
-            K <- QuadraticKernel(expos = Z)
+            K <- QuadraticKernel(Z = Z)
         } else if (kernel == "polynomal") {
-            K <- PolynomialKernel(expos = Z, rho = rho, d = d)
+            K <- PolynomialKernel(Z = Z, rho = rho, d = d)
         }
     }
 

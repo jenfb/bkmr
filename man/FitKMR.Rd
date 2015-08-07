@@ -4,14 +4,14 @@
 \alias{FitKMR}
 \title{Kernel machine regression (KMR) with Gaussian kernel}
 \usage{
-FitKMR(y, expos, covar, max.iter = 500, tol = 1e-05)
+FitKMR(y, Z, X, max.iter = 500, tol = 1e-05)
 }
 \arguments{
 \item{y}{}
 
-\item{expos}{}
+\item{Z}{}
 
-\item{covar}{}
+\item{X}{}
 
 \item{max.iter}{}
 }

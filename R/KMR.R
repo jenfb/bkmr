@@ -8,12 +8,12 @@
 #' The rho parameter is also estimated (rather than fixed)
 #'
 #' @param y
-#' @param expos
-#' @param covar
+#' @param Z
+#' @param X
 #' @param max.iter
 #'
 #' @export
-FitKMR <- function(y, expos, covar, max.iter = 500, tol = 0.00001) {
+FitKMR <- function(y, Z, X, max.iter = 500, tol = 0.00001) {
 ## yy: response nx1
 ## zz: matrix modeled nonparametrically (each col is a sample)
 ## xx: other variables (each col is a sample)
@@ -21,8 +21,8 @@ FitKMR <- function(y, expos, covar, max.iter = 500, tol = 0.00001) {
 ##Estimates: h(z), beta and rho (the kernel parameter)
 
     yy <- y
-    xx <- t(covar)
-    zz <- t(expos)
+    xx <- t(X)
+    zz <- t(Z)
 
 	n = length(yy)
 
@@ -256,8 +256,8 @@ sqare.diff.mat <- function(zz){
     return(Kmat)
 }
 sqare.diff.mat2 <- function(zz) {
-    expos <- t(zz)
-    as.matrix(fields::rdist(expos))^2
+    Z <- t(zz)
+    as.matrix(fields::rdist(Z))^2
 }
 
 kernel.Gauss <- function(Kmat, scl){
@@ -268,29 +268,29 @@ kernel.Gauss <- function(Kmat, scl){
 Trace <- function(M){sum(diag(M))}
 
 #' @export
-GarroteKernelTest <- function(y, expos, covar, pollutants = 1:ncol(expos), verbose = TRUE, test.method = "pca") {
+GarroteKernelTest <- function(y, Z, X, variables = 1:ncol(Z), verbose = TRUE, test.method = "pca") {
     df <- data.frame()
-    for (i in seq_along(pollutants)) {
-        if (verbose) message("testing pollutant ", i)
-        df.pol <- GarroteKernelTestPol(y = y, expos = expos, covar = covar, whichpol = i)
-        df <- rbind(df, data.frame(pollutant = i, df.pol, converge = attr(df.pol, "converge")))
+    for (i in seq_along(variables)) {
+        if (verbose) message("testing variable ", i)
+        df.var <- GarroteKernelTestVar(y = y, Z = Z, X = X, whichz = i)
+        df <- rbind(df, data.frame(variable = i, df.var, converge = attr(df.var, "converge")))
     }
     df <- dplyr::filter(df, method == test.method) %>%
         dplyr::select(-method)
     attr(df, "method") <- test.method
     df
 }
-GarroteKernelTestPol <- function(y, expos, covar, whichpol = 1, ...) {
+GarroteKernelTestVar <- function(y, Z, X, whichz = 1, ...) {
     # test using kernel machine for the effect of the first row of zz
 
     yy <- y
-    xx <- t(covar)
-    zz <- t(expos)
+    xx <- t(X)
+    zz <- t(Z)
 
     n = length(yy)
 
     ### estimation under H0
-    est.h0 = FitKMR(y = yy, expos = t(zz[-whichpol, ,drop=FALSE]), covar = t(xx), ...)
+    est.h0 = FitKMR(y = yy, Z = t(zz[-whichz, ,drop=FALSE]), X = t(xx), ...)
     converge <- est.h0$converge
     h.hat = est.h0[[1]]
     sig.hat = est.h0[[2]]
@@ -299,7 +299,7 @@ GarroteKernelTestPol <- function(y, expos, covar, whichpol = 1, ...) {
     bet.hat = est.h0[[5]]
     #print(bet.hat)
 
-    dMat = sqare.diff.mat2(zz[-whichpol, ,drop=FALSE])
+    dMat = sqare.diff.mat2(zz[-whichz, ,drop=FALSE])
     Kmat = kernel.Gauss(dMat, rho.hat)
 
     mat = sig.hat*diag(1, nrow=n, ncol=n) + lam.hat*Kmat
@@ -309,7 +309,7 @@ GarroteKernelTestPol <- function(y, expos, covar, whichpol = 1, ...) {
     eps.hat = yy - t(xx)%*%bet.hat - h.hat
 
     ##derivative of the garrote kernel
-    mul.mat = matrix(1, ncol=1, nrow=n)%*%zz[whichpol, ]
+    mul.mat = matrix(1, ncol=1, nrow=n)%*%zz[whichz, ]
     mul.mat = -(mul.mat - t(mul.mat))^2
     Kmat.del = mul.mat * Kmat / rho.hat
 

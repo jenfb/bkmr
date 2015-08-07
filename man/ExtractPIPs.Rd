@@ -4,17 +4,17 @@
 \alias{ExtractPIPs}
 \title{Extract posterior inclusion probabilities (PIPs) from BKMR model fit}
 \usage{
-ExtractPIPs(fit, sel = NULL, expos.names = NULL)
+ExtractPIPs(fit, sel = NULL, z.names = NULL)
 }
 \arguments{
 \item{fit}{fitted BKMR model with either component-wise or hierarchical variable selection}
 
 \item{sel}{optional argument selecting which iterations of the MCMC sampler to keep}
 
-\item{expos.names}{optional argument providing the names of the exposure variables included in the \code{h} function.}
+\item{z.names}{optional argument providing the names of the variables included in the \code{h} function.}
 }
 \value{
-a data frame with the pollutant-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditoinal (within-group) PIPs for BKMR fit with hierarchical variable selection.
+a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditoinal (within-group) PIPs for BKMR fit with hierarchical variable selection.
 }
 \description{
 Extract posterior inclusion probabilities (PIPs) from Bayesian Kernel Machine Regression (BKMR) model fit

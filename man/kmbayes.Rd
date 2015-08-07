@@ -4,17 +4,16 @@
 \alias{kmbayes}
 \title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, expos, covar, iter = 1000, family = gaussian, id,
-  verbose = FALSE, exposNew, starting.values = list(),
-  control.params = list(), varsel = FALSE, groups, knots, ztest,
-  rmethod = "varying")
+kmbayes(y, Z, X, iter = 1000, family = gaussian, id, verbose = FALSE,
+  Znew, starting.values = list(), control.params = list(), varsel = FALSE,
+  groups, knots, ztest, rmethod = "varying")
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}
 
-\item{expos}{an \code{n}-by-\code{M} matrix of exposure data where each row represents an observation and each column represents an exposure variable.}
+\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
 
-\item{covar}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
 \item{iter}{number of iterations to run the sampler}
 
@@ -24,21 +23,21 @@ kmbayes(y, expos, covar, iter = 1000, family = gaussian, id,
 
 \item{verbose}{TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting}
 
-\item{exposNew}{optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
+\item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
 
 \item{starting.values}{list of starting values for each parameter. If not specified default values will be chosen.}
 
 \item{control.params}{list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
 
-\item{varsel}{TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables}
+\item{varsel}{TRUE or FALSE: indicator for whether to conduct variable selection on the variables in \code{h}}
 
 \item{groups}{optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.}
 
 \item{knots}{optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.}
 
-\item{ztest}{optional vector indicating on which exposure variables to conduct variable selection (the remaining variables will be forced into the model).}
+\item{ztest}{optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).}
 
-\item{rmethod}{for those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values}
+\item{rmethod}{for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values}
 }
 \description{
 Fits the Bayesian kernel machine regression (BKMR) model using Markov chain Monte Carlo (MCMC) methods.

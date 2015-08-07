@@ -1,11 +1,11 @@
 // Fit a Gaussian process's hyperparameters
 
 data {
-  int<lower=1> D; // number of exposure variables
+  int<lower=1> D; // number of predictor variables
   int<lower=1> K; // number of covariates
   int<lower=1> N; // number of observations
-  matrix[N,K] covar;
-  vector[D] expos[N];
+  matrix[N,K] X;
+  vector[D] Z[N];
   vector[N] y; // outcome
 }
 transformed data {
@@ -35,7 +35,7 @@ model {
   // off-diagonal elements
   for (i in 1:(N-1)) {
     for (j in (i+1):N) {
-      Sigma[i,j] <- tau * exp(-dot_self((expos[i] - expos[j]) .* rsqrt));
+      Sigma[i,j] <- tau * exp(-dot_self((Z[i] - Z[j]) .* rsqrt));
       Sigma[j,i] <- Sigma[i,j];
     }
   }
@@ -49,6 +49,6 @@ model {
   sigma ~ cauchy(0,2.5);
 
   h ~ multi_normal(zero, Sigma);
-  theta <- h + covar * beta;
+  theta <- h + X * beta;
   y ~ normal(theta, sigma);
 }

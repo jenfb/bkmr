@@ -1,22 +1,22 @@
 #' Simulate dataset
 #'
-#' Simulate exposure, covariate, and outcome data
+#' Simulate predictor, covariate, and outcome data
 #'
 #' @export
 #'
 #' @param n Number of observations
-#' @param M Number of exposure variables to generate
+#' @param M Number of predictor variables to generate
 #' @param sigsq.true Variance of normally distributed residual error
 #' @param beta.true Coefficient on the covariate
-#' @param hfun An integer from 1 to 3 identifying which exposure response function to generate
+#' @param hfun An integer from 1 to 3 identifying which predictor-response function to generate
 #' @examples
 #' set.seed(5)
 #' dat <- SimData()
 #' @details 
 #' \itemize{
-#'  \item{"hfun = 1"}{A nonlinear function of the first exposure variable}
-#'  \item{"hfun = 2"}{A linear function of the first two exposure variables and their product term}
-#'  \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two exposure variables}
+#'  \item{"hfun = 1"}{A nonlinear function of the first predictor}
+#'  \item{"hfun = 2"}{A linear function of the first two predictors and their product term}
+#'  \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two predictor variables}
 #' }
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                      beta.true = 2, hfun = 3) {
@@ -31,12 +31,12 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
     stop("hfun must be an integer from 1 to 3")
   }
   
-  expos <- matrix(rnorm(n * M), n, M,
-                  dimnames = list(NULL, paste0("expos", 1:M)))
-  covar <- cbind(3*cos(expos[, 1]) + 2*rnorm(n))
+  Z <- matrix(rnorm(n * M), n, M,
+                  dimnames = list(NULL, paste0("z", 1:M)))
+  X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
   eps <- rnorm(n, sd = sqrt(sigsq.true))
-  h <- apply(expos, 1, HFun)
-  y <- drop(covar * beta.true + h + eps)
+  h <- apply(Z, 1, HFun)
+  y <- drop(X * beta.true + h + eps)
   
-  dat <- list(n = n, M = M, sigsq.true = sigsq.true, beta.true = beta.true, expos = expos, h = h, covar = covar, y = y, hfun = hfun, HFun = HFun)
+  dat <- list(n = n, M = M, sigsq.true = sigsq.true, beta.true = beta.true, Z = Z, h = h, X = X, y = y, hfun = hfun, HFun = HFun)
 }

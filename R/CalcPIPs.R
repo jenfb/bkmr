@@ -1,6 +1,6 @@
 #' Calculate group-specific posterior inclusion probabilities
 #'
-#' Calculate posterior inclusion probabilities for each group of pollutants
+#' Calculate posterior inclusion probabilities for each group of variables
 #'
 #' @param fit
 #' @param sel
@@ -9,7 +9,7 @@
 CalcGroupPIPs <- function(fit, sel = NULL) {
     groups <- fit$groups
     if (is.null(groups)) {
-        stop("Cannot compute group-specific posterior inclusion probabilities; BKMR was not run with pollutant groups")
+        stop("Cannot compute group-specific posterior inclusion probabilities; BKMR was not run with variable groups")
     }
     if (is.null(sel)) {
         sel <- with(fit, seq(floor(iter/2) + 1, iter))
@@ -22,7 +22,7 @@ CalcGroupPIPs <- function(fit, sel = NULL) {
 CalcWithinGroupPIPs <- function(fit, sel = NULL) {
     groups <- fit$groups
     if (is.null(groups)) {
-        stop("Cannot compute group-specific posterior inclusion probabilities; BKMR was not run with pollutant groups")
+        stop("Cannot compute group-specific posterior inclusion probabilities; BKMR was not run with variable groups")
     }
     if (is.null(sel)) {
         sel <- with(fit, seq(floor(iter/2) + 1, iter))
@@ -39,7 +39,7 @@ CalcWithinGroupPIPs <- function(fit, sel = NULL) {
 }
 
 
-#' Calculate pollutant-specific posterior inclusion probabilities
+#' Calculate variable-specific posterior inclusion probabilities
 #'
 #' @param fit
 #' @param sel
@@ -68,11 +68,11 @@ CalcPIPs <- function(fit, sel = NULL) {
 #'
 #' @param fit fitted BKMR model with either component-wise or hierarchical variable selection
 #' @param sel optional argument selecting which iterations of the MCMC sampler to keep
-#' @param expos.names optional argument providing the names of the exposure variables included in the \code{h} function.
+#' @param z.names optional argument providing the names of the variables included in the \code{h} function.
 #'
-#' @return a data frame with the pollutant-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditoinal (within-group) PIPs for BKMR fit with hierarchical variable selection.
+#' @return a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditoinal (within-group) PIPs for BKMR fit with hierarchical variable selection.
 #' @export
-ExtractPIPs <- function(fit, sel = NULL, expos.names = NULL) {
+ExtractPIPs <- function(fit, sel = NULL, z.names = NULL) {
     if (inherits(fit, "stanfit")) {
         stop("This model was fit using rstan. Stan does not currently support discrete parameter space. Therefore posterior inclusion probabilities are not directly computed.")
     } else if (inherits(fit, "bkmrfit")) {
@@ -82,13 +82,13 @@ ExtractPIPs <- function(fit, sel = NULL, expos.names = NULL) {
         if (is.null(sel)) {
             sel <- with(fit, seq(floor(iter/2) + 1, iter))
         }
-        if (is.null(expos.names)) {
-            expos.names <- colnames(fit$Z)
+        if (is.null(z.names)) {
+            z.names <- colnames(fit$Z)
         }
-        if (is.null(expos.names)) {
-            expos.names <- paste0("expos", 1:ncol(expos))
+        if (is.null(z.names)) {
+            z.names <- paste0("z", 1:ncol(Z))
         }
-        df <- data.frame(exposure = expos.names, stringsAsFactors = FALSE)
+        df <- data.frame(variable = z.names, stringsAsFactors = FALSE)
         groups <- fit$groups
         if (is.null(groups)) {
             df$PIP <- colMeans(fit$delta[sel, , drop = FALSE])

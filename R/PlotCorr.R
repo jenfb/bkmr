@@ -26,8 +26,8 @@ get_upper_tri <- function(cormat) {
 #' @import ggplot2
 #' @param vals
 #' @param digits If the correlation values are to be printed in the plot (\code{vals == TRUE}), how many digits should be displayed
-PlotCorr <- function(expos, reorder = TRUE, print.vals = FALSE, plot = TRUE, digits = 2) {
-    cormat <- cor(expos)
+PlotCorr <- function(Z, reorder = TRUE, print.vals = FALSE, plot = TRUE, digits = 2) {
+    cormat <- cor(Z)
     if(print.vals) cormat <- round(cormat, digits)
 
     # Reorder the correlation matrix

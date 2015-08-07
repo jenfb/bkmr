@@ -1,4 +1,4 @@
-#' Compute the posterior mean and variance of \code{h} at a new exposure profile
+#' Compute the posterior mean and variance of \code{h} at a new predictor values
 #'
 #' Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
 #'
@@ -6,15 +6,11 @@
 #'
 #' @param fit
 #' @param y
-#' @param expos
-#' @param covar
-#' @param exposNew
+#' @param Z
+#' @param X
+#' @param Znew
 #' @param sel A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.
-ComputePostmeanHnew <- function(fit, y, expos, covar, exposNew, sel = NULL) {
-
-    X <- covar
-    Z <- expos
-    Znew <- exposNew
+ComputePostmeanHnew <- function(fit, y, Z, X, Znew, sel = NULL) {
 
     if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
     if(class(Znew) == "data.frame") Znew <- data.matrix(Znew)

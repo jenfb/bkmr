@@ -4,19 +4,19 @@
 \alias{PlotPriorFits}
 \title{PlotPriorFits}
 \usage{
-PlotPriorFits(y, covar, expos, fits, which.expos = NULL, which.q = NULL,
+PlotPriorFits(y, X, Z, fits, which.z = NULL, which.q = NULL,
   plot.resid = TRUE, ylim = NULL, ...)
 }
 \arguments{
 \item{y}{}
 
-\item{covar}{}
+\item{X}{}
 
-\item{expos}{}
+\item{Z}{}
 
 \item{fits}{}
 
-\item{which.expos}{}
+\item{which.z}{}
 
 \item{which.q}{}
 
