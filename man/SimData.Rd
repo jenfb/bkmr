@@ -4,8 +4,7 @@
 \alias{SimData}
 \title{Simulate dataset}
 \usage{
-SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2,
-  GenCovar = NULL, GenExpos = NULL, HFun = NULL)
+SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3)
 }
 \arguments{
 \item{n}{Number of observations}
@@ -16,14 +15,17 @@ SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2,
 
 \item{beta.true}{Coefficient on the covariate}
 
-\item{GenCovar}{A function that takes as input a vector of length \code{M}. Defaults to \code{\link{GenCovarDefault}}.}
-
-\item{GenExpos}{A function that takes as input a vector of length \code{M} Defaults to \code{\link{GenExposDefault}}.}
-
-\item{HFun}{A function that takes as input a vector of length \code{M} and outputs a scalar}
+\item{hfun}{An integer from 1 to 3 identifying which exposure response function to generate}
 }
 \description{
-Simulate dataset
+Simulate exposure, covariate, and outcome data
+}
+\details{
+\itemize{
+ \item{"hfun = 1"}{A nonlinear function of the first exposure variable}
+ \item{"hfun = 2"}{A linear function of the first two exposure variables and their product term}
+ \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two exposure variables}
+}
 }
 \examples{
 set.seed(5)
