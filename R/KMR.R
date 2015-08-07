@@ -268,10 +268,10 @@ kernel.Gauss <- function(Kmat, scl){
 Trace <- function(M){sum(diag(M))}
 
 #' @export
-GarroteKernelTest <- function(y, expos, covar, pollutants = 1:ncol(expos), quiet = FALSE, test.method = "pca") {
+GarroteKernelTest <- function(y, expos, covar, pollutants = 1:ncol(expos), verbose = TRUE, test.method = "pca") {
     df <- data.frame()
     for (i in seq_along(pollutants)) {
-        if (!quiet) message("testing pollutant ", i)
+        if (verbose) message("testing pollutant ", i)
         df.pol <- GarroteKernelTestPol(y = y, expos = expos, covar = covar, whichpol = i)
         df <- rbind(df, data.frame(pollutant = i, df.pol, converge = attr(df.pol, "converge")))
     }

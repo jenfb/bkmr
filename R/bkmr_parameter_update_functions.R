@@ -300,7 +300,7 @@ newh.update <- function(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.
 }
 
 ## function to obtain posterior samples of h(znew) from fit of Bayesian kernel machine regression
-predz.samps <- function(fit, Znew, quiet=FALSE) {
+predz.samps <- function(fit, Znew, verbose = TRUE) {
 	if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
 	if(class(Znew) == "data.frame") Znew <- data.matrix(Znew)
 	Z <- fit$Z
@@ -309,7 +309,7 @@ predz.samps <- function(fit, Znew, quiet=FALSE) {
 	}
 
 	hnew.samps <- sapply(1:fit$nsamp, function(s) {
-		if(s%%(fit$nsamp/10)==0 & !quiet) print(s)
+		if(s%%(fit$nsamp/10)==0 & verbose) print(s)
 		newh.update(Z = Z, Znew = Znew, Vcomps = NULL, lambda = fit$lambda[s], sigsq.eps = fit$sigsq.eps[s], r = fit$r[s,], y = fit$y, X = fit$X, beta = fit$beta[s,], data.comps = fit$data.comps)
 	})
 	rownames(hnew.samps) <- rownames(Znew)

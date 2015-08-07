@@ -61,16 +61,16 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param iter number of iterations to run the sampler
 #' @param family a description of the error distribution and link function to be used in the model. Currently only implemented for \code{gaussian} family.
 #' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.
-#' @param quiet TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting
+#' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting
 #' @param exposNew optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
 #' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
 #' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
-#' @param varsel quiet TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables
+#' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables
 #' @param groups optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which exposure variables to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those exposure variables not being selected, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each pollutant; 'equal' to force the same \code{r[m]} for each pollutant; or 'fixed' to fix the \code{r[m]} to their starting values
-kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE, exposNew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
+kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, verbose = FALSE, exposNew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
 
     X <- covar
     Z <- expos
@@ -278,7 +278,7 @@ kmbayes <- function(y, expos, covar, iter = 1000, family = gaussian, id, quiet =
 
 		###################################################
 		## print details of the model fit so far
-		if (s %% (nsamp/10) == 0 & !quiet) {
+		if (s %% (nsamp/10) == 0 & verbose) {
 			message("iter: ", s)
 			cat(round(colMeans(chain$acc.lambda[1:s, ,drop = FALSE]), 4), "   lam accept rate\n")
 			cat(round(colMeans(chain$acc.r[2:s, ]),4), "   r nosel accept rate\n")

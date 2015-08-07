@@ -116,7 +116,7 @@ ExposureResponseBivarPair <- function(fit, y, expos, covar, whichpol1 = 1, which
 }
 
 #' @export
-ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset(expand.grid(x = 1:ncol(expos), y = 1:ncol(expos)), x < y), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, expos.names = colnames(expos), quiet = FALSE, ...) {
+ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset(expand.grid(x = 1:ncol(expos), y = 1:ncol(expos)), x < y), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, expos.names = colnames(expos), verbose = TRUE, ...) {
 
     df <- dplyr::data_frame()
     for(i in 1:nrow(pollutant.pairs)) {
@@ -136,7 +136,7 @@ ExposureResponseBivar <- function(fit, y, expos, covar, pollutant.pairs = subset
             if(paste(names.pair, collapse = ":") %in% completed.pairs | paste(rev(names.pair), collapse = ":") %in% completed.pairs) compute <- FALSE
         }
         if(compute) {
-            if(!quiet) message("Pair ", i, " out of ", nrow(pollutant.pairs))
+            if(verbose) message("Pair ", i, " out of ", nrow(pollutant.pairs))
             res <- ExposureResponseBivarPair(fit = fit, y = y, expos = expos, covar = covar, whichpol1 = whichpol1, whichpol2 = whichpol2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, expos.names = expos.names, ...)
             df0 <- dplyr::mutate(res, exposure1 = expos.name1, exposure2 = expos.name2) %>%
                 dplyr::select(exposure1, exposure2, z1, z2, est, se)

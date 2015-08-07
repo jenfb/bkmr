@@ -1,6 +1,6 @@
 #' @export
 #' @import nlme
-InvestigatePrior <- function(y, expos, covar, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16), quiet = TRUE) {
+InvestigatePrior <- function(y, expos, covar, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16), verbose = FALSE) {
 
     zranges <- diff(apply(expos, 2, range))
     Drange <- max(zranges)
@@ -54,7 +54,7 @@ InvestigatePrior <- function(y, expos, covar, ngrid = 50, q.seq = c(2, 1, 1/2, 1
             resids[[i]][, j] <- resid(fit)
             h.hat.ests[[i]][, j] <- h.hat
 
-            if(!quiet) message("Completed: exposure", i, ", r value ", j)
+            if(verbose) message("Completed: variable", i, ", r value ", j)
         }
     }
 

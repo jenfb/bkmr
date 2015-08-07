@@ -4,9 +4,10 @@
 \alias{kmbayes}
 \title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE,
-  exposNew, starting.values = list(), control.params = list(),
-  varsel = FALSE, groups, knots, ztest, rmethod = "varying")
+kmbayes(y, expos, covar, iter = 1000, family = gaussian, id,
+  verbose = FALSE, exposNew, starting.values = list(),
+  control.params = list(), varsel = FALSE, groups, knots, ztest,
+  rmethod = "varying")
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}
@@ -21,7 +22,7 @@ kmbayes(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE,
 
 \item{id}{optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.}
 
-\item{quiet}{TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting}
+\item{verbose}{TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting}
 
 \item{exposNew}{optional matrix of new exposure profiles at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
 
@@ -29,7 +30,7 @@ kmbayes(y, expos, covar, iter = 1000, family = gaussian, id, quiet = TRUE,
 
 \item{control.params}{list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
 
-\item{varsel}{quiet TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables}
+\item{varsel}{TRUE or FALSE: indicator for whether to conduct variable selection on the exposure variables}
 
 \item{groups}{optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.}
 
