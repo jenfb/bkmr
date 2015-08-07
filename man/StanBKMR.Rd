@@ -25,8 +25,8 @@ Fits Bayesian kernel machine regression (BKMR) for cross-sectional data using \c
 }
 \examples{
 \dontrun{
-set.seed(1)
 library(rstan)
+set.seed(1)
 dat <- SimData(n = 50, M = 4, sigsq.true = 0.5, beta.true = 2)
 y <- dat$y
 expos <- dat$expos
