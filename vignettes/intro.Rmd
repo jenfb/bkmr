@@ -9,15 +9,15 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-```{r options, echo=FALSE, message=FALSE}
+```{r options, echo=FALSE, message=FALSE, warning=FALSE}
 ## if the current working directory is the directory where this file is located rather than the project directory, set the working directory to the project directory
 if(grepl("vignettes", getwd())) knitr::opts_knit$set(root.dir = paste(getwd(), "..", sep = "/"))
 knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
 ```
 
-```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, results='hide'}
 ##library(bkmr)
-devtools::document()
+suppressMessages(devtools::document())
 ##devtools::load_all()
 ```
 
@@ -28,18 +28,7 @@ g(E(Y_i)) = h(z_{i1}, \ldots, z_{iM}) + \beta{\bf x}_i, \quad i = 1, \ldots, n
 $$
 where $g$ is a monotonic link function, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates assumed to have a linear relationship with the outcome ($\beta$ is the corresponding vector of coefficients). In settings where there are a large number of predictor variables, or when the predictor-response function is complex, potentially nonlinear and non-additive relation, it may be challenging to specify a set of basis functions to represent $h$. In these settings, an alternative way to characterize $h$ is through a kernel machine representation.
 
-Inference for the KMR model can be achieved using both frequentest and Bayesian methods. Liu, Lin, and Ghosh (2007) showed that the model where $Y_i$ is a assumed to be continuous could be expressed as a linear mixed model [REF], and Liu etc (2008) applied similar reasoning to show that the model where $Y_i$ is binary could be fit using a generalized linear mixed model framework [REF]. Stavitsky et al conducted Bayesian inference for KMR, and Bobb et al (2015) considered the context of multi-pollutant mixtures, where the predictor variables $z_1, \ldots, z_M$ may be highly correlated or have some known structure (e.g., air pollutants arising from the same source). 
-
-This package includes functions for conducting both frequentist and Bayesian inference for the model above. In this vignette we focus on Bayesian inference (the vignette `kmr` illustrates functions implementing frequentist methods).
-
-Several software packages are available for fitting KMR models (see http://www.gaussianprocess.org/#code for a list of some of the options). These packages have many functionalities, including a range of kernel functions (e.g., linear, quadratic, Gaussian), outcome types (e.g., continuous, categorical, count), and fitting algorithms including approximate methods (e.g., full likelihood, variational Bayes). Because most of these have been developed and used in the machine learning context, their focus has primarily been for prediction and classification. 
-
-
-
-<!-- 
-Briefly, a kernel machine representation for $h$ depends on specifying a kernel function
---> 
-
+This package includes functions for conducting Bayesian inference for the model above. The main function `kmbayes()` fits the model. We also provide several functions to summarize the model output in different ways and to visually display the results.
 
 ## Simulate some data
 
@@ -54,36 +43,19 @@ X <- dat$X
 ```
 
 Let's view the true predictor-response function used to generate the data
-```{r plot, fig.height=2.5, fig.width=2.5}
+```{r plot, fig.height=3.5, fig.width=3.5}
 z1 <- seq(min(dat$Z[, 1]), max(dat$Z[, 1]), length = 20)
 z2 <- seq(min(dat$Z[, 2]), max(dat$Z[, 2]), length = 20)
 hgrid.true <- outer(z1, z2, function(x,y) apply(cbind(x,y), 1, dat$HFun))
 
-res <- persp(z1, z2, hgrid.true, theta = 30, phi = 20, expand = 0.5, col = "lightblue", xlab = "", ylab = "", zlab = "")
+res <- persp(z1, z2, hgrid.true, theta = 30, phi = 20, expand = 0.5, 
+             col = "lightblue", xlab = "", ylab = "", zlab = "")
 #points(trans3d(dat$Z[, 1], dat$Z[, 2], dat$h, pmat = res), col = "red", pch = 19, cex = 0.5)
-```
-
-
-## Conduct some exploratory data analysis
-
-```{r cormat}
-PlotCorr(Z, print.vals = TRUE)
-```
-
-## Prior distributions for the $r_m$ parameters
-
-```{r investigate prior}
-priorfits <- InvestigatePrior(y = y, Z = Z, X = X)
-```
-
-Here we plot the estimated univariate predictor-response relationships for `r_m` fixed to different values.
-```{r investigate prior 2, fig.height=6, fig.width=6}
-PlotPriorFits(y = y, Z = Z, X = X, 
-              fits = priorfits, which.q = c(1,3,4,6))
 ```
 
 ## Fit BKMR 
 
+To fit the BKMR model, we use the `kmbayes` function. This function implements the Markov chain Monte Carlo (MCMC) sampler described in the paper. The argument `iter` indicates the number of iterations of the MCMC sampler; `verbose` indicates whether interim output summarizing the progress of the model fitting should be printed; and `varsel` indicates whether to conduct variable selection on the predictors `z_{im}`.
 ```{r fit orig}
 set.seed(111)
 runtime <- system.time(
@@ -102,7 +74,18 @@ TracePlot(fit = fitkm, par = "r", comp = 1)
 TracePlot(fit = fitkm, par = "h", comp = 20)
 ```
 
+## Estimated posterior inclusion probabilities
+
+Because we fit the model with variable selection (we set the argument `varsel` to be `TRUE`), we can estimate the posterior inclusion probability (PIP) for each of the predictors `z_{im}`.
+
+```{r PIPs}
+ExtractPIPs(fitkm)
+```
+
+
 ## Summarize output
+
+We next go through the different functions included in the `bkmr` package that can be used to summarize the model output. These include functions to calculate summary statistics of the predictor-response function and to visualize different cross-sections of the high-dimensional exposure-response surface.
 
 ### Summary statistics of the predictor-response function
 
@@ -130,7 +113,7 @@ ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*se, ymax = est + 1.96
     geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
 ```
 
-Compute summary statistics summarizing interaction; compare the single-predictor health risks when all of the other predictors in $Z$ are fixed to their 75th percentile to when all of the other predictors in $Z$ are fixed to their 25th percentile.
+Compute summary statistics summarizing interaction; compare the single-predictor health risks when all of the other predictors in `Z` are fixed to their 75th percentile to when all of the other predictors in `Z` are fixed to their 25th percentile.
 
 ```{r int}
 risks.int <- SingVarIntSummaries(fit = fitkm, y = y, Z = Z, X = X)
@@ -171,7 +154,7 @@ ggplot(pred.resp.bivar, aes(z1, z2)) +
     facet_grid(variable1 ~ variable2)
 ```
 
-Another option for investigating bivariate predictor-response relations is to plot the predictor-response function of a single predicor in $Z$ for the second predictor in $Z$ fixed at various quantiles.
+Another option for investigating bivariate predictor-response relations is to plot the predictor-response function of a single predicor in `Z` for the second predictor in `Z` fixed at various quantiles.
 ```{r pred-resp2 opt2, message=FALSE}
 pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, 
                                                        Z = Z, qs = c(0.25, 0.5, 0.75))
@@ -184,7 +167,26 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
     ggtitle("f(z1 | quantiles of z2)")
 ```
 
+## Prior distributions for the `r_m` parameters
 
+The BKMR fit depends on the specification of prior distributions. When we ran the `kmbayes` function to fit the model, we didn't change any of the default settings, so the prior specificatios were used. 
+
+The prior distributions can be specified as part of the `control.parameters` argument.
+```{r control.params}
+fitkm$control.parameters
+```
+
+The model fit can be sensitive to the choice of the prior distribution on the `r_m` parameters. To investigate the impact of these parameters on the model fit, we can use the `InvestigatePrior` function.
+
+```{r investigate prior}
+priorfits <- InvestigatePrior(y = y, Z = Z, X = X)
+```
+
+Here we plot the estimated univariate predictor-response relationships for `r_m` fixed to different values.
+```{r investigate prior 2, fig.height=6, fig.width=6}
+PlotPriorFits(y = y, Z = Z, X = X, 
+              fits = priorfits, which.q = c(1,3,4,6))
+```
 
 
 
