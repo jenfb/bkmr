@@ -55,7 +55,7 @@ res <- persp(z1, z2, hgrid.true, theta = 30, phi = 20, expand = 0.5,
 
 ## Fit BKMR 
 
-To fit the BKMR model, we use the `kmbayes` function. This function implements the Markov chain Monte Carlo (MCMC) sampler described in the paper. The argument `iter` indicates the number of iterations of the MCMC sampler; `verbose` indicates whether interim output summarizing the progress of the model fitting should be printed; and `varsel` indicates whether to conduct variable selection on the predictors `z_{im}`.
+To fit the BKMR model, we use the `kmbayes` function. This function implements the Markov chain Monte Carlo (MCMC) sampler described in the paper. The argument `iter` indicates the number of iterations of the MCMC sampler; `verbose` indicates whether interim output summarizing the progress of the model fitting should be printed; and `varsel` indicates whether to conduct variable selection on the predictors $z_{im}$.
 ```{r fit orig}
 set.seed(111)
 runtime <- system.time(
@@ -76,7 +76,7 @@ TracePlot(fit = fitkm, par = "h", comp = 20)
 
 ## Estimated posterior inclusion probabilities
 
-Because we fit the model with variable selection (we set the argument `varsel` to be `TRUE`), we can estimate the posterior inclusion probability (PIP) for each of the predictors `z_{im}`.
+Because we fit the model with variable selection (we set the argument `varsel` to be `TRUE`), we can estimate the posterior inclusion probability (PIP) for each of the predictors $z_{im}$.
 
 ```{r PIPs}
 ExtractPIPs(fitkm)
@@ -85,76 +85,39 @@ ExtractPIPs(fitkm)
 
 ## Summarize output
 
-We next go through the different functions included in the `bkmr` package that can be used to summarize the model output. These include functions to calculate summary statistics of the predictor-response function and to visualize different cross-sections of the high-dimensional exposure-response surface.
-
-### Summary statistics of the predictor-response function
-
-Compute the overall effect of the mixture, by comparing when all predictors are at a particular percentile to when all are at the 50th percentile.
-
-```{r overall}
-risks.overall.approx <- OverallRiskSummaries(fit = fitkm, y = y, Z = Z, X = X)
-```
-
-```{r plot overall}
-library(ggplot2)
-ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
-    geom_pointrange()
-```
-
-Compute summary statistics summarizing the single predictor health effects; compare risk when a single predictor in $h$ is at the 75th versus 25th percentile, when all of the other predictors are fixed at a particular percentile. We refer to this as the single-predictor health risks.
-
-```{r single var}
-risks.singvar <- SingVarRiskSummaries(fit = fitkm, y = y, Z = Z, X = X)
-```
-
-```{r plot single var}
-ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*se, ymax = est + 1.96*se, 
-                          col = q.fixed)) + 
-    geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
-```
-
-Compute summary statistics summarizing interaction; compare the single-predictor health risks when all of the other predictors in `Z` are fixed to their 75th percentile to when all of the other predictors in `Z` are fixed to their 25th percentile.
-
-```{r int}
-risks.int <- SingVarIntSummaries(fit = fitkm, y = y, Z = Z, X = X)
-```
-
-If the 95% credible interval does not cover zero for a particular predictor, this suggests that that predictor may interact with one of the other predictors.
-```{r plot int}
-ggplot(risks.int, aes(variable, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
-    geom_hline(y_intercept = 0, col = "brown", lty = 2) +
-    geom_pointrange()
-```
+Let's now explore the different functions included in the `bkmr` package that can be used to summarize the model output. These include functions to visualize different cross-sections of the high-dimensional exposure-response surface, as well as to calculate summary statistics of the predictor-response function.
 
 ### Plot the predictor-response function
 
-Single-variable predictor-response function for other predictors fixed at their 50th percentile.
+Once we have fit the BKMR model, we often would like to visually inspect the estimated predictor-response function $h$. Because we can't view a high-dimensional surface, we instead look at different cross-sections of this surface. One cross section of interest is to examine the relationship between a particular predictor $z_m$ and the outcome, where all of the other predictors are fixed to a particular percentile. This can be done using the function `PredictorResponseUnivar`. The argument specifying the quantile at which to fix the other predictors is given by `q.fixed` (the default value is `q.fixed = 0.5`). 
 
 ```{r pred-resp}
 pred.resp.univar <- PredictorResponseUnivar(fit = fitkm, y = y, Z = Z, X = X)
 ```
-
+We use the `ggplot2` package to plot the resulting cross section of $h$.
 ```{r plot pred-resp, fig.height=4, fig.width=6}
+library(ggplot2)
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
     geom_smooth(stat = "identity") + 
     facet_wrap(~ variable)
 ```
 
-Two-variable predictor-response function for other predictors fixed at their 50th percentile.
+Here we see that for $z_1$ and $z_2$, increasing values of the predictors is associated with increasing values of the outcome $Y$ (for each of the other predictors in $Z$ fixed to their 50th percentile, and for the covariates in $x$ held constant). It also looks that $z_1$ may have a nonlinear relationship with $Y$, with a similar suggestion of nonlinearity for $z_2$. 
+
+Building upon the previous example, we can similarly visualze the bivarate predictor-response function for two predictors, where all of the remainnig predictors are fixed at a particular percentile.
 
 ```{r pred-resp2, message=FALSE}
 pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, y = y, Z = Z, X = X, 
                                           min.plot.dist = 1)
 ```
 
-Sometimes the image plots are hard to visualize:
+This output can be used to create image plots (e.g., by using the `geom_raster` function from the `ggplot2` package.
 ```{r plot pred-resp2, fig.height=5, fig.width=6.5}
 ggplot(pred.resp.bivar, aes(z1, z2)) + 
     geom_raster(aes(fill = est)) + 
     facet_grid(variable1 ~ variable2)
 ```
-
-Another option for investigating bivariate predictor-response relations is to plot the predictor-response function of a single predicor in `Z` for the second predictor in `Z` fixed at various quantiles.
+Because it can be hard to see what's going on in these types of image plots, an alternative approach is to investigate the predictor-response function of a single predicor in `Z` for the second predictor in `Z` fixed at various quantiles (and for the remaining preditors fixed to a particular value). These can be obtained using the `PredictorResponseBivarLevels` function, which takes as input the bivariate exposure-resposne function outputted from the previous command, where the argument `qs` specifies a sequence of quantiles at which to fix the second predictor.
 ```{r pred-resp2 opt2, message=FALSE}
 pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, 
                                                        Z = Z, qs = c(0.25, 0.5, 0.75))
@@ -167,22 +130,64 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
     ggtitle("f(z1 | quantiles of z2)")
 ```
 
-## Prior distributions for the `r_m` parameters
+### Summary statistics of the predictor-response function
 
-The BKMR fit depends on the specification of prior distributions. When we ran the `kmbayes` function to fit the model, we didn't change any of the default settings, so the prior specificatios were used. 
+In addition to visually inspecting the estimated predictor-response function $h$, one may also wish to calculate a range of summary statistics that highligh specific features of the (potentially) high-dimensional surface.
+One potential summary measure of interest is to compute the overall effect of the predictors, by comparing the value of $h$ when all of predictors are at a particular percentile as compared to when all of them are at their 50th percentile. The function `OverallRiskSummaries` allows one to specify a sequence of values of quantiles using the argument `qs` and the fixed quantile (the default is the 50th percentile) using the argument `q.fixed`.
 
-The prior distributions can be specified as part of the `control.parameters` argument.
-```{r control.params}
-fitkm$control.parameters
+```{r overall} 
+risks.overall.approx <- OverallRiskSummaries(fit = fitkm, y = y, Z = Z, X = X, 
+                                             qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5)
+risks.overall.approx
+```
+We see, for example, that a change in all of the predictors from their 50th percentile to their 75th percentile (and for all of the covariates $x$ fixed), that the outcome $Y$ changes by `r round(drop(subset(risks.overall.approx, quantile == 0.75, "est")), 2)`. 
+We can also plot the overall risk summaries; here we use the `ggplot` package.
+```{r plot overall}
+ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+    geom_pointrange()
 ```
 
-The model fit can be sensitive to the choice of the prior distribution on the `r_m` parameters. To investigate the impact of these parameters on the model fit, we can use the `InvestigatePrior` function.
+Another summary of $h$ that may be of interest would be to summarize the contribution of a individual predictors to the response. For example, we may wish to compare risk when a single predictor in $h$ is at the 75th percentile as compared to when that predictor is at its 25th percentile, where we fixe all of the remaining predictors to a particular percentile. We refer to this as the single-predictor health risks, and these can be computed using the function `SingVarRiskSummaries`. The two different quantiles at which to compare the risk are specified using the `qs.diff` argument, and a sequence of values at which to fix the remaining pollutants can be specified using the `q.fixed` argument.
+
+```{r single var}
+risks.singvar <- SingVarRiskSummaries(fit = fitkm, y = y, Z = Z, X = X, 
+                                      qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75))
+risks.singvar
+```
+Here we see, for example, that a change in the predictor $z_1$ from its 75th to its 25th percentile, where the predictors $z_2$, $z_3$, and $z_4$ are fixed at their 75th percentile (and for the covariates $x$ fixed), is given by `r round(drop(subset(risks.singvar, variable == "z1" & q.fixed == 0.75, "est")), 2)`. It is easier to investigate trends in the estimates by plotting the results:
+```{r plot single var}
+ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*se, ymax = est + 1.96*se, 
+                          col = q.fixed)) + 
+    geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
+```
+
+We see that the predictors $z_3$ and $z_4$ do not contribute to the risk, and that higher values of $z_1$ and $z_2$ are associated with higher values of the $h$ function. In addition, the plot suggests that for $z_1$, as the remaining predictors increase in value from their 25th to their 75th percentile, the risk of the outcome associated with $z_1$ increases. A similar pattern occurs for $z_2$. This indicates the potential for interaction of $z_1$ and $z_2$.
+
+To make this notion a bit more formal, we may wish to compute specific 'interaction' parameters. For example, we may which to compare the single-predictor health risks when all of the other predictors in `Z` are fixed to their 75th percentile to when all of the other predictors in `Z` are fixed to their 25th percentile. In the previous plot, this corresponds to substracting the estimate represented by the red circle from the estimate represented by the blue circle. This can be done using the function `SingVarIntSummaries`.
+
+```{r int}
+risks.int <- SingVarIntSummaries(fit = fitkm, y = y, Z = Z, X = X, 
+                                 qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75))
+risks.int
+```
+We see that single pollutant risk associated with a change in $z_1$ from its 25th to 75th percentile increases by `r round(drop(subset(risks.int, variable == "z1", "est")), 2)` when $z_2$ to $z_4$ are fixed at their 25th percentile, as compared to when $z_2$ to $z_4$ are fixed at their 75th percentile.
+
+## Prior distributions for the $r_m$ parameters
+
+The BKMR fit depends on the specification of prior distributions. When we ran the `kmbayes` function to fit the model, we didn't change any of the default settings, so the prior specifications were used. 
+
+The prior distributions can be specified as part of the `control.params` argument.
+```{r control.params}
+data.frame(fitkm$control.params)
+```
+
+The model fit can be sensitive to the choice of the prior distribution on the $r_m$ parameters. To investigate the impact of these parameters on the model fit, we can use the `InvestigatePrior` function.
 
 ```{r investigate prior}
 priorfits <- InvestigatePrior(y = y, Z = Z, X = X)
 ```
 
-Here we plot the estimated univariate predictor-response relationships for `r_m` fixed to different values.
+Here we plot the estimated univariate predictor-response relationships for $r_m$ fixed to different values.
 ```{r investigate prior 2, fig.height=6, fig.width=6}
 PlotPriorFits(y = y, Z = Z, X = X, 
               fits = priorfits, which.q = c(1,3,4,6))
