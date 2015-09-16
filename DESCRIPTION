@@ -12,7 +12,8 @@ Imports: dplyr,
     Rcpp,
     fields,
     truncnorm,
-    ggplot2
+    ggplot2,
+    tidyr
 Suggests: knitr,
 	rstan
 VignetteBuilder: knitr
