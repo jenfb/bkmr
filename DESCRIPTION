@@ -15,5 +15,6 @@ Imports: dplyr,
     ggplot2,
     tidyr
 Suggests: knitr,
-	rstan
+	rstan,
+    testthat
 VignetteBuilder: knitr

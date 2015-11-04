@@ -66,7 +66,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
 #' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
 #' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the variables in \code{h}
-#' @param groups optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.
+#' @param groups optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
