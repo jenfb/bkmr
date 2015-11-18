@@ -1,3 +1,8 @@
+# Validate control params list
+# }
+validateControlParams <- function(varsel, control.params) {
+
+}
 # makeKpart <- function(r, Z) {
 	# Kpart <- as.matrix(dist(sqrt(matrix(r, byrow=TRUE, nrow(Z), ncol(Z)))*Z))^2
 	# Kpart
@@ -70,10 +75,75 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
-kmbayes <- function(y, Z, X, iter = 1000, family = gaussian, id, verbose = FALSE, Znew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
-
+kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FALSE, Znew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
+ 
+  ##Argument check 1, required arguments without defaults
+  ##check vector/matrix sizes
+  stopifnot (length(y) > 0, is.numeric(y), anyNA(y) == FALSE)
+  if (class(Z) != "matrix")  Z <- as.matrix(Z)
+  stopifnot (is.numeric(Z), nrow(Z) == length(y), anyNA(Z) == FALSE)
+  if (class(X) != "matrix")  X <- as.matrix(X)
+  stopifnot (is.numeric(X), nrow(X) == length(y), anyNA(X) == FALSE) 
+  
+  ##Argument check 2: for those with defaults, write message and reset to default if invalid
+  if (iter < 1) {
+    message ("invalid input for iter, resetting to default value 1000")
+    nsamp <- 1000
+  }
+  else {
     nsamp <- iter
-
+  }
+  if (family != "gaussian") {
+    message ("not yet implemented, resetting family to default gaussian")
+    family <- "gaussian"
+  }
+  if (rmethod != "varying" & rmethod != "equal" & rmethod != "fixed") {
+    message ("invalid value for rmethod, resetting to default varying")
+    rmethod <- "varying"
+  }
+  if (verbose != FALSE & verbose != TRUE) {
+    message ("invalid value for verbose, resetting to default FALSE")
+    verbose <- FALSE
+  }
+  if (varsel != FALSE & varsel != TRUE) {
+    message ("invalid value for varsel, resetting to default FALSE")
+    varsel <- FALSE
+  }
+  
+  ##Argument check 3: the rest id (below) znew, knots, groups, ztest
+  if (!missing(id)) { 
+    stopifnot(length(id) == length(y), anyNA(id) == FALSE)
+    if (!missing(knots)) { 
+      message ("knots cannot be specified with id, resetting knots to null")
+      knots<-NULL
+    }
+  }
+  if (!missing(Znew)) { 
+    if (class(Znew) != "matrix")  Znew <- as.matrix(Znew)
+    stopifnot(is.numeric(Znew), ncol(Znew) == ncol(Z), anyNA(Znew) == FALSE)
+  }
+  if (!missing(knots)) { 
+    if (class(knots) != "matrix")  knots <- as.matrix(knots)
+    stopifnot(is.numeric(knots), ncol(knots )== ncol(Z), anyNA(knots) == FALSE)
+  }
+  if (!missing(groups)) { 
+    if (varsel == FALSE) {
+      message ("groups should only be specified if varsel=TRUE, resetting varsel to TRUE")
+      varsel <- TRUE
+    } else {
+      stopifnot(is.numeric(groups), length(groups) == ncol(Z), anyNA(groups) == FALSE)
+    }
+  }
+  if (!missing(ztest)) { 
+    if (varsel == FALSE) {
+      message ("ztest should only be specified if varsel=TRUE, resetting varsel to TRUE")
+      varsel <- TRUE
+    } else {
+      stopifnot(is.numeric(ztest), length(ztest) <= ncol(Z), anyNA(ztest) == FALSE, max(ztest) <= ncol(Z) )
+    }
+  }
+  
+  ## start JB code
 	if (!missing(id)) { ## for random intercept model
 		randint <- TRUE
 		id <- as.numeric(as.factor(id))
@@ -308,7 +378,8 @@ kmbayes <- function(y, Z, X, iter = 1000, family = gaussian, id, verbose = FALSE
 }
 
 print.bkmrfit <- function(x, q = c(0.025, 0.975), digits = 5, ...) {
-    ests <- ExtractEsts(x, q = q)
+    ests <- ExtractEsts(x, q
+                        = q)
     summ <- with(ests, rbind(sigsq.eps, beta, r))
     print(round(summ, digits = digits))
 }
