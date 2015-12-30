@@ -1,7 +1,3 @@
-source("R/argval_controlParams.R")
-validateControlParams(varsel=TRUE, family="gaussian", id, list())
-control.params <- list()
-
 
 library(bkmr)
 library(testthat)
@@ -10,48 +6,59 @@ dat <- SimData(n = 50, M = 4)
 y <- dat$y
 Z <- dat$Z
 X <- dat$X
-cp1<-list()
-cp1$a.sigsq<-(-1)
-cp2<-list()
-cp2$b.sigsq<-(-1)
 test_that("gaussian family", {
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, family="gaussian", control.params=cp1), 
-               'invalid value for a.sigsq, resetting to default .001', fixed=TRUE)
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, family="gaussian", control.params=cp2), 
-               'invalid value for b.sigsq, resetting to default .001', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, family="gaussian", control.params=list(a.sigsq=0)), 
+               'control.params$a.sigsq > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, family="gaussian", control.params=list(b.sigsq=0)), 
+               'control.params$b.sigsq > 0 is not TRUE', fixed=TRUE)
 })
 
-cp1<-list()
-cp1$a.p0<-(-1)
-cp2<-list()
-cp2$b.p0<-(-1)
-cp3<-list()
-cp3$r.jump1<-(-1)
-cp4<-list()
-cp4$r.jump2<-(-1)
-cp5<-list()
-cp5$r.muprop<-(-1)
-cp6<-list()
-cp6$r.jump<-(-1)
 test_that("variable selection or not", {
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=cp1), 
-               'invalid value for a.p0 , resetting to default 1', fixed=TRUE)
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=cp2), 
-               'invalid value for b.p0 , resetting to default 1', fixed=TRUE)
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=cp3), 
-               'invalid value for r.jump1, resetting to default 2', fixed=TRUE)
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=cp4), 
-               'invalid value for r.jump2, resetting to default 0.2', fixed=TRUE)
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=cp5), 
-               'invalid value for r.muprop, resetting to default 1', fixed=TRUE)
-  expect_message(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=FALSE, control.params=cp6), 
-                 'invalid value for r.jump, resetting to default 0.2', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=list(a.p0=0)), 
+               'control.params$a.p0 > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=list(b.p0=0)), 
+               'control.params$b.p0 > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=list(r.jump1=0)), 
+               'control.params$r.jump1 > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=list(r.jump2=0)), 
+               'control.params$r.jump2 > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=TRUE, control.params=list(r.muprop=0)), 
+               'control.params$r.muprop > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, varsel=FALSE, control.params=list(r.jump=0)), 
+               'control.params$r.jump > 0 is not TRUE', fixed=TRUE)
 })
 
-cp1<-list()
-cp1$mu.lambda<-(1)
 myid<-c(seq(1, 48), c(1,2))
-test_that("id", {
-  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, id=myid, control.params=cp6), 
-                 'length(control.params$mu.lambda) == 2 & length(control.params$sigma.lambda) ==  .... is not TRUE', fixed=TRUE)
+test_that("lambda params with and without id", {
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, id=myid, control.params=list(mu.lambda=(1))), 
+                 'length(control.params$mu.lambda) == 2 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, id=myid, control.params=list(mu.lambda=c(1,2), sigma.lambda=5)), 
+               'length(control.params$sigma.lambda) == 2 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, id=myid, control.params=list(mu.lambda=c(1,2), sigma.lambda=c(5,10), lambda.jump=2)), 
+               'length(control.params$lambda.jump) == 2 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, id=myid, control.params=list(mu.lambda=c(1,-1), sigma.lambda=c(5,10), lambda.jump=c(2, 0.2))), 
+               'control.params$mu.lambda > 0 are not all TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, id=myid, control.params=list(mu.lambda=c(1,2), sigma.lambda=c(5,-5), lambda.jump=c(2, 0.2))), 
+               'control.params$sigma.lambda > 0 are not all TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, id=myid, control.params=list(mu.lambda=c(1,2), sigma.lambda=c(5,10), lambda.jump=c(2, -0.2))), 
+               'control.params$lambda.jump > 0 are not all TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(mu.lambda=(-1), sigma.lambda=10, lambda.jump=2)), 
+               'control.params$mu.lambda > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(mu.lambda=1, sigma.lambda=(-5), lambda.jump=2)), 
+               'control.params$sigma.lambda > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(mu.lambda=1, sigma.lambda=5, lambda.jump=(-2))), 
+               'control.params$lambda.jump > 0 is not TRUE', fixed=TRUE)
+})
+  
+test_that("prior distributions", {
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(r.prior="hello")), 
+              'rprior == "gamma" | rprior == "unif" | rprior == "invunif" is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(r.prior="gamma", mu.r=0)), 
+                 'control.params$mu.r > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(r.prior="gamma", sigma.r=0)), 
+                 'control.params$sigma.r > 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(r.prior="unif", r.a=(-1))), 
+                 'control.params$r.a >= 0 is not TRUE', fixed=TRUE)
+  expect_error(testfit<-kmbayes(y = y, Z = Z, X = X, iter = 100, control.params=list(r.prior="unif", r.b=(-1))), 
+                 'control.params$r.b > control.params$r.a is not TRUE', fixed=TRUE)
 })

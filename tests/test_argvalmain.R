@@ -1,6 +1,7 @@
-context("argument validation")
+##context("argument validation")
 
 library(bkmr)
+library(testthat)
 test_that("y validation", {
   expect_error(testfit<-kmbayes(y = vector('numeric'), Z = Z, X = X, iter = 100), 
                 'length(y) > 0 is not TRUE', fixed=TRUE)
