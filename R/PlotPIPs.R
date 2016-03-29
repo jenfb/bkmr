@@ -1,20 +1,18 @@
 ComputePIPs <- function(fit, rthresh = 10^(-(0:6)), z.names = NULL, sel = NULL) {
-    if(inherits(fit, "stanfit")) {
-        rsamps <- rstan::extract(fit)$r
-    } else if (inherits(fit, "bkmrfit")) {
-        if (is.null(sel)) {
-            sel <- with(fit, seq(floor(iter/2) + 1, iter))
-        }
-        rsamps <- fit$r[sel, ]
+  if (inherits(fit, "bkmrfit")) {
+    if (is.null(sel)) {
+      sel <- with(fit, seq(floor(iter/2) + 1, iter))
     }
-    if(is.null(z.names)) z.names <- paste0("z", 1:ncol(rsamps))
-
-    mat <- matrix(NA, length(rthresh), ncol(rsamps), dimnames = list(paste0("rthresh", seq_along(rthresh)), z.names))
-    for(i in seq_along(rthresh)) {
-        mat[i, ] <- colMeans(abs(rsamps) >= rthresh[i])
-    }
-    attr(mat, "rthresh") <- rthresh
-    mat
+    rsamps <- fit$r[sel, ]
+  }
+  if(is.null(z.names)) z.names <- paste0("z", 1:ncol(rsamps))
+  
+  mat <- matrix(NA, length(rthresh), ncol(rsamps), dimnames = list(paste0("rthresh", seq_along(rthresh)), z.names))
+  for(i in seq_along(rthresh)) {
+    mat[i, ] <- colMeans(abs(rsamps) >= rthresh[i])
+  }
+  attr(mat, "rthresh") <- rthresh
+  mat
 }
 
 #' @import ggplot2

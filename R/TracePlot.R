@@ -2,9 +2,6 @@
 #'
 #' @export
 TracePlot <- function(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration", ylab = "parameter value", ...) {
-    if(inherits(fit, "stanfit")) {
-        warning("you can use rstan::traceplot() instead")
-    }
     samps <- ExtractSamps(fit, sel = sel)[[par]]
     if (!is.null(ncol(samps))) {
         nm <- colnames(samps)[comp]
