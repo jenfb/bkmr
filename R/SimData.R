@@ -21,6 +21,8 @@
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                      beta.true = 2, hfun = 3) {
   
+  stopifnot(n > 0, M > 0, sigsq.true >= 0)
+  
   if (hfun == 1) {
     HFun <- function(z, ind = 1) 4*plogis(z[ind], 0, 0.3)
   } else if (hfun == 2) {

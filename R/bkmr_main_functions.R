@@ -202,9 +202,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FAL
 	if (!missing(control.params)){
 	  control.params <- modifyList(list(lambda.jump = 10, mu.lambda = 10, sigma.lambda = 10, a.p0 = 1, b.p0 = 1, r.prior = "gamma", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.2, r.jump1 = 2, r.jump2 = 0.2, r.a = 0, r.b = 100), as.list(control.params))
 	  validateControlParams(varsel, family, id, control.params)
-	  ##print(control.params)
-	}
-	else {
+	} else {
 	  control.params <- modifyList(list(lambda.jump = 10, mu.lambda = 10, sigma.lambda = 10, a.p0 = 1, b.p0 = 1, r.prior = "gamma", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.2, r.jump1 = 2, r.jump2 = 0.2, r.a = 0, r.b = 100), control.params)
 	}
 	
@@ -239,16 +237,40 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FAL
 	rm(e, rfn)
 
 	## initial values
-    if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
-        lmfit0 <- lm(y ~ Z + X)
-        if (is.null(starting.values$beta)) {
-            starting.values$beta <- coef(lmfit0)[grep("X", names(coef(lmfit0)))]
-        }
-        if (is.null(starting.values$sigsq.eps)) {
-            starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
-        }
-    }
-	starting.values <- modifyList(list(h.hat = 1, beta = 1, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
+	if (!missing(starting.values)){
+	  starting.values <- modifyList(list(h.hat = 1, beta = 1, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
+	  validateStartingValues (varsel, length(y), ncol(X), ncol(Z), starting.values)
+	}
+  if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
+      lmfit0 <- lm(y ~ Z + X)
+      if (is.null(starting.values$beta)) {
+          starting.values$beta <- coef(lmfit0)[grep("X", names(coef(lmfit0)))]
+      }
+      if (is.null(starting.values$sigsq.eps)) {
+          starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
+      }
+      starting.values <- modifyList(list(h.hat = 1, beta = 1, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
+  } else {
+	  starting.values <- modifyList(list(h.hat = 1, beta = 1, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
+	}
+
+	##print (starting.values)
+	##truncate vectors that are too long
+	if (length(starting.values$h.hat) > length(y)) {
+	  starting.values$h.hat <- starting.values$h.hat[1:length(y)]
+	}
+	if (length(starting.values$beta) > ncol(X)) {
+	  starting.values$beta <- starting.values$beta[1:ncol(X)]
+	}
+	if (length(starting.values$delta) > ncol(Z)) {
+	  starting.values$delta <- starting.values$delta[1:ncol(Z)]
+	}
+	if (varsel==FALSE & length(starting.values$r) > 1) {
+	  starting.values$r <- starting.values$r[1]
+	} else if (length(starting.values$r) > ncol(Z)) {
+	  starting.values$r <- starting.values$r[1:ncol(Z)]
+	}
+	
 	chain$h.hat[1, ] <- starting.values$h.hat
 	chain$beta[1, ] <- starting.values$beta
 	chain$lambda[1, ] <- starting.values$lambda
@@ -267,7 +289,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FAL
 		chain$delta[1,ztest] <- starting.values$delta
 		chain$r[1,ztest] <- ifelse(chain$delta[1,ztest] == 1, chain$r[1,ztest], 0)
 	}
-
+	
 	## components
 	Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
 

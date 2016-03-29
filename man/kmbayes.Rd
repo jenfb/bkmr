@@ -4,7 +4,7 @@
 \alias{kmbayes}
 \title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, Z, X, iter = 1000, family = gaussian, id, verbose = FALSE,
+kmbayes(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FALSE,
   Znew, starting.values = list(), control.params = list(), varsel = FALSE,
   groups, knots, ztest, rmethod = "varying")
 }
@@ -31,7 +31,7 @@ kmbayes(y, Z, X, iter = 1000, family = gaussian, id, verbose = FALSE,
 
 \item{varsel}{TRUE or FALSE: indicator for whether to conduct variable selection on the variables in \code{h}}
 
-\item{groups}{optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection.}
+\item{groups}{optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.}
 
 \item{knots}{optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.}
 

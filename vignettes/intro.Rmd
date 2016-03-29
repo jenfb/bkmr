@@ -117,7 +117,7 @@ ggplot(pred.resp.bivar, aes(z1, z2)) +
     geom_raster(aes(fill = est)) + 
     facet_grid(variable1 ~ variable2)
 ```
-Because it can be hard to see what's going on in these types of image plots, an alternative approach is to investigate the predictor-response function of a single predicor in `Z` for the second predictor in `Z` fixed at various quantiles (and for the remaining preditors fixed to a particular value). These can be obtained using the `PredictorResponseBivarLevels` function, which takes as input the bivariate exposure-resposne function outputted from the previous command, where the argument `qs` specifies a sequence of quantiles at which to fix the second predictor.
+Because it can be hard to see what's going on in these types of image plots, an alternative approach is to investigate the predictor-response function of a single predictor in `Z` for the second predictor in `Z` fixed at various quantiles (and for the remaining predictors fixed to a particular value). These can be obtained using the `PredictorResponseBivarLevels` function, which takes as input the bivariate exposure-response function outputted from the previous command, where the argument `qs` specifies a sequence of quantiles at which to fix the second predictor.
 ```{r pred-resp2 opt2, message=FALSE}
 pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, 
                                                        Z = Z, qs = c(0.25, 0.5, 0.75))
