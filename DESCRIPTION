@@ -9,7 +9,6 @@ LazyData: true
 Imports: dplyr,
     magrittr,
     nlme,
-    Rcpp,
     fields,
     truncnorm,
     ggplot2,
