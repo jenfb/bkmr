@@ -128,30 +128,4 @@ SingVarIntSummaries <- function(fit, y, Z, X, which.z = 1:ncol(Z), qs.diff = c(0
 }
 
 
-#' Sequentially add predictors to compute the overall risk, when the set of predictors in $Z$ are all at their 75th vs. 25th percentile, for all of the other predictors fixed at a particular percentile
-#'
-#' @export
-SeqVarRiskSummaries <- function(fit, y, Z, X, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = 0.50, preds.method = "approx", sel = NULL, z.names = colnames(Z), ...) {
-    if(is.null(z.names)) z.names <- paste0("z", 1:ncol(Z))
-
-    if (is.character(colnames(Z))) {
-        z.names <- z.names[match(which.z, z.names)]
-    } else {
-        z.names <- z.names[which.z]
-    }
-
-    df <- dplyr::data_frame()
-    for(i in seq_along(q.fixed)) {
-        for(j in seq_along(which.z)) {
-            risk <- VarRiskSummary(whichz = which.z[1:j], fit = fit, y = y, Z = Z, X = X, qs.diff = qs.diff, q.fixed = q.fixed[i], preds.method = preds.method, sel = sel, ...)
-            df0 <- dplyr::data_frame(q.fixed = q.fixed[i], added.z = z.names[j], est = risk["est"], se = risk["se"])
-            df <- dplyr::bind_rows(df, df0)
-        }
-    }
-    df <- dplyr::mutate(df, added.z = factor(added.z, levels = z.names), q.fixed = as.factor(q.fixed))
-    attr(df, "qs.diff") <- qs.diff
-    df
-}
-
-
 
