@@ -2,10 +2,27 @@
 % Please edit documentation in R/ComputeMixtureSummaries.R
 \name{OverallRiskSummaries}
 \alias{OverallRiskSummaries}
-\title{Compare estimated \code{h} function when all predictors are at a particular percentile to when all are at the 50th percentile}
+\title{OverallRiskSummaries}
 \usage{
 OverallRiskSummaries(fit, y, Z, X, qs = seq(0.25, 0.75, by = 0.05),
   q.fixed = 0.5, preds.method = "approx", sel = NULL)
+}
+\arguments{
+\item{fit}{}
+
+\item{y}{}
+
+\item{Z}{}
+
+\item{X}{}
+
+\item{qs}{}
+
+\item{q.fixed}{}
+
+\item{preds.method}{}
+
+\item{sel}{}
 }
 \description{
 Compare estimated \code{h} function when all predictors are at a particular percentile to when all are at the 50th percentile

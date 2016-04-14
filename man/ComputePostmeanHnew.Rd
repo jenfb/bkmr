@@ -17,7 +17,7 @@ ComputePostmeanHnew(fit, y, Z, X, Znew, sel = NULL)
 
 \item{Znew}{}
 
-\item{sel}{A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.}
+\item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.}
 }
 \description{
 Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps

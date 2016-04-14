@@ -7,6 +7,23 @@
 TracePlot(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration",
   ylab = "parameter value", ...)
 }
+\arguments{
+\item{fit}{}
+
+\item{par}{}
+
+\item{comp}{}
+
+\item{sel}{}
+
+\item{main}{}
+
+\item{xlab}{}
+
+\item{ylab}{}
+
+\item{...}{}
+}
 \description{
 Trace plot
 }

@@ -6,6 +6,13 @@
 \usage{
 ExtractEsts(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL)
 }
+\arguments{
+\item{fit}{An object containing the results returned by a the \code{kmbayes} function}
+
+\item{q}{vector of quantiles}
+
+\item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
+}
 \description{
 Obtain summary statistics of each parameter from the BKMR fit
 }

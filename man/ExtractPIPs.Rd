@@ -14,7 +14,7 @@ ExtractPIPs(fit, sel = NULL, z.names = NULL)
 \item{z.names}{optional argument providing the names of the variables included in the \code{h} function.}
 }
 \value{
-a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditoinal (within-group) PIPs for BKMR fit with hierarchical variable selection.
+a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditional (within-group) PIPs for BKMR fit with hierarchical variable selection.
 }
 \description{
 Extract posterior inclusion probabilities (PIPs) from Bayesian Kernel Machine Regression (BKMR) model fit

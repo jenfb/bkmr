@@ -6,6 +6,11 @@
 \usage{
 ExtractSamps(fit, sel = NULL)
 }
+\arguments{
+\item{fit}{An object containing the results returned by a the \code{kmbayes} function}
+
+\item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
+}
 \description{
 Extract samples of each parameter from the BKMR fit
 }

@@ -7,9 +7,15 @@
 PlotCorr(Z, reorder = TRUE, print.vals = FALSE, plot = TRUE, digits = 2)
 }
 \arguments{
-\item{digits}{If the correlation values are to be printed in the plot (\code{vals == TRUE}), how many digits should be displayed}
+\item{Z}{}
 
-\item{vals}{}
+\item{reorder}{order correlation matrix based on distance}
+
+\item{print.vals}{show the correlation values on the plto}
+
+\item{plot}{make the plot}
+
+\item{digits}{If the correlation values are to be printed in the plot (\code{vals == TRUE}), how many digits should be displayed}
 }
 \description{
 Plot of correlation matrix

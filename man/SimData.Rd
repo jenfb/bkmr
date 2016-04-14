@@ -4,7 +4,8 @@
 \alias{SimData}
 \title{Simulate dataset}
 \usage{
-SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3)
+SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3,
+  Zgen = c("unif", "mvn"))
 }
 \arguments{
 \item{n}{Number of observations}
@@ -16,6 +17,8 @@ SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3)
 \item{beta.true}{Coefficient on the covariate}
 
 \item{hfun}{An integer from 1 to 3 identifying which predictor-response function to generate}
+
+\item{Zgen}{Method for generating the matrix Z of exposure variables.}
 }
 \description{
 Simulate predictor, covariate, and outcome data

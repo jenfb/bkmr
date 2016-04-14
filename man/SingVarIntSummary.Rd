@@ -2,10 +2,31 @@
 % Please edit documentation in R/ComputeMixtureSummaries.R
 \name{SingVarIntSummary}
 \alias{SingVarIntSummary}
-\title{Compare the single-predictor health risks when all of the other predictors in Z are fixed to their 75th percentile to when all of the other predictors in Z are fixed to their 25th percentile.}
+\title{SingVarIntSummary}
 \usage{
 SingVarIntSummary(whichz = 1, fit, y, Z, X, qs.diff = c(0.25, 0.75),
   qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL, ...)
+}
+\arguments{
+\item{whichz}{}
+
+\item{fit}{}
+
+\item{y}{}
+
+\item{Z}{}
+
+\item{X}{}
+
+\item{qs.diff}{}
+
+\item{qs.fixed}{}
+
+\item{preds.method}{}
+
+\item{sel}{}
+
+\item{...}{}
 }
 \description{
 Compare the single-predictor health risks when all of the other predictors in Z are fixed to their 75th percentile to when all of the other predictors in Z are fixed to their 25th percentile.
