@@ -16,8 +16,8 @@ knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
 ```
 
 ```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, results='hide'}
-##library(bkmr)
-suppressMessages(devtools::document())
+suppressMessages(library(bkmr))
+##suppressMessages(devtools::document())
 ##devtools::load_all()
 ```
 
@@ -26,7 +26,7 @@ Kernel machine regression (KMR), also called Gaussian process regression, is a p
 $$
 g(E(Y_i)) = h(z_{i1}, \ldots, z_{iM}) + \beta{\bf x}_i, \quad i = 1, \ldots, n
 $$
-where $g$ is a monotonic link function, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates assumed to have a linear relationship with the outcome ($\beta$ is the corresponding vector of coefficients). In settings where there are a large number of predictor variables, or when the predictor-response function is complex, potentially nonlinear and non-additive relation, it may be challenging to specify a set of basis functions to represent $h$. In these settings, an alternative way to characterize $h$ is through a kernel machine representation.
+where $g$ is a monotonic link function, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates assumed to have a linear relationship with the outcome ($\beta$ is the corresponding vector of coefficients). We will refer to the predictors ${\bf z}$ as exposure variables and to $h(\cdot)$ as the exposure-response function. In settings where there are a large number of exposures, or when the exposure-response function is complex, potentially nonlinear and non-additive relation, it may be challenging to specify a set of basis functions to represent $h$. In these settings, an alternative way to characterize $h$ is through a kernel machine representation.
 
 This package includes functions for conducting Bayesian inference for the model above. The main function `kmbayes()` fits the model. We also provide several functions to summarize the model output in different ways and to visually display the results.
 
@@ -42,7 +42,7 @@ Z <- dat$Z
 X <- dat$X
 ```
 
-Let's view the true predictor-response function used to generate the data
+Let's view the true exposure-response function used to generate the data
 ```{r plot, fig.height=3.5, fig.width=3.5}
 z1 <- seq(min(dat$Z[, 1]), max(dat$Z[, 1]), length = 20)
 z2 <- seq(min(dat$Z[, 2]), max(dat$Z[, 2]), length = 20)
@@ -76,7 +76,7 @@ TracePlot(fit = fitkm, par = "h", comp = 20)
 
 ## Estimated posterior inclusion probabilities
 
-Because we fit the model with variable selection (we set the argument `varsel` to be `TRUE`), we can estimate the posterior inclusion probability (PIP) for each of the predictors $z_{im}$.
+Because we fit the model with variable selection (we set the argument `varsel` to be `TRUE`), we can estimate the posterior inclusion probability (PIP) for each of the exposures $z_{im}$.
 
 ```{r PIPs}
 ExtractPIPs(fitkm)
@@ -85,37 +85,44 @@ ExtractPIPs(fitkm)
 
 ## Summarize output
 
-Let's now explore the different functions included in the `bkmr` package that can be used to summarize the model output. These include functions to visualize different cross-sections of the high-dimensional exposure-response surface, as well as to calculate summary statistics of the predictor-response function.
+Let's now explore the different functions included in the `bkmr` package that can be used to summarize the model output. These include functions to visualize different cross-sections of the exposure-response surface, as well as to calculate a variety of summary statistics that may be of scientific interest.
 
 ### Plot the predictor-response function
 
-Once we have fit the BKMR model, we often would like to visually inspect the estimated predictor-response function $h$. Because we can't view a high-dimensional surface, we instead look at different cross-sections of this surface. One cross section of interest is to examine the relationship between a particular predictor $z_m$ and the outcome, where all of the other predictors are fixed to a particular percentile. This can be done using the function `PredictorResponseUnivar`. The argument specifying the quantile at which to fix the other predictors is given by `q.fixed` (the default value is `q.fixed = 0.5`). 
+Once we have fit the BKMR model, we often would like to visualize $h(\cdot)$. Because we can't view a high-dimensional surface, we instead look at different cross-sections of this surface. We do this focusing on the relationships of 1 or 2 exposures with the outcome and setting the remaining exposures to specific values. 
+
+One cross section of interest is the univariate  relationship between each $z_m$ and the outcome, where all of the other exposures are fixed to a particular percentile. This can be done using the function `PredictorResponseUnivar`. The argument specifying the quantile at which to fix the other exposures is given by `q.fixed` (the default value is `q.fixed = 0.5`). 
 
 ```{r pred-resp}
-pred.resp.univar <- PredictorResponseUnivar(fit = fitkm, y = y, Z = Z, X = X)
+pred.resp.univar <- PredictorResponseUnivar(fit = fitkm)
 ```
 We use the `ggplot2` package to plot the resulting cross section of $h$.
 ```{r plot pred-resp, fig.height=4, fig.width=6}
 library(ggplot2)
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
     geom_smooth(stat = "identity") + 
-    facet_wrap(~ variable)
+    facet_wrap(~ variable) +
+  ylab("h(z)")
 ```
 
-Here we see that for $z_1$ and $z_2$, increasing values of the predictors is associated with increasing values of the outcome $Y$ (for each of the other predictors in $Z$ fixed to their 50th percentile, and for the covariates in $x$ held constant). It also looks that $z_1$ may have a nonlinear relationship with $Y$, with a similar suggestion of nonlinearity for $z_2$. 
+Here we see that for $z_1$ and $z_2$, increasing values of the exposures is associated with increasing values of the outcome $Y$ (for each of the other predictors in $Z$ fixed to their 50th percentile, and for the covariates in $x$ held constant). It also looks like $z_1$ may have a nonlinear relationship with $Y$, with a similar suggestion of nonlinearity for $z_2$. 
 
-Building upon the previous example, we can similarly visualze the bivarate predictor-response function for two predictors, where all of the remainnig predictors are fixed at a particular percentile.
+Building upon the previous example, we can similarly visualze the bivarate exposure-response function for two predictors, where all of the other predictors are fixed at a particular percentile.
 
 ```{r pred-resp2, message=FALSE}
-pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, y = y, Z = Z, X = X, 
+pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, 
                                           min.plot.dist = 1)
 ```
 
-This output can be used to create image plots (e.g., by using the `geom_raster` function from the `ggplot2` package.
+This output can be used to create image or contour plots (e.g., by using the `geom_raster` function from the `ggplot2` package.
 ```{r plot pred-resp2, fig.height=5, fig.width=6.5}
-ggplot(pred.resp.bivar, aes(z1, z2)) + 
-    geom_raster(aes(fill = est)) + 
-    facet_grid(variable1 ~ variable2)
+ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) + 
+    geom_raster() + 
+    facet_grid(variable1 ~ variable2) +
+  scale_fill_gradientn(colours=c("#0000FFFF","#FFFFFFFF","#FF0000FF")) +
+  xlab("expos1") +
+  ylab("expos2") +
+  ggtitle("h(expos2, expos2)")
 ```
 Because it can be hard to see what's going on in these types of image plots, an alternative approach is to investigate the predictor-response function of a single predictor in `Z` for the second predictor in `Z` fixed at various quantiles (and for the remaining predictors fixed to a particular value). These can be obtained using the `PredictorResponseBivarLevels` function, which takes as input the bivariate exposure-response function outputted from the previous command, where the argument `qs` specifies a sequence of quantiles at which to fix the second predictor.
 ```{r pred-resp2 opt2, message=FALSE}
@@ -127,7 +134,8 @@ pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
     geom_smooth(aes(col = quantile), stat = "identity") + 
     facet_grid(variable1 ~ variable2) +
-    ggtitle("f(z1 | quantiles of z2)")
+    ggtitle("h(expos1 | quantiles of expos2)") +
+  xlab("expos1")
 ```
 
 ### Summary statistics of the predictor-response function
@@ -140,10 +148,9 @@ risks.overall.approx <- OverallRiskSummaries(fit = fitkm, y = y, Z = Z, X = X,
                                              qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5)
 risks.overall.approx
 ```
-We see, for example, that a change in all of the predictors from their 50th percentile to their 75th percentile (and for all of the covariates $x$ fixed), that the outcome $Y$ changes by `r round(drop(subset(risks.overall.approx, quantile == 0.75, "est")), 2)`. 
 We can also plot the overall risk summaries; here we use the `ggplot` package.
 ```{r plot overall}
-ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
     geom_pointrange()
 ```
 
@@ -156,7 +163,7 @@ risks.singvar
 ```
 Here we see, for example, that a change in the predictor $z_1$ from its 75th to its 25th percentile, where the predictors $z_2$, $z_3$, and $z_4$ are fixed at their 75th percentile (and for the covariates $x$ fixed), is given by `r round(drop(subset(risks.singvar, variable == "z1" & q.fixed == 0.75, "est")), 2)`. It is easier to investigate trends in the estimates by plotting the results:
 ```{r plot single var}
-ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*se, ymax = est + 1.96*se, 
+ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd, 
                           col = q.fixed)) + 
     geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
 ```
@@ -171,6 +178,37 @@ risks.int <- SingVarIntSummaries(fit = fitkm, y = y, Z = Z, X = X,
 risks.int
 ```
 We see that single pollutant risk associated with a change in $z_1$ from its 25th to 75th percentile increases by `r round(drop(subset(risks.int, variable == "z1", "est")), 2)` when $z_2$ to $z_4$ are fixed at their 25th percentile, as compared to when $z_2$ to $z_4$ are fixed at their 75th percentile.
+
+## Hierarchical variable selection
+
+In the example above, setting the argument `varsel = TRUE` in the `kmbayes` function led the function to conduct variable selection allowing each of the individual exposures ($z_{m}$) to enter into the model. Doing this allows you to estimate the posterior inclusion probability for each exposure. 
+
+A situation where this approach may not work well is when two or more of the exposures are highly correlated with each other. Let's next consider an example where two exposures are very correlated:
+```{r generate correlated data}
+set.seed(111)
+#d2 <- SimData(n = 100, M = 4, Zgen = "corr", sigsq.true = 2.5)
+d2 <- SimData(n = 100, M = 4, Zgen = "corr", sigsq.true = 2.2)
+PlotCorr(d2$Z, reorder = FALSE, print.vals = TRUE)
+round(cor(d2$Z), 2)
+```
+
+In this situation, exposures $z_1$ and $z_3$ are highly correlated. An alternative to the component-wise variable selection is hierarchical variable selection, where you categorize the exposure variables into non-overlapping groups. There are then two levels of variable selection. In the first level, variable selection is done at the group level. At the second level, for those groups that are selected into the model, variable selection is done on the exposures within the group. The groups may be selected by using prior knowledge on the structure of how the variables are related. For example, exposures representing components of the air pollution mixture may be grouped using information on pollutant sources. Another possibility for defining exposure groups is based on the empirical correlation structure. In our simulated dataset, we will use this latter approach to group the highly correlated exposures $z_1$ and $z_3$ into one group (call it Group 1). We will keep each of the other exposures in single-variable groups by themselves (e.g., $z_2$ will be Group 2, and $z_4$ will be Group 3). To implement this in the `kmbayes` function, add in the argument `groups = c(1,2,1,3)`, where the Group number of the exposure variables is listed in the order that the variables appear as collumns in the `Z` matrix argument. If the `groups` argument is not specified than the default component-wise variable selection when `varsel = TRUE`. 
+
+Here we apply both the original component-wise variable selection and the hierarchical variable selection. 
+```{r fit corr}
+set.seed(111)
+fitkm_corr <- kmbayes(y = d2$y, Z = d2$Z, X = d2$X, iter = 10000, varsel = TRUE, verbose = TRUE)
+fitkm_hier <- kmbayes(y = d2$y, Z = d2$Z, X = d2$X, iter = 10000, varsel = TRUE, groups = c(1,2,1,3), verbose = TRUE)
+```
+
+Lets compare the posterior inclusion probabilities (PIPs) estimated from the two approaches.
+```{r PIPs corr}
+ExtractPIPs(fitkm_corr)
+ExtractPIPs(fitkm_hier)
+```
+For the component-wise variable selection fit (`fitkm_corr`), the PIPs clearly indicate that $z_2$ should be included in the model, but there is not strong evidence that $z_1$ should be included. On the other hand, for the hierarchical variable selection fit (`fitkm_hier`), we estimated a group-specific PIP for Group 1 of `r round(unique(dplyr::filter(ExtractPIPs(fitkm_hier), group == 1)$groupPIP), 2)`, providing evidence that one of the pollutants of Group 1 should be included. Of the exposures $z_1$ and $z_3$ within Group 1, the results suggest that $z_1$ is more likely to be associated with the outcome. Based on these results, we might wrongly conclude from the component-wise variable selection approach that only $z_2$, whereas the hierarchical variable selection approach would lead us to correctly identify both $z_1$ and $z_2$ as predictors of the outcome.
+
+As in the example above, we can generate visual displays of the exposure-response function and numerical summaries of this surface that are of scientific interest.
 
 ## Prior distributions for the $r_m$ parameters
 
