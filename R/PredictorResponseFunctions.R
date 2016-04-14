@@ -1,3 +1,21 @@
+#' PredictorResponseUnivarVar
+#' 
+#' @inheritParams kmbayes
+#' @param whichz 
+#'
+#' @param fit 
+#' @param y 
+#' @param Z 
+#' @param X 
+#' @param preds.method 
+#' @param ngrid 
+#' @param q.fixed 
+#' @param sel 
+#' @param min.plot.dist 
+#' @param center 
+#' @param z.names 
+#' @param ... 
+#'
 #' @export
 PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
 
@@ -45,13 +63,37 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, preds.method = 
     res <- dplyr::data_frame(z = z1, est = preds.plot, se = se.plot)
 }
 
+#' PredictorResponseUnivar
+#' 
+#' @inheritParams kmbayes
+#' 
+#' @param fit 
+#' @param y 
+#' @param Z 
+#' @param X 
+#' @param which.z 
+#' @param preds.method 
+#' @param ngrid 
+#' @param q.fixed 
+#' @param sel 
+#' @param min.plot.dist 
+#' @param center 
+#' @param z.names 
+#'
 #' @export
-PredictorResponseUnivar <- function(fit, y, Z, X, which.z = 1:ncol(Z), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
+PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
+  
+  if (inherits(fit, "bkmrfit")) {
+    y <- fit$y
+    Z <- fit$Z
+    X <- fit$X
+  }
+ 
     df <- dplyr::data_frame()
     for(i in which.z) {
         res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
         df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
-            dplyr::select(variable, z, est, se)
+            dplyr::select_('variable', 'z', 'est', 'se')
         df <- dplyr::bind_rows(df, df0)
     }
     df <- dplyr::mutate(df, variable = factor(variable, levels = z.names[which.z]))
@@ -60,6 +102,26 @@ PredictorResponseUnivar <- function(fit, y, Z, X, which.z = 1:ncol(Z), preds.met
 
 
 
+#' PredictorResponseBivarPair
+#' 
+#' @inheritParams kmbayes
+#' @param fit 
+#'
+#' @param y 
+#' @param Z 
+#' @param X 
+#' @param whichz1 
+#' @param whichz2 
+#' @param whichz3 
+#' @param preds.method 
+#' @param prob 
+#' @param q.fixed 
+#' @param sel 
+#' @param ngrid 
+#' @param min.plot.dist 
+#' @param center 
+#' @param ... 
+#'
 #' @export
 PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
     if(ncol(Z) < 3) stop("requires there to be at least 3 Z variables")
@@ -115,9 +177,35 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
     res <- dplyr::data_frame(z1 = z1save, z2 = z2save, est = preds.plot, se = se.plot)
 }
 
+#' Predict the exposure-response function at a new grid of points
+#'
+#'
+#' @inheritParams kmbayes
+#' 
+#' @param fit 
+#' @param y 
+#' @param Z 
+#' @param X 
+#' @param z.pairs Data frame showing which pairs of pollutants to plot
+#' @param preds.method 
+#' @param ngrid 
+#' @param q.fixed 
+#' @param sel 
+#' @param min.plot.dist 
+#' @param center 
+#' @param z.names 
+#' @param verbose TRUE or FALSE: flag of whether to print intermediate output to the screen
+#' @param ... 
+#'
 #' @export
-PredictorResponseBivar <- function(fit, y, Z, X, z.pairs = subset(expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z)), z1 < z2), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
+PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = subset(expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z)), z1 < z2), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
 
+  if (inherits(fit, "bkmrfit")) {
+    y <- fit$y
+    Z <- fit$Z
+    X <- fit$X
+  }
+  
     df <- dplyr::data_frame()
     for(i in 1:nrow(z.pairs)) {
         compute <- TRUE
@@ -129,9 +217,9 @@ PredictorResponseBivar <- function(fit, y, Z, X, z.pairs = subset(expand.grid(z1
         names.pair <- c(z.name1, z.name2)
         if(nrow(df) > 0) { ## determine whether the current pair of variables has already been done
             completed.pairs <- df %>%
-                dplyr::select(variable1, variable2) %>%
+                dplyr::select_('variable1', 'variable2') %>%
                 dplyr::distinct() %>%
-                dplyr::transmute(z.pair = paste(variable1, variable2, sep = ":")) %>%
+                dplyr::transmute(z.pair = paste('variable1', 'variable2', sep = ":")) %>%
                 unlist %>% unname
             if(paste(names.pair, collapse = ":") %in% completed.pairs | paste(rev(names.pair), collapse = ":") %in% completed.pairs) compute <- FALSE
         }
@@ -139,7 +227,7 @@ PredictorResponseBivar <- function(fit, y, Z, X, z.pairs = subset(expand.grid(z1
             if(verbose) message("Pair ", i, " out of ", nrow(z.pairs))
             res <- PredictorResponseBivarPair(fit = fit, y = y, Z = Z, X = X, whichz1 = whichz1, whichz2 = whichz2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
             df0 <- dplyr::mutate(res, variable1 = z.name1, variable2 = z.name2) %>%
-                dplyr::select(variable1, variable2, z1, z2, est, se)
+                dplyr::select_('variable1', 'variable2', 'z1', 'z2', 'est', 'se')
             df <- dplyr::bind_rows(df, df0)
         }
     }
@@ -151,7 +239,7 @@ PredictorResponseBivar <- function(fit, y, Z, X, z.pairs = subset(expand.grid(z1
 #' @param pred.resp.df object obtained from running the function \code{PredictorResponseBivar()}
 #' @param qs vector of quantiles of the second variable
 PredictorResponseBivarLevels <- function(pred.resp.df, Z, qs = c(0.25, 0.5, 0.75)) {
-    var.pairs <- dplyr::distinct(dplyr::select(pred.resp.df, variable1, variable2))
+    var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
 
     df <- data.frame()
     for (i in 1:nrow(var.pairs)) {
@@ -193,14 +281,14 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z, qs = c(0.25, 0.5, 0.75
                 se.grid.sub[, k] <- se.grid[, sub.sel]
             }
             colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
-            hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, est, convert = TRUE)
-            se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, se)
+            hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, 'est', convert = TRUE)
+            se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, 'se')
 
             df.curr <- data.frame(variable1 = var1, variable2 = var2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se, stringsAsFactors = FALSE)
             df <- rbind(df, df.curr)
         }
     }
     df <- dplyr::tbl_df(df) %>%
-        dplyr::arrange(variable1, variable2)
+        dplyr::arrange_('variable1', 'variable2')
     df
 }

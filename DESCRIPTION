@@ -1,8 +1,8 @@
 Package: bkmr
 Title: Bayesian kernel machine regression
 Version: 0.1.0
-Authors@R: "Jennifer F. Bobb <bobb.@ghc.org> [aut, cre]"
-Description: This package implements Bayesian kernel machine regression (BKMR), an approach for estimating the health effects of multi-pollutant mixtures
+Authors@R: "Jennifer F. Bobb <bobb.j@ghc.org> [aut, cre]"
+Description: This package implements Bayesian kernel machine regression (BKMR), an approach for estimating the health effects of multi-pollutant mixtures.
 Depends: R (>= 3.1.2)
 License: GPL-2
 LazyData: true
@@ -12,7 +12,9 @@ Imports: dplyr,
     fields,
     truncnorm,
     ggplot2,
-    tidyr
-Suggests: knitr,
-    testthat
+    tidyr,
+    reshape2,
+    MASS
+Suggests: knitr, 
+  testthat
 VignetteBuilder: knitr

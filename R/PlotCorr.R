@@ -22,11 +22,15 @@ get_upper_tri <- function(cormat) {
 
 #' Plot of correlation matrix
 #'
+#' @inheritParams kmbayes
 #' @export
 #' @import ggplot2
-#' @param vals
+#'
+#' @param Z 
+#' @param reorder order correlation matrix based on distance
+#' @param print.vals show the correlation values on the plto
+#' @param plot make the plot
 #' @param digits If the correlation values are to be printed in the plot (\code{vals == TRUE}), how many digits should be displayed
-#' @import reshape2
 PlotCorr <- function(Z, reorder = TRUE, print.vals = FALSE, plot = TRUE, digits = 2) {
     cormat <- cor(Z)
     if(print.vals) cormat <- round(cormat, digits)
@@ -40,7 +44,7 @@ PlotCorr <- function(Z, reorder = TRUE, print.vals = FALSE, plot = TRUE, digits 
     melted_cormat <- na.omit(melted_cormat)
 
     # Create a ggheatmap
-    ggheatmap <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) +
+    ggheatmap <- ggplot(melted_cormat, aes_string(x = 'Var2', y = 'Var1', fill = 'value')) +
         geom_tile(color = "white") +
         scale_fill_gradient2(low = "blue", high = "red", mid = "white",
                              midpoint = 0, limit = c(-1,1), name="Pearson\nCorrelation") +
@@ -51,7 +55,7 @@ PlotCorr <- function(Z, reorder = TRUE, print.vals = FALSE, plot = TRUE, digits 
         coord_fixed() +
         labs(x = "", y = "")
     if(print.vals) {
-        ggheatmap <- ggheatmap + geom_text(aes(Var2, Var1, label = value), color = "black", size = 3)
+        ggheatmap <- ggheatmap + geom_text(aes_string(x = 'Var2', y = 'Var1', label = 'value'), color = "black", size = 3)
     }
 
     # Print the heatmap

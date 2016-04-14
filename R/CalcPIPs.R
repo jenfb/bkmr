@@ -1,6 +1,7 @@
 #' Calculate group-specific posterior inclusion probabilities
 #'
 #' Calculate posterior inclusion probabilities for each group of variables
+#' @inheritParams ExtractEsts
 #'
 #' @param fit
 #' @param sel
@@ -40,6 +41,7 @@ CalcWithinGroupPIPs <- function(fit, sel = NULL) {
 
 
 #' Calculate variable-specific posterior inclusion probabilities
+#' @inheritParams ExtractEsts
 #'
 #' @param fit
 #' @param sel
@@ -68,7 +70,7 @@ CalcPIPs <- function(fit, sel = NULL) {
 #' @param sel optional argument selecting which iterations of the MCMC sampler to keep
 #' @param z.names optional argument providing the names of the variables included in the \code{h} function.
 #'
-#' @return a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditoinal (within-group) PIPs for BKMR fit with hierarchical variable selection.
+#' @return a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditional (within-group) PIPs for BKMR fit with hierarchical variable selection.
 #' @export
 ExtractPIPs <- function(fit, sel = NULL, z.names = NULL) {
   if (inherits(fit, "bkmrfit")) {
@@ -82,7 +84,7 @@ ExtractPIPs <- function(fit, sel = NULL, z.names = NULL) {
       z.names <- colnames(fit$Z)
     }
     if (is.null(z.names)) {
-      z.names <- paste0("z", 1:ncol(Z))
+      z.names <- paste0("z", 1:ncol(fit$Z))
     }
     df <- data.frame(variable = z.names, stringsAsFactors = FALSE)
     groups <- fit$groups

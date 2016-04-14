@@ -1,5 +1,14 @@
 #' Trace plot
 #'
+#' @param fit 
+#' @param par 
+#' @param comp 
+#' @param sel 
+#' @param main 
+#' @param xlab 
+#' @param ylab 
+#' @param ... 
+#'
 #' @export
 TracePlot <- function(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration", ylab = "parameter value", ...) {
     samps <- ExtractSamps(fit, sel = sel)[[par]]

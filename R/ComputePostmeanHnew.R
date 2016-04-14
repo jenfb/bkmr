@@ -1,6 +1,8 @@
 #' Compute the posterior mean and variance of \code{h} at a new predictor values
 #'
 #' Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
+#' @inheritParams kmbayes
+#' @inheritParams ExtractEsts
 #'
 #' @export
 #'
@@ -9,7 +11,7 @@
 #' @param Z
 #' @param X
 #' @param Znew
-#' @param sel A vector selecting which iteration of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.
+#' @param sel A vector selecting which iterations of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.
 ComputePostmeanHnew <- function(fit, y, Z, X, Znew, sel = NULL) {
 
     if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)

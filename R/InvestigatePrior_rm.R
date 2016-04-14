@@ -1,3 +1,11 @@
+#' Investigate prior
+#'
+#' Investigate impact of prior distribution for \code{r[m]} parameters on smoothness of exposure-response function \code{h()}.
+#'
+#' @param ngrid Number of grid points over which to plot the exposure-response function
+#' @param q.seq Sequence of values corresponding to different degrees of smoothness in the estimated exposure-response function. A value of q corresponds to fractions of the range of the data over which there is a decay in the correlation \code{cor(h[i],h[j])} between two subjects by 50\code{\%}.
+#' @param verbose TRUE or FALSE: flag indicating whether to print to the screen which pollutant and q value has been completed
+#' 
 #' @export
 #' @import nlme
 InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16), verbose = FALSE) {
@@ -62,6 +70,7 @@ InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8,
 }
 
 #' PlotPriorFits
+#' @inheritParams kmbayes
 #'
 #' @param y
 #' @param X
@@ -101,7 +110,8 @@ PlotPriorFits <- function(y, X, Z, fits, which.z = NULL, which.q = NULL, plot.re
     on.exit(par(opar), add = TRUE)
 
     for(r in r.seq) {
-        curve(exp(-r*x^2), main=round(r,2), ylab="correlation", cex.lab=1.5, cex.main=2, ylim=c(0,1), xlim=c(0, max(Z)), xlab=expression(d[ij]))
+      fun_plot <- function(x) exp(-r*x^2)
+        curve(fun_plot, main=round(r,2), ylab="correlation", cex.lab=1.5, cex.main=2, ylim=c(0,1), xlim=c(0, max(Z)), xlab=expression(d[ij]), xname = 'x')
     }
     for(i in 1:ncol(Z)) {
         for(j in seq_along(r.seq)) {
