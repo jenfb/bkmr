@@ -12,12 +12,14 @@
 ##r.a, r.b                / default=0, 100
 
 # 
-validateStartingValues <- function(varsel, Ylength, Xwidth, Zwidth, starting.values) {
+validateStartingValues <- function(varsel, y, X, Z, starting.values) {
+  Ylength <- length(y)
+  Xwidth <- ncol(X)
+  Zwidth <- ncol(Z) 
   message ("Validating starting.values...")
   ##print(starting.values)
   stopifnot(starting.values$sigsq.eps > 0, starting.values$lambda > 0)
   ##messages only for scalar where vector required, expansion happens in main function
-  ##beta length, any values
   if (length(starting.values$beta) != Xwidth) {
     message("beta should be a vector of length equal to the number of columns of X.  Input will be repeated or truncated as necessary.")
   }

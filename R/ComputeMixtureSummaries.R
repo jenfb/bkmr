@@ -48,6 +48,11 @@ interactionSummary.samp <- function(newz.q1, newz.q2, preds.fun, ...) {
 #'
 #' @export
 OverallRiskSummaries <- function(fit, y, Z, X, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, preds.method = "approx", sel = NULL) {
+  
+  if (missing(y)) y <- fit$y
+  if (missing(Z)) Z <- fit$Z
+  if (missing(X)) X <- fit$X
+  
     point1 <- apply(Z, 2, quantile, q.fixed)
     if(preds.method == "approx") {
         preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = znew, sel = sel)
@@ -79,6 +84,11 @@ OverallRiskSummaries <- function(fit, y, Z, X, qs = seq(0.25, 0.75, by = 0.05), 
 #' @param ... 
 #' @param whichz a scalar or vector selecting which Z variables to compute the summary for (the other variables in Z will be fixed at the value \code{q.fixed})
 VarRiskSummary <- function(whichz = 1, fit, y, Z, X, qs.diff = c(0.25, 0.75), q.fixed = 0.5, preds.method = "approx", sel = NULL, ...) {
+  
+  if (missing(y)) y <- fit$y
+  if (missing(Z)) Z <- fit$Z
+  if (missing(X)) X <- fit$X
+  
     point2 <- point1 <- apply(Z, 2, quantile, q.fixed)
     point2[whichz] <- apply(Z[, whichz, drop = FALSE], 2, quantile, qs.diff[2])
     point1[whichz] <- apply(Z[, whichz, drop = FALSE], 2, quantile, qs.diff[1])
@@ -113,6 +123,11 @@ VarRiskSummary <- function(whichz = 1, fit, y, Z, X, qs.diff = c(0.25, 0.75), q.
 #'
 #' @export
 SingVarRiskSummaries <- function(fit, y, Z, X, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), preds.method = "approx", sel = NULL, z.names = colnames(Z), ...) {
+  
+  if (missing(y)) y <- fit$y
+  if (missing(Z)) Z <- fit$Z
+  if (missing(X)) X <- fit$X
+  
     if(is.null(z.names)) z.names <- paste0("z", 1:ncol(Z))
 
     df <- dplyr::data_frame()
@@ -149,6 +164,11 @@ SingVarRiskSummaries <- function(fit, y, Z, X, which.z = 1:ncol(Z), qs.diff = c(
 #'
 #' @export
 SingVarIntSummary <- function(whichz = 1, fit, y, Z, X, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL, ...) {
+  
+  if (missing(y)) y <- fit$y
+  if (missing(Z)) Z <- fit$Z
+  if (missing(X)) X <- fit$X
+  
     q.fixed <- qs.fixed[1]
     point2 <- point1 <- apply(Z, 2, quantile, q.fixed)
     point2[whichz] <- quantile(Z[, whichz], qs.diff[2])
@@ -190,6 +210,11 @@ SingVarIntSummary <- function(whichz = 1, fit, y, Z, X, qs.diff = c(0.25, 0.75),
 #'
 #' @export
 SingVarIntSummaries <- function(fit, y, Z, X, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL, z.names = colnames(Z), ...) {
+  
+  if (missing(y)) y <- fit$y
+  if (missing(Z)) Z <- fit$Z
+  if (missing(X)) X <- fit$X
+  
     if(is.null(z.names)) z.names <- paste0("z", 1:ncol(Z))
 
     ints <- sapply(which.z, function(whichz)
