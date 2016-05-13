@@ -1,6 +1,7 @@
 #' Calculate group-specific posterior inclusion probabilities
 #'
 #' Calculate posterior inclusion probabilities for each group of variables
+#' 
 #' @inheritParams ExtractEsts
 #'
 #' @param fit
