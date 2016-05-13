@@ -13,7 +13,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #' @param sigsq.true Variance of normally distributed residual error
 #' @param beta.true Coefficient on the covariate
 #' @param hfun An integer from 1 to 3 identifying which predictor-response function to generate
-#' @param Zgen Method for generating the matrix Z of exposure variables. 
+#' @param Zgen Method for generating the matrix Z of exposure variables, taking one of the values c("unif", "corr", "realistic")
 #' @examples
 #' set.seed(5)
 #' dat <- SimData()
@@ -24,7 +24,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #'  \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two predictor variables}
 #' }
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
-                     beta.true = 2, hfun = 3, Zgen = c("unif", "corr", "realistic"), ind = 1:2) {
+                    beta.true = 2, hfun = 3, Zgen = "unif", ind = 1:2) {
   
   stopifnot(n > 0, M > 0, sigsq.true >= 0)
   
