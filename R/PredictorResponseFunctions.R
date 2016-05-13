@@ -201,9 +201,9 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
 PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = subset(expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z)), z1 < z2), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
 
   if (inherits(fit, "bkmrfit")) {
-    y <- fit$y
-    Z <- fit$Z
-    X <- fit$X
+    if (is.null(y)) y <- fit$y
+    if (is.null(Z)) Z <- fit$Z
+    if (is.null(X)) X <- fit$X
   }
   
     df <- dplyr::data_frame()
@@ -238,9 +238,9 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' @export
 #' @param pred.resp.df object obtained from running the function \code{PredictorResponseBivar()}
 #' @param qs vector of quantiles of the second variable
-PredictorResponseBivarLevels <- function(pred.resp.df, Z, qs = c(0.25, 0.5, 0.75)) {
+PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75)) {
     var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
-
+    
     df <- data.frame()
     for (i in 1:nrow(var.pairs)) {
         var1 <- as.character(unlist(var.pairs[i, "variable1"]))
