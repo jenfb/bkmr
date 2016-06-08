@@ -4,7 +4,7 @@
 \alias{kmbayes}
 \title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FALSE,
+kmbayes(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE,
   Znew, starting.values = list(), control.params = list(), varsel = FALSE,
   groups, knots, ztest, rmethod = "varying")
 }
