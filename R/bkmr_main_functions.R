@@ -74,6 +74,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FAL
   
   missingX <- missing(X)
   if (missingX) X <- matrix(0, length(y), 1)
+  hier_varsel <- !missing(groups)
   
   ##Argument check 1, required arguments without defaults
   ##check vector/matrix sizes
@@ -375,19 +376,10 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FAL
     
     ###################################################
     ## print details of the model fit so far
-    if (s %% (nsamp/10) == 0 & verbose) {
-      message("iter: ", s)
-      cat(round(colMeans(chain$acc.lambda[1:s, ,drop = FALSE]), 4), "   lam accept rate\n")
-      cat(round(colMeans(chain$acc.r[2:s, ]),4), "   r nosel accept rate\n")
-      if (varsel) {
-        cat(round(mean(chain$acc.rdelta[2:s]),4), "   rdelt accept rate\n")
-        cat(round(mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 1]),4), "   rdelt[move 1] accept rate\n")
-        cat(round(mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 2]),4), "   rdelt[move 2] accept rate\n")
-        if (!missing(groups)) cat(mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 3]), "   rdelt[move 3] accept rate\n")
-        cat(round(colMeans(chain$delta[1:s,ztest ,drop = FALSE]), 4), "   post incl probs\n")
-        cat(round(colMeans(chain$r[2:s,], na.rm = TRUE),4), "   post mean of r\n")
-      }
-      print(difftime(Sys.time(), chain$time1))
+    if (verbose) {
+      verbose_freq <- ifelse(!is.null(control.params$verbose_freq), control.params$verbose_freq, 10)
+      opts <- set_verbose_opts(verbose_freq = verbose_freq)
+      print_verbose(opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest)
     }
   }
   control.params$r.params <- NULL
