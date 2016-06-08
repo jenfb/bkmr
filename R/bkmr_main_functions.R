@@ -70,7 +70,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
-kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FALSE, Znew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
+kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE, Znew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
   
   missingX <- missing(X)
   if (missingX) X <- matrix(0, length(y), 1)
@@ -376,11 +376,9 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = FAL
     
     ###################################################
     ## print details of the model fit so far
-    if (verbose) {
-      verbose_freq <- ifelse(!is.null(control.params$verbose_freq), control.params$verbose_freq, 10)
-      opts <- set_verbose_opts(verbose_freq = verbose_freq)
-      print_verbose(opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest)
-    }
+    opts <- set_verbose_opts(verbose_freq = control.params$verbose_freq, verbose_digits = control.params$verbose_freq)
+    print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z)
+    
   }
   control.params$r.params <- NULL
   chain$time2 <- Sys.time()
