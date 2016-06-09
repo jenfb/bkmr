@@ -4,10 +4,15 @@
 \alias{set_verbose_opts}
 \title{Options for printing summary of model fit to the console}
 \usage{
-set_verbose_opts(verbose_freq = NULL, verbose_digits = NULL)
+set_verbose_opts(verbose_freq = NULL, verbose_show_ests = NULL,
+  verbose_digits = NULL)
 }
 \arguments{
 \item{verbose_freq}{After this percentage of iterations has been completed the summary of the model fit so far will be printed to the console}
+
+\item{verbose_show_ests}{TRUE or FALSE: flag indicating whether to print out summary statistics of all posterior samples obtained up until this point, for select parameters}
+
+\item{verbose_digits}{Number of digits to be printed to the console}
 }
 \description{
 Set options for what will be printed to the console when verbose = TRUE in the main kmbayes function

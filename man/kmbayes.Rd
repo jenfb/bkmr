@@ -21,7 +21,7 @@ kmbayes(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE,
 
 \item{id}{optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.}
 
-\item{verbose}{TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting}
+\item{verbose}{TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting. Additional options for can be specifed with control.params}
 
 \item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
 
