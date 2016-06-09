@@ -1,3 +1,12 @@
+make_r_params_comp <- function(r.params, whichcomp) {
+  for(i in seq_along(r.params)) {
+    if(length(r.params[[i]]) > 1) {
+      r.params[[i]] <- r.params[[i]][whichcomp]
+    }
+  }
+  r.params
+}
+
 set.r.params <- function(r.prior, comp, r.params) {
 	if(r.prior == "gamma") {
 		if(length(r.params$mu.r) > 1) r.params$mu.r <- r.params$mu.r[comp]

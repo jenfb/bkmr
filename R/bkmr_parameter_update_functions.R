@@ -15,10 +15,10 @@ sigsq.eps.update <- function(y, X, beta, Vinv, a.eps=1e-3, b.eps=1e-3) {
 
 r.update <- function(r, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, ...) {
 	# r.params <- set.r.params(r.prior = control.params$r.prior, comp = whichcomp, r.params = control.params$r.params)
-	r.params <- control.params$r.params
+	r.params <- make_r_params_comp(control.params$r.params, whichcomp)
 	rcomp <- unique(r[whichcomp])
 	if(length(rcomp) > 1) stop("rcomp should only be 1-dimensional")
-
+	
 	## generate a proposal
 	rcomp.star <- rprop.gen(current = rcomp, r.params = r.params)
 	lambda.star <- lambda
