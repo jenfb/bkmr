@@ -61,7 +61,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param iter number of iterations to run the sampler
 #' @param family a description of the error distribution and link function to be used in the model. Currently only implemented for \code{gaussian} family.
 #' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.
-#' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting
+#' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting. Additional options for can be specifed with control.params 
 #' @param Znew optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
 #' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
 #' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
@@ -297,9 +297,10 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   ## components
   Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
   
+  ## start sampling ####
   chain$time1 <- Sys.time()
   for (s in 2:nsamp) {
-    ###################################################
+
     ## generate posterior samples from marginalized distribution P(beta, sigsq.eps, lambda, r | y)
     
     if (!missingX) {
@@ -376,8 +377,12 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
     
     ###################################################
     ## print details of the model fit so far
-    opts <- set_verbose_opts(verbose_freq = control.params$verbose_freq, verbose_digits = control.params$verbose_freq)
-    print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z)
+    opts <- set_verbose_opts(
+      verbose_freq = control.params$verbose_freq, 
+      verbose_digits = control.params$verbose_freq,
+      verbose_show_ests = control.params$verbose_show_ests
+      )
+    print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z, groups = groups)
     
   }
   control.params$r.params <- NULL
