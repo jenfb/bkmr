@@ -3,20 +3,27 @@
 #' Set options for what will be printed to the console when verbose = TRUE in the main kmbayes function
 #'
 #' @param verbose_freq After this percentage of iterations has been completed the summary of the model fit so far will be printed to the console 
+#' @param verbose_show_ests TRUE or FALSE: flag indicating whether to print out summary statistics of all posterior samples obtained up until this point, for select parameters
+#' @param verbose_digits Number of digits to be printed to the console 
 #'
 #' @export
 #'
-set_verbose_opts <- function(verbose_freq = NULL, verbose_digits = NULL) {
+set_verbose_opts <- function(verbose_freq = NULL, verbose_show_ests = NULL, verbose_digits = NULL) {
   if (is.null(verbose_freq)) verbose_freq <- 10
   if (is.null(verbose_digits)) verbose_digits <- 5
-  opts <- list(verbose_freq = verbose_freq,
-               verbose_digits = verbose_digits)
+  if (is.null(verbose_show_ests)) verbose_show_ests <- FALSE
+  opts <- list(
+    verbose_freq = verbose_freq,
+    verbose_digits = verbose_digits,
+    verbose_show_ests = verbose_show_ests
+    )
   opts
 }
 
-print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel, hier_varsel, ztest, Z) {
+print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel, hier_varsel, ztest, Z, groups) {
   verbose_freq <- opts$verbose_freq
   verbose_digits <- opts$verbose_digits
+  verbose_show_ests <- opts$verbose_show_ests
   s <- curr_iter
   nsamp <- tot_iter
   perc_iter_completed <- round(100*curr_iter/tot_iter, 1)
@@ -28,13 +35,12 @@ print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel,
   elapsed_time <- difftime(Sys.time(), chain$time1)
   
   if (s %in% print_iter) {
-    #message("------------------------------------------")
-    #message("Iteration: ", s, " (", perc_iter_completed, "% completed)")
-    #message("Elapsed time: ", round(elapsed_time, verbose_digits), " ", attr(elapsed_time, "units"))
+    #if (verbose) message("------------------------------------------")
+    if (verbose) cat("\n")
     message("Iteration: ", s, " (", perc_iter_completed, "% completed; ", round(elapsed_time, verbose_digits), " ", attr(elapsed_time, "units"), " elapsed)")
     
     if (verbose) {
-      message("Acceptance rates for Metropolis-Hastings algorithm:")
+      cat("Acceptance rates for Metropolis-Hastings algorithm:\n")
       accep_rates <- data.frame()
       ## lambda
       nm <- "lambda"
@@ -60,7 +66,7 @@ print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel,
         rate <- mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 2])
         accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
         if (hier_varsel) {
-          nm <- "r/delta (move 3)"
+          nm <- "r/delta  (move 3)"
           rate <- mean(chain$acc.rdelta[2:s][chain$move.type[2:s] == 3])
           accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
         }
@@ -68,21 +74,24 @@ print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel,
       print(accep_rates)
       
       ## extra information
-      message("Current parameter estimates:")
-      chain$varsel <- varsel
-      class(chain) <- c("bkmrfit", class(chain))
-      chain$Z <- Z
-      ests <- ExtractEsts(chain, q = c(0.025, 0.975), sel = 2:s)
-      ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
-      summ <- with(ests, rbind(beta, sigsq.eps, r, lambda, h))
-      summ <- data.frame(param = rownames(summ), round(summ, verbose_digits))
-      rownames(summ) <- NULL
-      print(summ)
-      if (varsel) {
-        message("Current posterior inclusion probabilities:")
-        pips <- ExtractPIPs(chain, sel = 2:s)
-        pips[, -1] <- round(pips[, -1], verbose_digits)
-        print(pips)
+      if (verbose_show_ests) {
+        cat("\nCurrent parameter estimates:\n")
+        chain$varsel <- varsel
+        class(chain) <- c("bkmrfit", class(chain))
+        chain$Z <- Z
+        if (hier_varsel) chain$groups <- groups
+        ests <- ExtractEsts(chain, q = c(0.025, 0.975), sel = 2:s)
+        ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
+        summ <- with(ests, rbind(beta, sigsq.eps, r, lambda, h))
+        summ <- data.frame(param = rownames(summ), round(summ, verbose_digits))
+        rownames(summ) <- NULL
+        print(summ)
+        if (varsel) {
+          cat("\nCurrent posterior inclusion probabilities:\n")
+          pips <- ExtractPIPs(chain, sel = 2:s)
+          pips[, -1] <- round(pips[, -1], verbose_digits)
+          print(pips)
+        }
       }
     }
   }
