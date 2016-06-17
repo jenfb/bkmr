@@ -8,7 +8,7 @@ output:
 vignette: >
   %\VignetteIndexEntry{Introduction to Bayesian kernel machine regression}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r options, echo=FALSE, message=FALSE, warning=FALSE}
