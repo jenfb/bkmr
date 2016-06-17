@@ -379,7 +379,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
     ## print details of the model fit so far
     opts <- set_verbose_opts(
       verbose_freq = control.params$verbose_freq, 
-      verbose_digits = control.params$verbose_freq,
+      verbose_digits = control.params$verbose_digits,
       verbose_show_ests = control.params$verbose_show_ests
       )
     print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z, groups = groups)
