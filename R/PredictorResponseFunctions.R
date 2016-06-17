@@ -238,14 +238,23 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' @export
 #' @param pred.resp.df object obtained from running the function \code{PredictorResponseBivar()}
 #' @param qs vector of quantiles of the second variable
-PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75)) {
+#' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
+PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE) {
     var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
+    if (both_pairs) {
+      var.pairs.rev <- data_frame(variable1 = var.pairs$variable2,
+                                  variable2 = var.pairs$variable1)
+      var.pairs <- rbind(var.pairs, var.pairs.rev)
+    }
     
     df <- data.frame()
     for (i in 1:nrow(var.pairs)) {
         var1 <- as.character(unlist(var.pairs[i, "variable1"]))
         var2 <- as.character(unlist(var.pairs[i, "variable2"]))
         preds <- subset(pred.resp.df, variable1 == var1 & variable2 == var2)
+        if (nrow(preds) == 0) {
+          preds <- subset(pred.resp.df, variable1 == var2 & variable2 == var1)
+        }
 
         ngrid <- sqrt(nrow(preds))
         preds.plot <- preds$est
@@ -256,39 +265,23 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.
         z1 <- preds$z1[1:ngrid]
         z2 <- preds$z2[seq(1, by = ngrid, length.out = ngrid)]
 
-        for (j in 1:2) {
-            if (j == 1) {
-                quants <- quantile(Z[, var2], qs)
-            } else if (j == 2) { ## switch the roles of z1, z2
-                var1new <- var2
-                var2 <- var1
-                var1 <- var1new
-
-                z1new <- z2
-                z2 <- z1
-                z1 <- z1new
-
-                quants <- quantile(Z[, var1], qs)
-                hgrid <- t(hgrid)
-                se.grid <- t(se.grid)
-            }
-
-            ## relation of z1 with outcome at different levels of z2
-            se.grid.sub <- hgrid.sub <- matrix(NA, ngrid, length(qs))
-            for (k in seq_along(quants)) {
-                sub.sel <- which.min(abs(z2 - quants[k]))
-                hgrid.sub[, k] <- hgrid[, sub.sel]
-                se.grid.sub[, k] <- se.grid[, sub.sel]
-            }
-            colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
-            hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, 'est', convert = TRUE)
-            se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, 'se')
-
-            df.curr <- data.frame(variable1 = var1, variable2 = var2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se, stringsAsFactors = FALSE)
-            df <- rbind(df, df.curr)
+        quants <- quantile(Z[, var2], qs)
+        
+        ## relation of z1 with outcome at different levels of z2
+        se.grid.sub <- hgrid.sub <- matrix(NA, ngrid, length(qs))
+        for (k in seq_along(quants)) {
+          sub.sel <- which.min(abs(z2 - quants[k]))
+          hgrid.sub[, k] <- hgrid[, sub.sel]
+          se.grid.sub[, k] <- se.grid[, sub.sel]
         }
+        colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
+        hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, 'est', convert = TRUE)
+        se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, 'se')
+        
+        df.curr <- data.frame(variable1 = var1, variable2 = var2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se, stringsAsFactors = FALSE)
+        df <- rbind(df, df.curr)
     }
     df <- dplyr::tbl_df(df) %>%
-        dplyr::arrange_('variable1', 'variable2')
+      dplyr::arrange_('variable1', 'variable2')
     df
 }
