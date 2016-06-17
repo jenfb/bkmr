@@ -403,9 +403,69 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   chain
 }
 
-print.bkmrfit <- function(x, q = c(0.025, 0.975), digits = 5, ...) {
-  ests <- ExtractEsts(x, q
-                      = q)
-  summ <- with(ests, rbind(sigsq.eps, beta, r))
-  print(round(summ, digits = digits))
+print.bkmrfit <- function(x, digits = 5, ...) {
+  cat("Fitted object of class 'bkmrfit'\n")
+  cat("Iterations:", x$iter, "\n")
+  cat("Model fit on:", as.character(x$time2), "\n")
+}
+
+summary.bkmrfit <- function(x, q = c(0.025, 0.975), digits = 5, show_ests = TRUE, show_MH = TRUE) {
+  elapsed_time <- difftime(x$time2, x$time1)
+  
+  cat("Fitted object of class 'bkmrfit'\n")
+  cat("Iterations: ", x$iter, "\n")
+  cat("Model fit on:", as.character(x$time2), "\n")
+  cat("Running time: ", round(elapsed_time, digits), attr(elapsed_time, "units"), "\n")
+  cat("\n")
+  
+  if (show_MH) {
+    cat("Acceptance rates for Metropolis-Hastings algorithm:\n")
+    accep_rates <- data.frame()
+    ## lambda
+    nm <- "lambda"
+    rate <- colMeans(x$acc.lambda[2:x$iter, ,drop = FALSE])
+    if (length(rate) > 1) nm <- paste0(nm, seq_along(rate))
+    accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
+    ## r_m
+    if (!varsel) {
+      nm <- "r"
+      rate <- colMeans(x$acc.r[2:x$iter, ])
+      if (length(rate) > 1) nm <- paste0(nm, seq_along(rate))
+      accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
+    } else {
+      nm <- "r/delta (overall)"
+      rate <- mean(x$acc.rdelta[2:x$iter])
+      accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
+      ##
+      nm <- "r/delta  (move 1)"
+      rate <- mean(x$acc.rdelta[2:x$iter][x$move.type[2:x$iter] == 1])
+      accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
+      ##
+      nm <- "r/delta  (move 2)"
+      rate <- mean(x$acc.rdelta[2:x$iter][x$move.type[2:x$iter] == 2])
+      accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
+      if (!is.null(x$groups)) {
+        nm <- "r/delta  (move 3)"
+        rate <- mean(x$acc.rdelta[2:x$iter][x$move.type[2:x$iter] == 3])
+        accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
+      }
+    }
+    print(accep_rates)
+  }
+  if (show_ests) {
+    sel <- with(x, seq(floor(iter/2) + 1, iter))
+    cat("\nParameter estimates (based on iterations ", min(sel), "-", max(sel), "):\n", sep = "")
+    ests <- ExtractEsts(x, q = q, sel = sel)
+    ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
+    summ <- with(ests, rbind(beta, sigsq.eps, r, lambda, h))
+    summ <- data.frame(param = rownames(summ), round(summ, digits))
+    rownames(summ) <- NULL
+    print(summ)
+    if (varsel) {
+      cat("\nPosterior inclusion probabilities:\n")
+      pips <- ExtractPIPs(x)
+      pips[, -1] <- round(pips[, -1], digits)
+      print(pips)
+    }
+  }
 }
