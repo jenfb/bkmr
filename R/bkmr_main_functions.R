@@ -202,11 +202,12 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   }
   
   ## control parameters
+  control.params.default <- list(lambda.jump = rep(10, data.comps$nlambda), mu.lambda = rep(10, data.comps$nlambda), sigma.lambda = rep(10, data.comps$nlambda), a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.1, r.jump1 = 2, r.jump2 = 0.1, r.a = 0, r.b = 100)
   if (!missing(control.params)){
-    control.params <- modifyList(list(lambda.jump = 10, mu.lambda = 10, sigma.lambda = 10, a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.2, r.jump1 = 2, r.jump2 = 0.2, r.a = 0, r.b = 100), as.list(control.params))
+    control.params <- modifyList(control.params.default, as.list(control.params))
     validateControlParams(varsel, family, id, control.params)
   } else {
-    control.params <- modifyList(list(lambda.jump = 10, mu.lambda = 10, sigma.lambda = 10, a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.2, r.jump1 = 2, r.jump2 = 0.2, r.a = 0, r.b = 100), control.params)
+    control.params <- modifyList(control.params.default, control.params)
   }
   
   control.params$r.params <- with(control.params, list(mu.r = mu.r, sigma.r = sigma.r, r.muprop = r.muprop, r.jump = r.jump, r.jump1 = r.jump1, r.jump2 = r.jump2, r.a = r.a, r.b = r.b))
