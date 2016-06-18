@@ -21,12 +21,12 @@ get_upper_tri <- function(cormat) {
 }
 
 #' Plot of correlation matrix
+#' 
+#' Plot of correlation matrix
 #'
 #' @inheritParams kmbayes
 #' @export
 #' @import ggplot2
-#'
-#' @param Z 
 #' @param reorder order correlation matrix based on distance
 #' @param print.vals show the correlation values on the plto
 #' @param plot make the plot

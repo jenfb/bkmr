@@ -1,22 +1,3 @@
-#' PredictorResponseUnivarVar
-#' 
-#' @inheritParams kmbayes
-#' @param whichz 
-#'
-#' @param fit 
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param preds.method 
-#' @param ngrid 
-#' @param q.fixed 
-#' @param sel 
-#' @param min.plot.dist 
-#' @param center 
-#' @param z.names 
-#' @param ... 
-#'
-#' @export
 PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
 
     if (ncol(Z) < 2) stop("requires there to be at least 2 predictor variables")
@@ -63,22 +44,18 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, preds.method = 
     res <- dplyr::data_frame(z = z1, est = preds.plot, se = se.plot)
 }
 
-#' PredictorResponseUnivar
+#' Plot univariate predictor-response function on a new grid of points
+#' 
+#' Plot univariate predictor-response function on a new grid of points
 #' 
 #' @inheritParams kmbayes
+#' @inheritParams ExtractEsts
+#' @inheritParams SingVarRiskSummaries
 #' 
-#' @param fit 
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param which.z 
-#' @param preds.method 
-#' @param ngrid 
-#' @param q.fixed 
-#' @param sel 
-#' @param min.plot.dist 
-#' @param center 
-#' @param z.names 
+#' @param which.z vector identifying which predictors (columns of \code{Z}) should be plotted
+#' @param ngrid number of grid points to cover the range of each predictor (column in \code{Z})
+#' @param min.plot.dist specifies a minimum distance that a new grid point needs to be from an observed data point in order to compute the prediction; points further than this will not be computed
+#' @param center flag for whether to scale the exposure-response function to have mean zero
 #'
 #' @export
 PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
@@ -93,7 +70,7 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
     for(i in which.z) {
         res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
         df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
-            dplyr::select_('variable', 'z', 'est', 'se')
+            dplyr::select_(~variable, ~z, ~est, ~se)
         df <- dplyr::bind_rows(df, df0)
     }
     df <- dplyr::mutate(df, variable = factor(variable, levels = z.names[which.z]))
@@ -101,28 +78,6 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
 
 
 
-
-#' PredictorResponseBivarPair
-#' 
-#' @inheritParams kmbayes
-#' @param fit 
-#'
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param whichz1 
-#' @param whichz2 
-#' @param whichz3 
-#' @param preds.method 
-#' @param prob 
-#' @param q.fixed 
-#' @param sel 
-#' @param ngrid 
-#' @param min.plot.dist 
-#' @param center 
-#' @param ... 
-#'
-#' @export
 PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
     if(ncol(Z) < 3) stop("requires there to be at least 3 Z variables")
 
@@ -179,24 +134,15 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
 
 #' Predict the exposure-response function at a new grid of points
 #'
+#' Predict the exposure-response function at a new grid of points
 #'
 #' @inheritParams kmbayes
-#' 
-#' @param fit 
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param z.pairs Data frame showing which pairs of pollutants to plot
-#' @param preds.method 
-#' @param ngrid 
-#' @param q.fixed 
-#' @param sel 
-#' @param min.plot.dist 
-#' @param center 
-#' @param z.names 
+#' @inheritParams ExtractEsts
+#' @inheritParams SingVarRiskSummaries
+#' @inheritParams PredictorResponseUnivar
+#' @param z.pairs data frame showing which pairs of pollutants to plot
+#' @param ngrid number of grid points in each dimension
 #' @param verbose TRUE or FALSE: flag of whether to print intermediate output to the screen
-#' @param ... 
-#'
 #' @export
 PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = subset(expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z)), z1 < z2), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
 
@@ -227,23 +173,30 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
             if(verbose) message("Pair ", i, " out of ", nrow(z.pairs))
             res <- PredictorResponseBivarPair(fit = fit, y = y, Z = Z, X = X, whichz1 = whichz1, whichz2 = whichz2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
             df0 <- dplyr::mutate(res, variable1 = z.name1, variable2 = z.name2) %>%
-                dplyr::select_('variable1', 'variable2', 'z1', 'z2', 'est', 'se')
+                dplyr::select_(~variable1, ~variable2, ~z1, ~z2, ~est, ~se)
             df <- dplyr::bind_rows(df, df0)
         }
     }
     df <- dplyr::mutate(df, variable1 = factor(variable1, levels = z.names), variable2 = factor(variable2, levels = z.names))
 }
 
+#' Plot cross-sections of the bivariate predictor-response function
+#' 
 #' Function to plot the \code{h} function of a particular variable at different levels (quantiles) of a second variable
+#' 
 #' @export
-#' @param pred.resp.df object obtained from running the function \code{PredictorResponseBivar()}
-#' @param qs vector of quantiles of the second variable
+#' @inheritParams kmbayes
+#' @param pred.resp.df object obtained from running the function \code{\link{PredictorResponseBivar}}
+#' @param qs vector of quantiles at which to fix the second variable
 #' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
 PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE) {
     var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
     if (both_pairs) {
-      var.pairs.rev <- data_frame(variable1 = var.pairs$variable2,
-                                  variable2 = var.pairs$variable1)
+      var.pairs.rev <- dplyr::data_frame(
+        variable1 = var.pairs$variable2,
+                                         
+        variable2 = var.pairs$variable1
+      )
       var.pairs <- rbind(var.pairs, var.pairs.rev)
     }
     
@@ -282,6 +235,6 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.
         df <- rbind(df, df.curr)
     }
     df <- dplyr::tbl_df(df) %>%
-      dplyr::arrange_('variable1', 'variable2')
+      dplyr::arrange_(~variable1, ~variable2)
     df
 }

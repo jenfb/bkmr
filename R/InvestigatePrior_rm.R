@@ -2,11 +2,12 @@
 #'
 #' Investigate the impact of the \code{r[m]} parameters on the smoothness of the exposure-response function \code{h(z[m])}.
 #'
+#' @inheritParams kmbayes
 #' @param ngrid Number of grid points over which to plot the exposure-response function
 #' @param q.seq Sequence of values corresponding to different degrees of smoothness in the estimated exposure-response function. A value of q corresponds to fractions of the range of the data over which there is a decay in the correlation \code{cor(h[i],h[j])} between two subjects by 50\code{\%}.
+#' @param r.seq sequence of values at which to fix \code{r} for estimating the exposure-response function
 #' @param verbose TRUE or FALSE: flag indicating whether to print to the screen which exposure variable and q value has been completed
 #' @param Drange the range of the \code{z_m} data over which to apply the values of \code{q.seq}. If not specified, will be calculated as the maximum of the ranges of \code{z_1} through \code{z_M}.
-#' 
 #' @export
 #' @import nlme
 InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16), r.seq = NULL, Drange = NULL, verbose = FALSE) {
@@ -43,7 +44,7 @@ InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8,
     nall <- n0+n1
     for(j in seq_along(r.seq)) {
       r <- r.seq[j]
-      Kpart <- as.matrix(dist(Zall))^2
+      Kpart <- as.matrix(stats::dist(Zall))^2
       Kmat <- exp(-r*Kpart)
       K <- Kmat0 <- Kmat[1:n0,1:n0 ,drop=FALSE]
       Kmat1 <- Kmat[(n0+1):nall,(n0+1):nall ,drop=FALSE]
@@ -64,7 +65,7 @@ InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8,
       hnew <- drop(as.numeric(VarCorr(fit)[1,"Variance"])/(fit$sigma)^2*Kmat10%*%Vinv%*%(y - X%*%fixef(fit)))
       
       preds[[i]][, j] <- hnew
-      resids[[i]][, j] <- resid(fit)
+      resids[[i]][, j] <- stats::resid(fit)
       h.hat.ests[[i]][, j] <- h.hat
       
       if(verbose) message("Completed: variable", i, ", r value ", j)
@@ -74,22 +75,19 @@ InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8,
   res <- list(q.seq = q.seq, r.seq = r.seq, Drange = Drange, Znew = Znew.mat, resids = resids, preds = preds, h.hat = h.hat.ests)
 }
 
-#' PlotPriorFits
+#' Plot of exposure-response function from univariate KMR fot
+#' 
+#' Plot the estimated \code{h(z[m])} estimated from frequentist KMR for \code{r[m]} fixed to specific values 
+#' 
 #' @inheritParams kmbayes
-#'
-#' @param y
-#' @param X
-#' @param Z
-#' @param fits
-#' @param which.z
-#' @param which.q
-#' @param plot.resid
-#' @param ylim
-#' @param ...
-#'
-#' @return fitted objects
+#' @param fits output from \code{\link{InvestigatePrior}}
+#' @param which.z which predictors (columns in \code{Z}) to plot
+#' @param which.q which q.values to plot; defaults to all possible
+#' @param plot.resid whether to plot the data points
+#' @param ylim plotting limits for the y-axis
+#' @param ... other plotting arguments
 #' @export
-#'
+#' @import graphics
 PlotPriorFits <- function(y, X, Z, fits, which.z = NULL, which.q = NULL, plot.resid = TRUE, ylim = NULL, ...) {
   q.seq <- fits$q.seq
   r.seq <- fits$r.seq

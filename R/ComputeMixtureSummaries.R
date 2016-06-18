@@ -31,21 +31,14 @@ interactionSummary.samp <- function(newz.q1, newz.q2, preds.fun, ...) {
 
 
 
-#' OverallRiskSummaries
+#' Calculate overall risk summaries
 #' 
-#' Compare estimated \code{h} function when all predictors are at a particular percentile to when all are at the 50th percentile
+#' Compare estimated \code{h} function when all predictors are at a particular quantile to when all are at a second fixed percentile
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
-#'
-#' @param fit 
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param qs 
-#' @param q.fixed 
-#' @param preds.method 
-#' @param sel 
-#'
+#' @param qs vector of quantiles at which to calculate the overall risk summary 
+#' @param q.fixed a second quantile at which to compare the estimated \code{h} function
+#' @param preds.method method for obtaining posterior summaries at a vector of new point. Currently only implemented for \code{preds.method = "approx"}
 #' @export
 OverallRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, preds.method = "approx", sel = NULL) {
   
@@ -68,23 +61,7 @@ OverallRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.2
   risks.overall <- data.frame(quantile = qs, risks.overall)
 }
 
-#' VarRiskSummary
-#' 
-#' Compare estimated \code{h} function when a single variable (or a set of variables) is at the 75th versus 25th percentile, when all of the other variables are fixed at a particular percentile
-#' @inheritParams kmbayes
-#'
-#' @export
-#'
-#' @param fit 
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param qs.diff 
-#' @param q.fixed 
-#' @param preds.method 
-#' @param sel 
-#' @param ... 
-#' @param whichz a scalar or vector selecting which Z variables to compute the summary for (the other variables in Z will be fixed at the value \code{q.fixed})
+#Compare estimated \code{h} function when a single variable (or a set of variables) is at the 75th versus 25th percentile, when all of the other variables are fixed at a particular percentile
 VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.diff = c(0.25, 0.75), q.fixed = 0.5, preds.method = "approx", sel = NULL, ...) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -109,22 +86,18 @@ VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.dif
   riskSummary(point1 = point1, point2 = point2, preds.fun = preds.fun, ...)
 }
 
-#' SingVarRiskSummaries
+#' Single Variable Risk Summaries
+#' 
+#' Compute summaries of the risks associated with a change in a single variable in \code{Z} from a single level (quantile) to a second level (quantile), for the other variables in \code{Z} fixed to a specific level (quantile)
 #' 
 #' @inheritParams kmbayes
-#' @param fit 
-#'
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param which.z 
-#' @param qs.diff 
-#' @param q.fixed 
-#' @param preds.method 
-#' @param sel 
-#' @param z.names 
-#' @param ... 
-#'
+#' @inheritParams ExtractEsts
+#' @inheritParams OverallRiskSummaries
+#' @param qs.diff vector indicating the two quantiles \code{q_1} and \code{q_2} at which to compute \code{h(z_{q2}) - h(z_{q1})}
+#' @param q.fixed vector of quantiles at which to fix the remaining predictors in \code{Z}
+#' @param z.names optional vector of names for the columns of \code{z}
+#' @param ... other argumentd to pass on to the prediction function
+#' @param which.z vector indicating which variables (columns of \code{Z}) for which the summary should be computed
 #' @export
 SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), preds.method = "approx", sel = NULL, z.names = colnames(Z), ...) {
   
@@ -149,26 +122,6 @@ SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:
   df
 }
 
-
-
-
-#' SingVarIntSummary
-#' 
-#' Compare the single-predictor health risks when all of the other predictors in Z are fixed to their 75th percentile to when all of the other predictors in Z are fixed to their 25th percentile.
-#' @inheritParams kmbayes
-#'
-#' @param whichz 
-#' @param fit 
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param qs.diff 
-#' @param qs.fixed 
-#' @param preds.method 
-#' @param sel 
-#' @param ... 
-#'
-#' @export
 SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL, ...) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -200,22 +153,14 @@ SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.
   interactionSummary(newz.q1, newz.q2, preds.fun, ...)
 }
 
-#' SingVarIntSummaries
+#' Single Variable Interaction Summaries
 #' 
+#' Compare the single-predictor health risks when all of the other predictors in Z are fixed to their a specific quantile to when all of the other predictors in Z are fixed to their a second specific quantile.
 #' @inheritParams kmbayes
-#' @param fit 
-#'
-#' @param y 
-#' @param Z 
-#' @param X 
-#' @param which.z 
-#' @param qs.diff 
-#' @param qs.fixed 
-#' @param preds.method 
-#' @param sel 
-#' @param z.names 
-#' @param ... 
-#'
+#' @inheritParams ExtractEsts
+#' @inheritParams SingVarRiskSummaries
+#' @param qs.diff vector indicating the two quantiles at which to compute the single-predictor risk summary
+#' @param qs.fixed vector indicating the two quantiles at which to fix all of the remaining exposures in \code{Z}
 #' @export
 SingVarIntSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL, z.names = colnames(Z), ...) {
   

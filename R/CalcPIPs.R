@@ -3,10 +3,6 @@
 #' Calculate posterior inclusion probabilities for each group of variables
 #' 
 #' @inheritParams ExtractEsts
-#'
-#' @param fit
-#' @param sel
-#'
 #' @export
 CalcGroupPIPs <- function(fit, sel = NULL) {
     groups <- fit$groups
@@ -21,6 +17,12 @@ CalcGroupPIPs <- function(fit, sel = NULL) {
     groupincl.probs
 }
 
+#' Calculate conditional predictor specific posterior inclusion probabilities
+#'
+#' For those predictors within a multi-preditor group, as defined using the \code{groups} argument, the posterior inclusion probabilities for the predictor conditional on the group being selected into the model.
+#' 
+#' @inheritParams ExtractEsts
+#' @export
 CalcWithinGroupPIPs <- function(fit, sel = NULL) {
     groups <- fit$groups
     if (is.null(groups)) {
@@ -42,13 +44,11 @@ CalcWithinGroupPIPs <- function(fit, sel = NULL) {
 
 
 #' Calculate variable-specific posterior inclusion probabilities
+#' 
+#' Calculate variable-specific posterior inclusion probabilities from BKMR model fit
+#' 
 #' @inheritParams ExtractEsts
-#'
-#' @param fit
-#' @param sel
-#'
 #' @export
-#'
 CalcPIPs <- function(fit, sel = NULL) {
   if (inherits(fit, "bkmrfit")) {
     if (is.null(sel)) {
@@ -67,8 +67,7 @@ CalcPIPs <- function(fit, sel = NULL) {
 #'
 #' Extract posterior inclusion probabilities (PIPs) from Bayesian Kernel Machine Regression (BKMR) model fit
 #'
-#' @param fit fitted BKMR model with either component-wise or hierarchical variable selection
-#' @param sel optional argument selecting which iterations of the MCMC sampler to keep
+#' @inheritParams ExtractEsts
 #' @param z.names optional argument providing the names of the variables included in the \code{h} function.
 #'
 #' @return a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditional (within-group) PIPs for BKMR fit with hierarchical variable selection.

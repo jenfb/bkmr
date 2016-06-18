@@ -1,15 +1,14 @@
 #' Trace plot
 #'
-#' @param fit 
-#' @param par 
-#' @param comp 
-#' @param sel 
-#' @param main 
-#' @param xlab 
-#' @param ylab 
-#' @param ... 
-#'
+#' @inheritParams ExtractEsts
+#' @param par which parameter to plot
+#' @param comp which component of the parameter vector to plot
+#' @param main title
+#' @param xlab x axis label
+#' @param ylab y axis label
+#' @param ... other arguments to pass onto the plotting function
 #' @export
+#' @import graphics
 TracePlot <- function(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration", ylab = "parameter value", ...) {
     samps <- ExtractSamps(fit, sel = sel)[[par]]
     if (!is.null(ncol(samps))) {

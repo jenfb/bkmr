@@ -14,6 +14,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #' @param beta.true Coefficient on the covariate
 #' @param hfun An integer from 1 to 3 identifying which predictor-response function to generate
 #' @param Zgen Method for generating the matrix Z of exposure variables, taking one of the values c("unif", "corr", "realistic")
+#' @param ind select which predictor(s) will be included in the \code{h} function; how many predictors that can be included will depend on which \code{h} function is being used.
 #' @examples
 #' set.seed(5)
 #' dat <- SimData()

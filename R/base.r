@@ -3,3 +3,6 @@ NULL
 
 #' @importFrom magrittr %<>%
 NULL
+
+#' @import stats
+NULL

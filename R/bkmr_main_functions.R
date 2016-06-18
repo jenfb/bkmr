@@ -70,6 +70,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
+#' @import utils
 kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE, Znew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
   
   missingX <- missing(X)
@@ -427,7 +428,7 @@ summary.bkmrfit <- function(x, q = c(0.025, 0.975), digits = 5, show_ests = TRUE
     if (length(rate) > 1) nm <- paste0(nm, seq_along(rate))
     accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
     ## r_m
-    if (!varsel) {
+    if (!x$varsel) {
       nm <- "r"
       rate <- colMeans(x$acc.r[2:x$iter, ])
       if (length(rate) > 1) nm <- paste0(nm, seq_along(rate))
@@ -461,7 +462,7 @@ summary.bkmrfit <- function(x, q = c(0.025, 0.975), digits = 5, show_ests = TRUE
     summ <- data.frame(param = rownames(summ), round(summ, digits))
     rownames(summ) <- NULL
     print(summ)
-    if (varsel) {
+    if (x$varsel) {
       cat("\nPosterior inclusion probabilities:\n")
       pips <- ExtractPIPs(x)
       pips[, -1] <- round(pips[, -1], digits)
