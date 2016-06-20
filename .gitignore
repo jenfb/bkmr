@@ -3,4 +3,5 @@
 .RData
 inst/doc
 data
-my-doc/bkmr.html
+my-doc/overview.html
+my-doc/fitted_objects.RData
