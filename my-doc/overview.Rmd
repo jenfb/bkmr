@@ -198,7 +198,6 @@ A situation where this approach may not work well is when two or more of the exp
 ```{r generate correlated data}
 set.seed(111)
 d2 <- SimData(n = 100, M = 4, Zgen = "corr", sigsq.true = 2.2)
-PlotCorr(d2$Z, reorder = FALSE, print.vals = TRUE)
 round(cor(d2$Z), 2)
 ```
 
