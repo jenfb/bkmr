@@ -15,8 +15,6 @@ Imports:
     nlme,
     fields,
     truncnorm,
-    ggplot2,
     tidyr,
-    reshape2,
     MASS
 RoxygenNote: 5.0.1
