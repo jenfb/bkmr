@@ -9,7 +9,6 @@ output:
 
 ```{r options, echo=FALSE, message=FALSE, warning=FALSE}
 ## if the current working directory is the directory where this file is located rather than the project directory, set the working directory to the project directory
-if (grepl("vignettes", getwd())) knitr::opts_knit$set(root.dir = paste(getwd(), "..", sep = "/"))
 knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
 ```
 
@@ -54,9 +53,12 @@ res <- persp(z1, z2, hgrid.true, theta = 30, phi = 20, expand = 0.5,
 ### Fit BKMR 
 
 To fit the BKMR model, we use the `kmbayes` function. This function implements the Markov chain Monte Carlo (MCMC) sampler described in the paper. The argument `iter` indicates the number of iterations of the MCMC sampler; `verbose` indicates whether interim output summarizing the progress of the model fitting should be printed; and `varsel` indicates whether to conduct variable selection on the predictors $z_{im}$.
-```{r fit orig}
+```{r fit orig, eval=FALSE}
 set.seed(111)
 fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 10000, verbose = FALSE, varsel = TRUE)
+```
+```{r fit orig load, echo=FALSE}
+load("fitted_objects.RData")
 ```
 
 ### Investigate model convergence
@@ -191,7 +193,7 @@ round(cor(d2$Z), 2)
 In this situation, exposures $z_1$ and $z_3$ are highly correlated. An alternative to the component-wise variable selection is hierarchical variable selection, where you categorize the exposure variables into non-overlapping groups. There are then two levels of variable selection. In the first level, variable selection is done at the group level. At the second level, for those groups that are selected into the model, variable selection is done on the exposures within the group. The groups may be selected by using prior knowledge on the structure of how the variables are related. For example, exposures representing components of the air pollution mixture may be grouped using information on pollutant sources. Another possibility for defining exposure groups is based on the empirical correlation structure. In our simulated dataset, we will use this latter approach to group the highly correlated exposures $z_1$ and $z_3$ into one group (call it Group 1). We will keep each of the other exposures in single-variable groups by themselves (e.g., $z_2$ will be Group 2, and $z_4$ will be Group 3). To implement this in the `kmbayes` function, add in the argument `groups = c(1,2,1,3)`, where the Group number of the exposure variables is listed in the order that the variables appear as collumns in the `Z` matrix argument. If the `groups` argument is not specified than the default component-wise variable selection when `varsel = TRUE`. 
 
 Here we apply both the original component-wise variable selection and the hierarchical variable selection. 
-```{r fit corr}
+```{r fit corr, eval=FALSE}
 set.seed(111)
 fitkm_corr <- kmbayes(y = d2$y, Z = d2$Z, X = d2$X, iter = 10000, varsel = TRUE, verbose = FALSE)
 fitkm_hier <- kmbayes(y = d2$y, Z = d2$Z, X = d2$X, iter = 10000, varsel = TRUE, 
