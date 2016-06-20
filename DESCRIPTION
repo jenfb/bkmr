@@ -19,8 +19,4 @@ Imports:
     tidyr,
     reshape2,
     MASS
-Suggests:
-    knitr,
-    testthat
-VignetteBuilder: knitr
 RoxygenNote: 5.0.1
