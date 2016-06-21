@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Bayesian kernel machine regression"
+title: "Introduction to Bayesian kernel machine regression and the `bkmr` R package"
 author: "Jennifer F. Bobb"
 date: "`r Sys.Date()`"
 output: 
@@ -12,12 +12,6 @@ output:
 ```{r options, echo=FALSE, message=FALSE, warning=FALSE}
 ## if the current working directory is the directory where this file is located rather than the project directory, set the working directory to the project directory
 knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
-```
-
-```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, results='hide'}
-##suppressMessages(library(bkmr))
-suppressMessages(devtools::document())
-##devtools::load_all()
 ```
 
 In this document, we illustrate the main features of the `bkmr` R package through examples. Additional information on the statistical methodology and on the computational details are provided in [Bobb et al. 2015](http://biostatistics.oxfordjournals.org/content/16/3/493).
@@ -41,7 +35,17 @@ This package includes functions for conducting Bayesian inference for the model 
 
 ## Basic example with component-wise variable selection
 
-To illustrate the main features of the R package `bkmr`, let's first generate some data. We have built in a few functions directly into the R package for this purpose.
+First, load the R package.
+```{r load package 0, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, results='hide'}
+##suppressMessages(library(bkmr))
+suppressMessages(devtools::document())
+##devtools::load_all()
+```
+```{r load package 1, eval=FALSE, message=FALSE, warning=FALSE}
+library(bkmr)
+```
+
+Now, to illustrate the main features of the R package `bkmr`, let's first generate some data. We have built in a few functions directly into the R package for this purpose.
 
 ```{r simdata}
 set.seed(111)
