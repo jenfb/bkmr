@@ -1,4 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^my-doc\$
 ^cran-comments\.md$
+^my-doc$
+^data-raw$
