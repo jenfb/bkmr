@@ -5,9 +5,8 @@
 \title{Predict the exposure-response function at a new grid of points}
 \usage{
 PredictorResponseBivar(fit, y = NULL, Z = NULL, X = NULL,
-  z.pairs = subset(expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z)), z1 < z2),
-  preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL,
-  min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z),
+  z.pairs = NULL, preds.method = "approx", ngrid = 50, q.fixed = 0.5,
+  sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z),
   verbose = TRUE, ...)
 }
 \arguments{
