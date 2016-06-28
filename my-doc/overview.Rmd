@@ -73,7 +73,8 @@ set.seed(111)
 fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 10000, verbose = FALSE, varsel = TRUE)
 ```
 ```{r fit orig load, echo=FALSE}
-load("fitted_objects.RData")
+DIR <- ifelse("my-doc" %in% getwd(), getwd(), paste(getwd(), "my-doc", sep = "/"))
+load(paste(DIR, "fitted_objects.RData", sep = "/"))
 ```
 
 The interim output tells you about the algorithm as it is running, including the number of iterations competed and the amount of time elapsed since the algorithm started. With `verbose = TRUE` the interim output will additionally include the acceptance rates of parameters that are updated by using the Metropolis-Hastings algorithm.
