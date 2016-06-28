@@ -73,7 +73,8 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
             dplyr::select_(~variable, ~z, ~est, ~se)
         df <- dplyr::bind_rows(df, df0)
     }
-    df <- dplyr::mutate(df, variable = factor(variable, levels = z.names[which.z]))
+    df$variable <- factor(df$variable, levels = z.names[which.z])
+    df
 }
 
 
@@ -144,40 +145,50 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
 #' @param ngrid number of grid points in each dimension
 #' @param verbose TRUE or FALSE: flag of whether to print intermediate output to the screen
 #' @export
-PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = subset(expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z)), z1 < z2), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
-
+PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = NULL, preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
+  
   if (inherits(fit, "bkmrfit")) {
     if (is.null(y)) y <- fit$y
     if (is.null(Z)) Z <- fit$Z
     if (is.null(X)) X <- fit$X
   }
   
-    df <- dplyr::data_frame()
-    for(i in 1:nrow(z.pairs)) {
-        compute <- TRUE
-        whichz1 <- z.pairs[i, 1] %>% unlist %>% unname
-        whichz2 <- z.pairs[i, 2] %>% unlist %>% unname
-        if(whichz1 == whichz2) compute <- FALSE
-        z.name1 <- z.names[whichz1]
-        z.name2 <- z.names[whichz2]
-        names.pair <- c(z.name1, z.name2)
-        if(nrow(df) > 0) { ## determine whether the current pair of variables has already been done
-            completed.pairs <- df %>%
-                dplyr::select_('variable1', 'variable2') %>%
-                dplyr::distinct() %>%
-                dplyr::transmute(z.pair = paste('variable1', 'variable2', sep = ":")) %>%
-                unlist %>% unname
-            if(paste(names.pair, collapse = ":") %in% completed.pairs | paste(rev(names.pair), collapse = ":") %in% completed.pairs) compute <- FALSE
-        }
-        if(compute) {
-            if(verbose) message("Pair ", i, " out of ", nrow(z.pairs))
-            res <- PredictorResponseBivarPair(fit = fit, y = y, Z = Z, X = X, whichz1 = whichz1, whichz2 = whichz2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
-            df0 <- dplyr::mutate(res, variable1 = z.name1, variable2 = z.name2) %>%
-                dplyr::select_(~variable1, ~variable2, ~z1, ~z2, ~est, ~se)
-            df <- dplyr::bind_rows(df, df0)
-        }
+  if (is.null(z.pairs)) {
+    z.pairs <- expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z))
+    z.pairs <- z.pairs[z.pairs$z1 < z.pairs$z2, ]
+  }
+  
+  df <- dplyr::data_frame()
+  for(i in 1:nrow(z.pairs)) {
+    compute <- TRUE
+    whichz1 <- z.pairs[i, 1] %>% unlist %>% unname
+    whichz2 <- z.pairs[i, 2] %>% unlist %>% unname
+    if(whichz1 == whichz2) compute <- FALSE
+    z.name1 <- z.names[whichz1]
+    z.name2 <- z.names[whichz2]
+    names.pair <- c(z.name1, z.name2)
+    if(nrow(df) > 0) { ## determine whether the current pair of variables has already been done
+      completed.pairs <- df %>%
+        dplyr::select_('variable1', 'variable2') %>%
+        dplyr::distinct() %>%
+        dplyr::transmute(z.pair = paste('variable1', 'variable2', sep = ":")) %>%
+        unlist %>% unname
+      if(paste(names.pair, collapse = ":") %in% completed.pairs | paste(rev(names.pair), collapse = ":") %in% completed.pairs) compute <- FALSE
     }
-    df <- dplyr::mutate(df, variable1 = factor(variable1, levels = z.names), variable2 = factor(variable2, levels = z.names))
+    if(compute) {
+      if(verbose) message("Pair ", i, " out of ", nrow(z.pairs))
+      res <- PredictorResponseBivarPair(fit = fit, y = y, Z = Z, X = X, whichz1 = whichz1, whichz2 = whichz2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
+      df0 <- res
+      df0$variable1 <- z.name1
+      df0$variable2 <- z.name2
+      df0 %<>%
+        dplyr::select_(~variable1, ~variable2, ~z1, ~z2, ~est, ~se)
+      df <- dplyr::bind_rows(df, df0)
+    }
+  }
+  df$variable1 <- factor(df$variable1, levels = z.names)
+  df$variable2 <- factor(df$variable2, levels = z.names)
+  df
 }
 
 #' Plot cross-sections of the bivariate predictor-response function
@@ -190,51 +201,51 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' @param qs vector of quantiles at which to fix the second variable
 #' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
 PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE) {
-    var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
-    if (both_pairs) {
-      var.pairs.rev <- dplyr::data_frame(
-        variable1 = var.pairs$variable2,
-                                         
-        variable2 = var.pairs$variable1
-      )
-      var.pairs <- rbind(var.pairs, var.pairs.rev)
+  var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
+  if (both_pairs) {
+    var.pairs.rev <- dplyr::data_frame(
+      variable1 = var.pairs$variable2,
+      
+      variable2 = var.pairs$variable1
+    )
+    var.pairs <- rbind(var.pairs, var.pairs.rev)
+  }
+  
+  df <- data.frame()
+  for (i in 1:nrow(var.pairs)) {
+    var1 <- as.character(unlist(var.pairs[i, "variable1"]))
+    var2 <- as.character(unlist(var.pairs[i, "variable2"]))
+    preds <- pred.resp.df[pred.resp.df$variable1 == var1 & pred.resp.df$variable2 == var2, ]
+    if (nrow(preds) == 0) {
+      preds <- pred.resp.df[pred.resp.df$variable1 == var2 & pred.resp.df$variable2 == var1, ]
     }
     
-    df <- data.frame()
-    for (i in 1:nrow(var.pairs)) {
-        var1 <- as.character(unlist(var.pairs[i, "variable1"]))
-        var2 <- as.character(unlist(var.pairs[i, "variable2"]))
-        preds <- subset(pred.resp.df, variable1 == var1 & variable2 == var2)
-        if (nrow(preds) == 0) {
-          preds <- subset(pred.resp.df, variable1 == var2 & variable2 == var1)
-        }
-
-        ngrid <- sqrt(nrow(preds))
-        preds.plot <- preds$est
-        se.plot <- preds$se
-
-        hgrid <- matrix(preds.plot, ngrid, ngrid)
-        se.grid <- matrix(se.plot, ngrid, ngrid)
-        z1 <- preds$z1[1:ngrid]
-        z2 <- preds$z2[seq(1, by = ngrid, length.out = ngrid)]
-
-        quants <- quantile(Z[, var2], qs)
-        
-        ## relation of z1 with outcome at different levels of z2
-        se.grid.sub <- hgrid.sub <- matrix(NA, ngrid, length(qs))
-        for (k in seq_along(quants)) {
-          sub.sel <- which.min(abs(z2 - quants[k]))
-          hgrid.sub[, k] <- hgrid[, sub.sel]
-          se.grid.sub[, k] <- se.grid[, sub.sel]
-        }
-        colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
-        hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, 'est', convert = TRUE)
-        se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, 'se')
-        
-        df.curr <- data.frame(variable1 = var1, variable2 = var2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se, stringsAsFactors = FALSE)
-        df <- rbind(df, df.curr)
+    ngrid <- sqrt(nrow(preds))
+    preds.plot <- preds$est
+    se.plot <- preds$se
+    
+    hgrid <- matrix(preds.plot, ngrid, ngrid)
+    se.grid <- matrix(se.plot, ngrid, ngrid)
+    z1 <- preds$z1[1:ngrid]
+    z2 <- preds$z2[seq(1, by = ngrid, length.out = ngrid)]
+    
+    quants <- quantile(Z[, var2], qs)
+    
+    ## relation of z1 with outcome at different levels of z2
+    se.grid.sub <- hgrid.sub <- matrix(NA, ngrid, length(qs))
+    for (k in seq_along(quants)) {
+      sub.sel <- which.min(abs(z2 - quants[k]))
+      hgrid.sub[, k] <- hgrid[, sub.sel]
+      se.grid.sub[, k] <- se.grid[, sub.sel]
     }
-    df <- dplyr::tbl_df(df) %>%
-      dplyr::arrange_(~variable1, ~variable2)
-    df
+    colnames(hgrid.sub) <- colnames(se.grid.sub) <- paste0("q", seq_along(qs))
+    hgrid.df <- tidyr::gather(data.frame(hgrid.sub), quantile, 'est', convert = TRUE)
+    se.grid.df <- tidyr::gather(data.frame(se.grid.sub), quantile, 'se')
+    
+    df.curr <- data.frame(variable1 = var1, variable2 = var2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se, stringsAsFactors = FALSE)
+    df <- rbind(df, df.curr)
+  }
+  df <- dplyr::tbl_df(df) %>%
+    dplyr::arrange_(~variable1, ~variable2)
+  df
 }
