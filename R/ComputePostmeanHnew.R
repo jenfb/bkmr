@@ -5,11 +5,13 @@
 #' @inheritParams ExtractEsts
 #' @param sel A vector selecting which iterations of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.
 #' @export
-ComputePostmeanHnew <- function(fit, y, Z, X, Znew, sel = NULL) {
+ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew, sel = NULL) {
   
-  if (missing(y)) y <- fit$y
-  if (missing(Z)) Z <- fit$Z
-  if (missing(X)) X <- fit$X
+  if (inherits(fit, "bkmrfit")) {
+    if (is.null(y)) y <- fit$y
+    if (is.null(Z)) Z <- fit$Z
+    if (is.null(X)) X <- fit$X
+  }
   
     if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
     if(class(Znew) == "data.frame") Znew <- data.matrix(Znew)
