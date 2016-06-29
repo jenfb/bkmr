@@ -85,12 +85,16 @@ ExtractSamps <- function(fit, sel = NULL) {
     beta <- fit$beta[sel, ]
     lambda <- fit$lambda[sel, ]
     tau <- lambda*sigsq.eps
-    h <- fit$h[sel, ]
+    h <- fit$h.hat[sel, ]
+    if (!is.null(fit$hnew)) hnew <- fit$hnew[sel, ]
   }
   
     if (!is.null(ncol(beta))) colnames(beta) <- paste0("beta", 1:ncol(beta))
     colnames(r) <- paste0("r", 1:ncol(r))
     colnames(h) <- paste0("h", 1:ncol(h))
+    if (!is.null(fit$hnew)) colnames(hnew) <- paste0("hnew", 1:ncol(hnew))
 
     res <- list(sigsq.eps = sigsq.eps, sig.eps = sig.eps, r = r, beta = beta, lambda = lambda, tau = tau, h = h)
+    if (!is.null(fit$hnew)) res$hnew <- hnew
+    res
 }
