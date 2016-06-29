@@ -2,7 +2,7 @@ Package: bkmr
 Title: Bayesian Kernel Machine Regression
 Version: 0.0.0.9000
 Authors@R: person("Jennifer F.", "Bobb", 
-                  mail = "jenniferfederbobb@gmail.com", 
+                  email = "jenniferfederbobb@gmail.com", 
                   role = c("aut", "cre"))
 Description: Implementation of a statistical approach 
   for estimating the joint health effects of multiple 
