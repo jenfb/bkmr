@@ -4,7 +4,7 @@
 \alias{ComputePostmeanHnew}
 \title{Compute the posterior mean and variance of \code{h} at a new predictor values}
 \usage{
-ComputePostmeanHnew(fit, y, Z, X, Znew, sel = NULL)
+ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew, sel = NULL)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}
