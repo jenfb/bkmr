@@ -1,9 +1,12 @@
 Package: bkmr
 Title: Bayesian kernel machine regression
 Version: 0.0.0.9000
-Authors@R: "Jennifer F. Bobb <jenniferfederbobb@gmail.com> [aut, cre]"
-Description: This package implements Bayesian kernel machine regression (BKMR),
-    an approach for estimating the joint health effects of multiple concurrent exposures.
+Authors@R: person("Jennifer F.", "Bobb", 
+                  mail = "jenniferfederbobb@gmail.com", 
+                  role = c("aut", "cre"))
+Description: Implementation of a statistical approach 
+  for estimating the joint health effects of multiple 
+  concurrent exposures.
 URL: https://github.com/jenfb/bkmr
 BugReports: https://github.com/jenfb/bkmr/issues
 Depends:
