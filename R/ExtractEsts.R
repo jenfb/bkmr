@@ -38,7 +38,7 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
       rownames(lambda) <- "lambda"
     }
     
-    h <- t(apply(fit$h[sel, ], 2, SummarySamps, q = q))
+    h <- t(apply(fit$h.hat[sel, ], 2, SummarySamps, q = q))
     rownames(h) <- paste0("h", 1:nrow(h))
   }
   
