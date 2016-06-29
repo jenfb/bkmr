@@ -1,5 +1,5 @@
 Package: bkmr
-Title: Bayesian kernel machine regression
+Title: Bayesian Kernel Machine Regression
 Version: 0.0.0.9000
 Authors@R: person("Jennifer F.", "Bobb", 
                   mail = "jenniferfederbobb@gmail.com", 
