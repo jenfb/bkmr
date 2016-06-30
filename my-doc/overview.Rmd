@@ -73,7 +73,7 @@ set.seed(111)
 fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 10000, verbose = FALSE, varsel = TRUE)
 ```
 ```{r fit orig load, echo=FALSE}
-DIR <- ifelse("my-doc" %in% getwd(), getwd(), paste(getwd(), "my-doc", sep = "/"))
+DIR <- ifelse(grepl("my-doc", getwd()), getwd(), paste(getwd(), "my-doc", sep = "/"))
 load(paste(DIR, "fitted_objects.RData", sep = "/"))
 ```
 
