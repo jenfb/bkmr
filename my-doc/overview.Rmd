@@ -134,22 +134,23 @@ This output can be used to create image or contour plots (e.g., by using the `ge
 ```{r plot pred-resp2, fig.height=5, fig.width=6.5}
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) + 
     geom_raster() + 
-    facet_grid(variable1 ~ variable2) +
+    facet_grid(variable2 ~ variable1) +
   scale_fill_gradientn(colours=c("#0000FFFF","#FFFFFFFF","#FF0000FF")) +
   xlab("expos1") +
   ylab("expos2") +
-  ggtitle("h(expos2, expos2)")
+  ggtitle("h(expos1, expos2)")
 ```
+
 Because it can be hard to see what's going on in these types of image plots, an alternative approach is to investigate the predictor-response function of a single predictor in `Z` for the second predictor in `Z` fixed at various quantiles (and for the remaining predictors fixed to a particular value). These can be obtained using the `PredictorResponseBivarLevels` function, which takes as input the bivariate exposure-response function outputted from the previous command, where the argument `qs` specifies a sequence of quantiles at which to fix the second predictor.
 ```{r pred-resp2 opt2, message=FALSE}
 pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, 
-                                                       Z = Z, qs = c(0.25, 0.5, 0.75))
+                                                       both_pairs = FALSE, Z = Z, qs = c(0.25, 0.5, 0.75))
 ```
 
 ```{r plot pred-resp2 opt2, fig.height=5, fig.width=6.5, warning=FALSE}
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
     geom_smooth(aes(col = quantile), stat = "identity") + 
-    facet_grid(variable1 ~ variable2) +
+    facet_grid(variable2 ~ variable1) +
     ggtitle("h(expos1 | quantiles of expos2)") +
   xlab("expos1")
 ```
