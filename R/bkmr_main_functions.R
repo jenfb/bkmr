@@ -404,13 +404,35 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   chain
 }
 
+#' Print basic summary of BKMR model fit
+#'
+#' \code{print} method for class "bkmrfit"
+#'
+#' @param x an object of class "bkmrfit"
+#' @param digits the number of digits to show when printing
+#' @param ...	further arguments passed to or from other methods.
+#'  
+#' @export
 print.bkmrfit <- function(x, digits = 5, ...) {
   cat("Fitted object of class 'bkmrfit'\n")
   cat("Iterations:", x$iter, "\n")
   cat("Model fit on:", as.character(x$time2), "\n")
 }
 
-summary.bkmrfit <- function(x, q = c(0.025, 0.975), digits = 5, show_ests = TRUE, show_MH = TRUE) {
+#' Summarizing BKMR model fits
+#'
+#' \code{summary} method for class "bkmrfit"
+#'
+#' @param object an object of class "bkmrfit"
+#' @param q quantiles of posterior distribution to show
+#' @param digits the number of digits to show when printing
+#' @param show_ests logical; if \code{TRUE}, prints summary statistics of posterior distribution
+#' @param show_MH logical; if \code{TRUE}, prints acceptance rates from the Metropolis-Hastings algorithm
+#' @param ...	further arguments passed to or from other methods.
+#'  
+#' @export
+summary.bkmrfit <- function(object, q = c(0.025, 0.975), digits = 5, show_ests = TRUE, show_MH = TRUE, ...) {
+  x <- object
   elapsed_time <- difftime(x$time2, x$time1)
   
   cat("Fitted object of class 'bkmrfit'\n")
