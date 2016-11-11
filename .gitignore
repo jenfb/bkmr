@@ -5,3 +5,4 @@ inst/doc
 data
 my-doc/overview.html
 my-doc/fitted_objects.RData
+*.DS_Store
