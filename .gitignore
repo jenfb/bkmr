@@ -2,3 +2,4 @@
 .Rproj.user/
 my-doc
 overview.html
+*.DS_Store
