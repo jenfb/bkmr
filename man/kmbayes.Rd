@@ -42,4 +42,7 @@ kmbayes(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE,
 \description{
 Fits the Bayesian kernel machine regression (BKMR) model using Markov chain Monte Carlo (MCMC) methods.
 }
+\seealso{
+For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
 
