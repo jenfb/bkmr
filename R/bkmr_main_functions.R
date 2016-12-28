@@ -184,6 +184,12 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
     chain$move.type <- rep(0, nsamp)
   }
   
+  ## components for probit regression
+  if (family == "binomial") {
+    outcome_vec <- y
+    chain$ystar <- matrix(0, nsamp, length(y))
+  }
+  
   ## components to predict h(Znew)
   if (!missing(Znew)) {
     if (is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
@@ -298,6 +304,19 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
     }
     chain$delta[1,ztest] <- starting.values$delta
     chain$r[1,ztest] <- ifelse(chain$delta[1,ztest] == 1, chain$r[1,ztest], 0)
+  }
+  
+  ## starting values if doing probit regression
+  if (family == "binomial") {
+    if (is.null(starting.values$ystar)) {
+      probitfit0 <- try(glm(outcome_vec ~ Z + X, family = binomial(link = "probit")))
+      if (!inherits(probitfit0, "try-error")) {
+        starting.values$ystar <- predict(probitfit0)
+      } else {
+        starting.values$ystar <- ifelse(outcome_vec == 1, 1/2, -1/2)
+      }
+    }
+    chain$ystar[1, ] <- starting.values$ystar
   }
   
   ## components
