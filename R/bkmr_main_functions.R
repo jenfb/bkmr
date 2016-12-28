@@ -2,9 +2,9 @@
 # Kpart <- as.matrix(dist(sqrt(matrix(r, byrow=TRUE, nrow(Z), ncol(Z)))*Z))^2
 # Kpart
 # }
-makeKpart <- function(r, Z1, Z2) {
+makeKpart <- function(r, Z1, Z2 = NULL) {
   Z1r <- sweep(Z1, 2, sqrt(r), "*")
-  if (missing(Z2)) {
+  if (is.null(Z2)) {
     Z2r <- Z1r
   } else {
     Z2r <- sweep(Z2, 2, sqrt(r), "*")
@@ -73,11 +73,11 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' 
 #' @seealso For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @import utils
-kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE, Znew, starting.values = list(), control.params = list(), varsel = FALSE, groups, knots, ztest, rmethod = "varying") {
+kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = list(), control.params = list(), varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying") {
   
-  missingX <- missing(X)
+  missingX <- is.null(X)
   if (missingX) X <- matrix(0, length(y), 1)
-  hier_varsel <- !missing(groups)
+  hier_varsel <- !is.null(groups)
   
   ##Argument check 1, required arguments without defaults
   ##check vector/matrix sizes
@@ -114,22 +114,22 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   }
   
   ##Argument check 3: the rest id (below) znew, knots, groups, ztest
-  if (!missing(id)) { 
+  if (!is.null(id)) { 
     stopifnot(length(id) == length(y), anyNA(id) == FALSE)
-    if (!missing(knots)) { 
+    if (!is.null(knots)) { 
       message ("knots cannot be specified with id, resetting knots to null")
       knots<-NA
     }
   }
-  if (!missing(Znew)) { 
+  if (!is.null(Znew)) { 
     if (class(Znew) != "matrix")  Znew <- as.matrix(Znew)
     stopifnot(is.numeric(Znew), ncol(Znew) == ncol(Z), anyNA(Znew) == FALSE)
   }
-  if (!missing(knots)) { 
+  if (!is.null(knots)) { 
     if (class(knots) != "matrix")  knots <- as.matrix(knots)
     stopifnot(is.numeric(knots), ncol(knots )== ncol(Z), anyNA(knots) == FALSE)
   }
-  if (!missing(groups)) { 
+  if (!is.null(groups)) { 
     if (varsel == FALSE) {
       message ("groups should only be specified if varsel=TRUE, resetting varsel to TRUE")
       varsel <- TRUE
@@ -137,7 +137,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
       stopifnot(is.numeric(groups), length(groups) == ncol(Z), anyNA(groups) == FALSE)
     }
   }
-  if (!missing(ztest)) { 
+  if (!is.null(ztest)) { 
     if (varsel == FALSE) {
       message ("ztest should only be specified if varsel=TRUE, resetting varsel to TRUE")
       varsel <- TRUE
@@ -147,7 +147,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   }
   
   ## start JB code
-  if (!missing(id)) { ## for random intercept model
+  if (!is.null(id)) { ## for random intercept model
     randint <- TRUE
     id <- as.numeric(as.factor(id))
     nid <- length(unique(id))
@@ -166,7 +166,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
     crossTT <- 0
   }
   data.comps <- list(randint = randint, nlambda = nlambda, crossTT = crossTT)
-  if (!missing(knots)) data.comps$knots <- knots
+  if (!is.null(knots)) data.comps$knots <- knots
   rm(randint, nlambda, crossTT)
   
   ## create empty matrices to store the posterior draws in
@@ -191,7 +191,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   }
   
   ## components to predict h(Znew)
-  if (!missing(Znew)) {
+  if (!is.null(Znew)) {
     if (is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
     if (class(Znew) == "data.frame") Znew <- data.matrix(Znew)
     if (ncol(Z) != ncol(Znew)) {
@@ -204,7 +204,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   
   ## components if model selection is being done
   if (varsel) {
-    if (missing(ztest)) {
+    if (is.null(ztest)) {
       ztest <- 1:ncol(Z)
     }
     rdelta.update <- rdelta.comp.update
@@ -224,7 +224,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   control.params$r.params <- with(control.params, list(mu.r = mu.r, sigma.r = sigma.r, r.muprop = r.muprop, r.jump = r.jump, r.jump1 = r.jump1, r.jump2 = r.jump2, r.a = r.a, r.b = r.b))
   
   ## components if grouped model selection is being done
-  if (!missing(groups)) {
+  if (!is.null(groups)) {
     if (!varsel) {
       stop("if doing grouped variable selection, must set varsel = TRUE")
     }
@@ -295,7 +295,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   if (varsel) {
     chain$delta[1,ztest] <- starting.values$delta
   }
-  if (!missing(groups)) {
+  if (!is.null(groups)) {
     ## make sure starting values are consistent with structure of model
     if (!all(sapply(unique(groups), function(x) sum(chain$delta[1, ztest][groups == x])) == 1)) {
       # warning("Specified starting values for delta not consistent with model; using default")
@@ -396,7 +396,7 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
     ###################################################
     ## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
     
-    if (!missing(Znew)) {
+    if (!is.null(Znew)) {
       chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = y, X = X, beta = chain$beta[s,], data.comps = data.comps)
     }
     
@@ -420,8 +420,8 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   chain$y <- y
   chain$ztest <- ztest
   chain$data.comps <- data.comps
-  if (!missing(Znew)) chain$Znew <- Znew
-  if (!missing(groups)) chain$groups <- groups
+  if (!is.null(Znew)) chain$Znew <- Znew
+  if (!is.null(groups)) chain$groups <- groups
   chain$varsel <- varsel
   class(chain) <- c("bkmrfit", class(chain))
   chain

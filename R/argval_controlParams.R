@@ -25,7 +25,7 @@ validateControlParams <- function(varsel, family, id, control.params) {
     stopifnot(control.params$r.jump > 0)
   } ##end varsel-specific stuff
   ##if id, need two elements in mu.lambda, sigma.lambda and lambda.jump
-  if (!missing(id)) {
+  if (!is.null(id)) {
     stopifnot(length(control.params$mu.lambda) == 2, length(control.params$sigma.lambda) == 2, length(control.params$lambda.jump) == 2)
   }
   ##regardless of id, validate each element of these params

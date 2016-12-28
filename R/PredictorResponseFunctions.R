@@ -79,12 +79,12 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
 
 
 
-PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
+PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3 = NULL, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
     if(ncol(Z) < 3) stop("requires there to be at least 3 Z variables")
 
     if(is.null(colnames(Z))) colnames(Z) <- paste0("z", 1:ncol(Z))
 
-    if(missing(whichz3)) {
+    if(is.null(whichz3)) {
         ord <- c(whichz1, whichz2, setdiff(1:ncol(Z), c(whichz1, whichz2)))
     } else {
         ord <- c(whichz1, whichz2, whichz3, setdiff(1:ncol(Z), c(whichz1, whichz2, whichz3)))
