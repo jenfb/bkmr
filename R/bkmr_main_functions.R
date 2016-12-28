@@ -73,7 +73,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' 
 #' @seealso For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @import utils
-kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = list(), control.params = list(), varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying") {
+kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = NULL, control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying") {
   
   missingX <- is.null(X)
   if (missingX) X <- matrix(0, length(y), 1)
@@ -183,10 +183,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     chain$acc.rdelta <- rep(0, nsamp)
     chain$move.type <- rep(0, nsamp)
   }
-  
-  ## components for probit regression
   if (family == "binomial") {
-    outcome_vec <- y
     chain$ystar <- matrix(0, nsamp, length(y))
   }
   
@@ -252,8 +249,11 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   rm(e, rfn)
   
   ## initial values
-  if (!missing(starting.values)){
-    starting.values <- modifyList(list(h.hat = 1, beta = NULL, sigsq.eps = NULL, r = 1, lambda = 10, delta = 1), starting.values)
+  starting.values0 <- list(h.hat = 1, beta = NULL, sigsq.eps = NULL, r = 1, lambda = 10, delta = 1)
+  if (is.null(starting.values)) {
+    starting.values <- starting.values0
+  } else {
+    starting.values <- modifyList(starting.values0, starting.values)
     validateStartingValues (varsel, y, X, Z, starting.values)
   }
   if (family == "gaussian") {
@@ -266,10 +266,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
       if (is.null(starting.values$sigsq.eps)) {
         starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
       }
-      starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
-    } else {
-      starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
-    }
+    } 
   } else if (family == "binomial") {
     starting.values$sigsq.eps <- 1 ## always equal to 1
     if (is.null(starting.values$beta) | is.null(starting.values$ystar)) {
@@ -282,10 +279,11 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
         if (is.null(starting.values$ystar)) {
           starting.values$ystar <- predict(probitfit0)
         }
+      } else {
+        starting.values$beta <- 0
+        starting.values$ystar <- ifelse(y == 1, 1/2, -1/2)
       }
-    } else {
-      starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1, ystar = ifelse(y == 1, 1/2, -1/2)), starting.values)
-    }
+    } 
   }
     
   ##print (starting.values)
@@ -304,7 +302,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   } else if (length(starting.values$r) > ncol(Z)) {
     starting.values$r <- starting.values$r[1:ncol(Z)]
   }
-  
+
   chain$h.hat[1, ] <- starting.values$h.hat
   chain$beta[1, ] <- starting.values$beta
   chain$lambda[1, ] <- starting.values$lambda
@@ -315,6 +313,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   }
   if (family == "binomial") {
     chain$ystar[1, ] <- starting.values$ystar
+    chain$sigsq.eps[] <- starting.values$sigsq.eps ## does not get updated
   }
   if (!is.null(groups)) {
     ## make sure starting values are consistent with structure of model
@@ -334,20 +333,30 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   chain$time1 <- Sys.time()
   for (s in 2:nsamp) {
 
+    ## continuous version of outcome (latent outcome under binomial probit model)
+    if (family == "gaussian") {
+      ycont <- y
+    } else if (family == "binomial") {
+      chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
+      ycont <- chain$ystar[s, ]
+    }
+    
     ## generate posterior samples from marginalized distribution P(beta, sigsq.eps, lambda, r | y)
     
+    ## beta
     if (!missingX) {
-      ## beta
-      chain$beta[s,] <- beta.update(X = X, Vinv = Vcomps$Vinv, y = y, sigsq.eps = chain$sigsq.eps[s - 1])
+      chain$beta[s,] <- beta.update(X = X, Vinv = Vcomps$Vinv, y = ycont, sigsq.eps = chain$sigsq.eps[s - 1])
     }
       
     ## \sigma_\epsilon^2
-    chain$sigsq.eps[s] <- sigsq.eps.update(y = y, X = X, beta = chain$beta[s,], Vinv = Vcomps$Vinv, a.eps = control.params$a.sigsq, b.eps = control.params$b.sigsq)
+    if (family == "gaussian") {
+      chain$sigsq.eps[s] <- sigsq.eps.update(y = ycont, X = X, beta = chain$beta[s,], Vinv = Vcomps$Vinv, a.eps = control.params$a.sigsq, b.eps = control.params$b.sigsq)
+    }
     
     ## lambda
     lambdaSim <- chain$lambda[s - 1,]
     for (comp in 1:data.comps$nlambda) {
-      varcomps <- lambda.update(r = chain$r[s - 1,], delta = chain$delta[s - 1,], lambda = lambdaSim, whichcomp = comp, y = y, X = X, Z = Z, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, data.comps = data.comps, control.params = control.params)
+      varcomps <- lambda.update(r = chain$r[s - 1,], delta = chain$delta[s - 1,], lambda = lambdaSim, whichcomp = comp, y = ycont, X = X, Z = Z, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, data.comps = data.comps, control.params = control.params)
       lambdaSim <- varcomps$lambda
       if (varcomps$acc) {
         Vcomps <- varcomps$Vcomps
@@ -361,7 +370,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     comp <- which(!1:ncol(Z) %in% ztest)
     if (length(comp) != 0) {
       if (rmethod == "equal") { ## common r for those variables not being selected
-        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
         rSim <- varcomps$r
         if (varcomps$acc) {
           Vcomps <- varcomps$Vcomps
@@ -369,7 +378,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
         }
       } else if (rmethod == "varying") { ## allow a different r_m
         for (whichr in comp) {
-          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
           rSim <- varcomps$r
           if (varcomps$acc) {
             Vcomps <- varcomps$Vcomps
@@ -380,7 +389,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     }
     ## for those variables being selected: joint posterior of (r,delta)
     if (varsel) {
-      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = y, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
       chain$delta[s,] <- varcomps$delta
       rSim <- varcomps$r
       chain$move.type[s] <- varcomps$move.type
@@ -394,7 +403,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     ###################################################
     ## generate posterior sample of h(z) from its posterior P(h | beta, sigsq.eps, lambda, r, y)
     
-    hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = y, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z)
+    hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z)
     chain$h.hat[s,] <- hcomps$hsamp
     if (!is.null(hcomps$hsamp.star)) { ## GPP
       Vcomps$hsamp.star <- hcomps$hsamp.star
@@ -405,7 +414,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     ## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
     
     if (!is.null(Znew)) {
-      chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = y, X = X, beta = chain$beta[s,], data.comps = data.comps)
+      chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = ycont, X = X, beta = chain$beta[s,], data.comps = data.comps)
     }
     
     ###################################################

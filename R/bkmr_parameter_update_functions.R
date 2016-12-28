@@ -13,6 +13,14 @@ sigsq.eps.update <- function(y, X, beta, Vinv, a.eps=1e-3, b.eps=1e-3) {
 	1/prec.y
 }
 
+ystar.update <- function(y, X, beta, Vinv, ystar) {
+  Xbeta <-  drop(X %*% beta)
+  lower <- ifelse(y == 1, 0, -Inf)
+  upper <- ifelse(y == 0, 0,  Inf)
+  samp <- tmvtnorm::rtmvnorm(1, mean = Xbeta, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
+  drop(samp)
+}
+
 r.update <- function(r, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, ...) {
 	# r.params <- set.r.params(r.prior = control.params$r.prior, comp = whichcomp, r.params = control.params$r.params)
 	r.params <- make_r_params_comp(control.params$r.params, whichcomp)
