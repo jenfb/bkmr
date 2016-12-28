@@ -256,20 +256,38 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     starting.values <- modifyList(list(h.hat = 1, beta = NULL, sigsq.eps = NULL, r = 1, lambda = 10, delta = 1), starting.values)
     validateStartingValues (varsel, y, X, Z, starting.values)
   }
-  if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
-    lmfit0 <- lm(y ~ Z + X)
-    if (is.null(starting.values$beta)) {
-      coefX <- coef(lmfit0)[grep("X", names(coef(lmfit0)))]
-      starting.values$beta <- unname(ifelse(is.na(coefX), 0, coefX))
+  if (family == "gaussian") {
+    if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
+      lmfit0 <- lm(y ~ Z + X)
+      if (is.null(starting.values$beta)) {
+        coefX <- coef(lmfit0)[grep("X", names(coef(lmfit0)))]
+        starting.values$beta <- unname(ifelse(is.na(coefX), 0, coefX))
+      }
+      if (is.null(starting.values$sigsq.eps)) {
+        starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
+      }
+      starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
+    } else {
+      starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
     }
-    if (is.null(starting.values$sigsq.eps)) {
-      starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
+  } else if (family == "binomial") {
+    starting.values$sigsq.eps <- 1 ## always equal to 1
+    if (is.null(starting.values$beta) | is.null(starting.values$ystar)) {
+      probitfit0 <- try(glm(y ~ Z + X, family = binomial(link = "probit")))
+      if (!inherits(probitfit0, "try-error")) {
+        if (is.null(starting.values$beta)) {
+          coefX <- coef(probitfit0)[grep("X", names(coef(probitfit0)))]
+          starting.values$beta <- unname(ifelse(is.na(coefX), 0, coefX))
+        }
+        if (is.null(starting.values$ystar)) {
+          starting.values$ystar <- predict(probitfit0)
+        }
+      }
+    } else {
+      starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1, ystar = ifelse(y == 1, 1/2, -1/2)), starting.values)
     }
-    starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
-  } else {
-    starting.values <- modifyList(list(h.hat = 1, beta = 0, sigsq.eps = 1, r = 1, lambda = 10, delta = 1), starting.values)
   }
-  
+    
   ##print (starting.values)
   ##truncate vectors that are too long
   if (length(starting.values$h.hat) > length(y)) {
@@ -295,6 +313,9 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   if (varsel) {
     chain$delta[1,ztest] <- starting.values$delta
   }
+  if (family == "binomial") {
+    chain$ystar[1, ] <- starting.values$ystar
+  }
   if (!is.null(groups)) {
     ## make sure starting values are consistent with structure of model
     if (!all(sapply(unique(groups), function(x) sum(chain$delta[1, ztest][groups == x])) == 1)) {
@@ -304,19 +325,6 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     }
     chain$delta[1,ztest] <- starting.values$delta
     chain$r[1,ztest] <- ifelse(chain$delta[1,ztest] == 1, chain$r[1,ztest], 0)
-  }
-  
-  ## starting values if doing probit regression
-  if (family == "binomial") {
-    if (is.null(starting.values$ystar)) {
-      probitfit0 <- try(glm(outcome_vec ~ Z + X, family = binomial(link = "probit")))
-      if (!inherits(probitfit0, "try-error")) {
-        starting.values$ystar <- predict(probitfit0)
-      } else {
-        starting.values$ystar <- ifelse(outcome_vec == 1, 1/2, -1/2)
-      }
-    }
-    chain$ystar[1, ] <- starting.values$ystar
   }
   
   ## components
