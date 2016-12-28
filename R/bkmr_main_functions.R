@@ -97,6 +97,9 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   if (!family %in% c("gaussian", "binomial")) {
     stop("family", family, "not yet implemented; must specify either 'gaussian' or 'binomial'")
   }
+  if (family == "binomial") {
+    message("Fitting probit regression model")
+  }
   if (rmethod != "varying" & rmethod != "equal" & rmethod != "fixed") {
     message ("invalid value for rmethod, resetting to default varying")
     rmethod <- "varying"
