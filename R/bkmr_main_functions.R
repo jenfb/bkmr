@@ -94,9 +94,8 @@ kmbayes <- function(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRU
   } else {
     nsamp <- iter
   }
-  if (family != "gaussian") {
-    message ("not yet implemented, resetting family to default gaussian")
-    family <- "gaussian"
+  if (!family %in% c("gaussian", "binomial")) {
+    stop("family", family, "not yet implemented; must specify either 'gaussian' or 'binomial'")
   }
   if (rmethod != "varying" & rmethod != "equal" & rmethod != "fixed") {
     message ("invalid value for rmethod, resetting to default varying")
