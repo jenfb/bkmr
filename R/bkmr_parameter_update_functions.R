@@ -13,11 +13,12 @@ sigsq.eps.update <- function(y, X, beta, Vinv, a.eps=1e-3, b.eps=1e-3) {
 	1/prec.y
 }
 
-ystar.update <- function(y, X, beta, Vinv, ystar) {
-  Xbeta <-  drop(X %*% beta)
+ystar.update <- function(y, X, beta, h) {
+  mu <-  drop(h + X %*% beta)
   lower <- ifelse(y == 1, 0, -Inf)
   upper <- ifelse(y == 0, 0,  Inf)
-  samp <- tmvtnorm::rtmvnorm(1, mean = Xbeta, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
+  #samp <- tmvtnorm::rtmvnorm(1, mean = mu, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
+  samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
   drop(samp)
 }
 

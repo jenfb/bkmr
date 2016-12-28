@@ -337,8 +337,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     if (family == "gaussian") {
       ycont <- y
     } else if (family == "binomial") {
-      chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
-      ycont <- chain$ystar[s, ]
+      ycont <- chain$ystar[s - 1, ]
     }
     
     ## generate posterior samples from marginalized distribution P(beta, sigsq.eps, lambda, r | y)
@@ -409,6 +408,12 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
       Vcomps$hsamp.star <- hcomps$hsamp.star
     }
     rm(hcomps)
+    
+    ## update the latent continuous variable under probit model
+    if (family == "binomial") {
+      ycont <- ystar.update(y = y, X = X, beta = chain$beta[s,], h = chain$h.hat[s,])
+      chain$ystar[s,] <- ycont
+    }
     
     ###################################################
     ## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
