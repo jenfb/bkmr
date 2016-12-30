@@ -8,7 +8,7 @@ family <- "binomial"
 
 n <- 100
 M <- 5
-sigsq.true <- 0.5
+sigsq.true <- ifelse(family == "gaussian", 0.05, 1)
 Z <- matrix(rnorm(n * M), n, M)
 X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
 eps <- rnorm(n, sd = sqrt(sigsq.true))
