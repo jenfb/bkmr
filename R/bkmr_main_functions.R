@@ -430,6 +430,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   control.params$r.params <- NULL
   chain$time2 <- Sys.time()
   chain$iter <- nsamp
+  chain$family <- family
   chain$starting.values <- starting.values
   chain$control.params <- control.params
   chain$X <- X
@@ -456,6 +457,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
 print.bkmrfit <- function(x, digits = 5, ...) {
   cat("Fitted object of class 'bkmrfit'\n")
   cat("Iterations:", x$iter, "\n")
+  cat("Outcome family:", x$family, ifelse(x$family == "binomial", "(probit link)", ""), "\n")
   cat("Model fit on:", as.character(x$time2), "\n")
 }
 
@@ -474,10 +476,8 @@ print.bkmrfit <- function(x, digits = 5, ...) {
 summary.bkmrfit <- function(object, q = c(0.025, 0.975), digits = 5, show_ests = TRUE, show_MH = TRUE, ...) {
   x <- object
   elapsed_time <- difftime(x$time2, x$time1)
-  
-  cat("Fitted object of class 'bkmrfit'\n")
-  cat("Iterations: ", x$iter, "\n")
-  cat("Model fit on:", as.character(x$time2), "\n")
+
+  print(x, digits = digits)  
   cat("Running time: ", round(elapsed_time, digits), attr(elapsed_time, "units"), "\n")
   cat("\n")
   
@@ -520,7 +520,13 @@ summary.bkmrfit <- function(object, q = c(0.025, 0.975), digits = 5, show_ests =
     cat("\nParameter estimates (based on iterations ", min(sel), "-", max(sel), "):\n", sep = "")
     ests <- ExtractEsts(x, q = q, sel = sel)
     ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
+    if (!is.null(ests$ystar)) {
+      ests$ystar <- ests$ystar[c(1,2,nrow(ests$ystar)), ]
+    }
     summ <- with(ests, rbind(beta, sigsq.eps, r, lambda, h))
+    if (!is.null(ests$ystar)) {
+      summ <- rbind(summ, ests$ystar)
+    }
     summ <- data.frame(param = rownames(summ), round(summ, digits))
     rownames(summ) <- NULL
     print(summ)
