@@ -211,11 +211,11 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   
   ## control parameters
   control.params.default <- list(lambda.jump = rep(10, data.comps$nlambda), mu.lambda = rep(10, data.comps$nlambda), sigma.lambda = rep(10, data.comps$nlambda), a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.1, r.jump1 = 2, r.jump2 = 0.1, r.a = 0, r.b = 100)
-  if (!missing(control.params)){
+  if (!is.null(control.params)){
     control.params <- modifyList(control.params.default, as.list(control.params))
     validateControlParams(varsel, family, id, control.params)
   } else {
-    control.params <- modifyList(control.params.default, control.params)
+    control.params <- control.params.default
   }
   
   control.params$r.params <- with(control.params, list(mu.r = mu.r, sigma.r = sigma.r, r.muprop = r.muprop, r.jump = r.jump, r.jump1 = r.jump1, r.jump2 = r.jump2, r.a = r.a, r.b = r.b))
@@ -277,7 +277,9 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
           starting.values$beta <- unname(ifelse(is.na(coefX), 0, coefX))
         }
         if (is.null(starting.values$ystar)) {
-          starting.values$ystar <- predict(probitfit0)
+          #prd <- predict(probitfit0)
+          #starting.values$ystar <- ifelse(y == 1, abs(prd), -abs(prd))
+          starting.values$ystar <- ifelse(y == 1, 1/2, -1/2)
         }
       } else {
         starting.values$beta <- 0
