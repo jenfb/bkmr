@@ -3,9 +3,8 @@ library(magrittr)
 
 ## generate data ####
 
-seed <- 1234
-#seed <- 8
-#seed <- 31
+#seed <- 1234
+seed <- 123
 set.seed(seed)
 n = 200
 M = 5
@@ -44,7 +43,25 @@ lines(Z[z1ord, 1], datp$h[z1ord], col = "red", lwd = 2)
 probitfit0 <- glm(y ~ Z + X, family = binomial(link = "probit"))
 
 tmp <- predict(probitfit0)
-plot(tmp, datp$ystar)
+tmp2 <- tmp
+tmp2 <- ifelse(y == 1, abs(tmp), -abs(tmp))
+tmp2 <- ifelse(y == 1, tmp - min(tmp[y == 1]), tmp - max(tmp[y == 0]))
+plot(tmp2, datp$ystar, col = ifelse(y == 1, "green", "blue"))
+abline(0, 1, col = "red")
+
+hpred <- drop(coef(probitfit0)["(Intercept)"] + Z %*% coef(probitfit0)[grep("Z", names(coef(probitfit0)))])
+plot(hpred, datp$h)
+abline(0, 1, col = "red")
+
+## Oracle probit model ####
+
+oracle <- glm(y ~ Z[, 1] + I(Z[, 1]^2) + X, family = binomial(link = "probit"))
+
+tmp <- predict(oracle)
+tmp2 <- tmp
+tmp2 <- ifelse(y == 1, abs(tmp), -abs(tmp))
+tmp2 <- ifelse(y == 1, tmp - min(tmp[y == 1]), tmp - max(tmp[y == 0]))
+plot(tmp2, datp$ystar, col = ifelse(y == 1, "green", "blue"))
 abline(0, 1, col = "red")
 
 hpred <- drop(coef(probitfit0)["(Intercept)"] + Z %*% coef(probitfit0)[grep("Z", names(coef(probitfit0)))])
@@ -61,9 +78,6 @@ abline(0, 1, col = "red")
 
 fitpr_gam2 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma", r.jump2 = 2))
 fitpr <- fitpr_gam2
-
-tmp <- kmbayes(iter = 5000, y = y, Z = Z[, 1, drop = FALSE], X = X, family = "binomial", varsel = FALSE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma", r.jump2 = 2))
-fitpr <- tmp
 
 fitpr_iu <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "invunif"))
 fitpr <- fitpr_iu
@@ -118,9 +132,10 @@ lines(Z[z1ord, 1], hhat[z1ord], col = "red")
 par(mfrow = c(1,1))
 
 ## phat
+phat0 <- pnorm(datp$h + t(X %*% datp$beta.true))
 phat1 <- colMeans(pnorm(fitpr$h.hat[sel, ] + t(X %*% fitpr$beta[sel, ])))
-phat2 <- colMeans(fitpr$ystar[sel, ] > 0)
-table(phat2)
+plot(phat0, phat1)
+abline(0, 1, col = "red")
 
 if (FALSE) {
 
