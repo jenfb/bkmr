@@ -338,6 +338,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
       ycont <- y
     } else if (family == "binomial") {
       chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
+      #chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
       ycont <- chain$ystar[s, ]
     }
     
