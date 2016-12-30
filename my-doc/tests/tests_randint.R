@@ -1,21 +1,47 @@
 devtools::load_all()
 library(ggplot2)
 
-## example where there is no X matrix ####
+family <- "gaussian"
+family <- "binomial"
 
-load("H:/Research/2. BKMR/BKMR R package/workspace_vignette.RData")
+## example where there is a random intercept ####
 
-n <- nrow(X)
+n <- 100
+M <- 5
+sigsq.true <- ifelse(family == "gaussian", 0.05, 1)
+beta.true <- 0.5
+Z <- matrix(rnorm(n * M), n, M)
+X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
 id <- rep(1:(n/2), each = 2)
 h <- apply(Z, 1, function(z, ind = 1) 4*plogis(z[ind[1]], 0, 0.3))
 u <- rep(rnorm(n/2), each = 2)
-eps <- rnorm(n, 0, 0.2)
-y <- drop(h + u + eps)
+eps <- rnorm(n, 0, sqrt(sigsq.true))
+y <- drop(X*beta.true + h + u + eps)
+if (family == "binomial") {
+  ystar <- y
+  y <- ifelse(ystar > 0, 1, 0)
+}
 
 set.seed(111)
-fit0 <- kmbayes(y = y, Z = Z, iter = 5000, id = id, varsel = TRUE, control.params = list(verbose_show_ests = TRUE))
+if (family == "gaussian") {
+  fit0 <- kmbayes(y = y, Z = Z, X = X, iter = 5000, family = family, id = id, varsel = TRUE, control.params = list(verbose_show_ests = TRUE))
+} else if (family == "binomial") {
+  fit0 <- kmbayes(y = y, Z = Z, X = X, iter = 5000, family = family, id = id, varsel = TRUE, control.params = list(verbose_show_ests = TRUE, lambda.jump = c(10, 0.3)))
+}
 
 fit0
+
+summary(fit0)
+
+sigsq_u_chain <- fit0$lambda[, 2]*fit0$sigsq.eps
+plot(sigsq_u_chain, type = "l")
+plot(sigsq_u_chain[2501:5000], type = "l")
+
+sigsq_u_est <- meansigsq_u_chain
+sigsq_u_est
+
+TracePlot(fit = fit0, par = "beta")
+ExtractPIPs(fit0)
 
 ## tox application from BKMR paper ####
 
