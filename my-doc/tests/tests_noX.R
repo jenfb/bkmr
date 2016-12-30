@@ -1,17 +1,28 @@
 devtools::load_all()
 library(ggplot2)
 
+family <- "gaussian"
+family <- "binomial"
+
 ## example where there is no X matrix ####
 
-load("H:/Research/2. BKMR/BKMR R package/workspace_vignette.RData")
-
-n <- nrow(X)
+n <- 100
+M <- 5
+sigsq.true <- 0.5
+Z <- matrix(rnorm(n * M), n, M)
+X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
+eps <- rnorm(n, sd = sqrt(sigsq.true))
 h <- apply(Z, 1, function(z, ind = 1) 4*plogis(z[ind[1]], 0, 0.3))
 eps <- rnorm(n)
 y <- drop(h + eps)
 
+if (family == "binomial") {
+  ystar <- y
+  y <- ifelse(ystar > 0, 1, 0)
+}
+
 set.seed(111)
-fit0 <- kmbayes(y = y, Z = Z, iter = 10000, verbose = TRUE, varsel = TRUE)
+fit0 <- kmbayes(y = y, Z = Z, iter = 5000, varsel = TRUE)
 
 fit0
 
@@ -28,8 +39,9 @@ ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)
 
 pred.resp.bivar <- PredictorResponseBivar(fit = fit0, 
                                           min.plot.dist = 1)
+
 pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, 
-                                                       Z = Z, qs = c(0.25, 0.5, 0.75))
+                                                       Z = Z, qs = c(0.25, 0.5, 0.75), both_pairs = FALSE)
 ggplot(pred.resp.bivar.levels, aes(z1, est)) + 
   geom_smooth(aes(col = quantile), stat = "identity") + 
   facet_grid(variable1 ~ variable2) +
