@@ -3,7 +3,7 @@ library(magrittr)
 
 ## generate data ####
 
-#seed <- 1234
+seed <- 1234
 #seed <- 8
 #seed <- 31
 set.seed(seed)
@@ -53,11 +53,11 @@ abline(0, 1, col = "red")
 
 ## BKM probit model ####
 
-fitpr_gam0 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma"))
-fitpr <- fitpr_gam0
-
-fitpr_gam1 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma", r.jump2 = 1))
-fitpr <- fitpr_gam1
+# fitpr_gam0 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma"))
+# fitpr <- fitpr_gam0
+# 
+# fitpr_gam1 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma", r.jump2 = 1))
+# fitpr <- fitpr_gam1
 
 fitpr_gam2 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma", r.jump2 = 2))
 fitpr <- fitpr_gam2
@@ -67,6 +67,8 @@ fitpr <- fitpr_iu
 
 fitpr_iu2 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "invunif", r.jump1 = 3))
 fitpr <- fitpr_iu2
+
+## with knots matrix
 
 sel <- with(fitpr, seq(floor(iter/2) + 1, iter))
 ests <- ExtractEsts(fitpr)
@@ -90,13 +92,27 @@ hhat <- ests$h[, "mean"]
 plot(hhat, datp$h)
 abline(0, 1, col = "red")
 #plot(Z[z1ord, 1], (datp$ystar - datp$X*0.1)[z1ord], col = "blue")
-plot(Z[z1ord, 1], hhat[z1ord], ylim = range(c(hhat, datp$h)))
+plot(Z[z1ord, 1], hhat[z1ord], ylim = range(c(hhat, datp$h)), col = ifelse(y[z1ord] == 1, "green", "blue"))
 lines(Z[z1ord, 1], datp$h[z1ord], col = "red")
 
 ## ystar
 ystar_hat <- colMeans(fitpr$ystar[sel, ])
 plot(ystar_hat, datp$ystar)
 abline(0, 1, col = "red")
+par(mfrow = c(1,2))
+plot(datp$y, datp$ystar)
+plot(datp$y, ystar_hat)
+par(mfrow = c(1,1))
+par(mfrow = c(1,2))
+hist(datp$ystar)
+hist(ystar_hat)
+par(mfrow = c(1,1))
+par(mfrow = c(1,2))
+plot(Z[z1ord, 1], datp$ystar[z1ord], col = ifelse(y[z1ord] == 1, "green", "blue"))
+lines(Z[z1ord, 1], datp$h[z1ord], col = "red")
+plot(Z[z1ord, 1], ests$ystar[z1ord], col = ifelse(y[z1ord] == 1, "green", "blue"))
+lines(Z[z1ord, 1], hhat[z1ord], col = "red")
+par(mfrow = c(1,1))
 
 ## phat
 phat1 <- colMeans(pnorm(fitpr$h.hat[sel, ] + t(X %*% fitpr$beta[sel, ])))
