@@ -15,14 +15,13 @@ eps <- rnorm(n, sd = sqrt(sigsq.true))
 h <- apply(Z, 1, function(z, ind = 1) 4*plogis(z[ind[1]], 0, 0.3))
 eps <- rnorm(n)
 y <- drop(h + eps)
-
 if (family == "binomial") {
   ystar <- y
   y <- ifelse(ystar > 0, 1, 0)
 }
 
 set.seed(111)
-fit0 <- kmbayes(y = y, Z = Z, iter = 5000, varsel = TRUE)
+fit0 <- kmbayes(y = y, Z = Z, iter = 5000, varsel = TRUE, family = family)
 
 fit0
 
