@@ -26,7 +26,7 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
     sigsq.eps <- SummarySamps(fit$sigsq.eps[sel], q = q)
     rownames(sigsq.eps) <- "sigsq.eps"
     
-    r <- t(apply(fit$r[sel, ], 2, SummarySamps, q = q))
+    r <- t(apply(fit$r[sel, , drop = FALSE], 2, SummarySamps, q = q))
     rownames(r) <- paste0("r", 1:nrow(r))
     
     beta <- t(apply(fit$beta[sel, , drop = FALSE], 2, SummarySamps, q = q))
@@ -91,7 +91,7 @@ ExtractSamps <- function(fit, sel = NULL) {
     
     sigsq.eps <- fit$sigsq.eps[sel]
     sig.eps <- sqrt(sigsq.eps)
-    r <- fit$r[sel, ]
+    r <- fit$r[sel, , drop = FALSE]
     beta <- fit$beta[sel, ]
     lambda <- fit$lambda[sel, ]
     tau <- lambda*sigsq.eps

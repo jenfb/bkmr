@@ -492,7 +492,7 @@ summary.bkmrfit <- function(object, q = c(0.025, 0.975), digits = 5, show_ests =
     ## r_m
     if (!x$varsel) {
       nm <- "r"
-      rate <- colMeans(x$acc.r[2:x$iter, ])
+      rate <- colMeans(x$acc.r[2:x$iter, , drop = FALSE])
       if (length(rate) > 1) nm <- paste0(nm, seq_along(rate))
       accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
     } else {
