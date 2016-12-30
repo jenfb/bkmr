@@ -62,6 +62,9 @@ abline(0, 1, col = "red")
 fitpr_gam2 <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma", r.jump2 = 2))
 fitpr <- fitpr_gam2
 
+tmp <- kmbayes(iter = 5000, y = y, Z = Z[, 1, drop = FALSE], X = X, family = "binomial", varsel = FALSE, control.params = list(verbose_show_ests = TRUE, r.prior = "gamma", r.jump2 = 2))
+fitpr <- tmp
+
 fitpr_iu <- kmbayes(iter = 5000, y = y, Z = Z, X = X, family = "binomial", varsel = TRUE, control.params = list(verbose_show_ests = TRUE, r.prior = "invunif"))
 fitpr <- fitpr_iu
 
@@ -96,8 +99,8 @@ plot(Z[z1ord, 1], hhat[z1ord], ylim = range(c(hhat, datp$h)), col = ifelse(y[z1o
 lines(Z[z1ord, 1], datp$h[z1ord], col = "red")
 
 ## ystar
-ystar_hat <- colMeans(fitpr$ystar[sel, ])
-plot(ystar_hat, datp$ystar)
+ystar_hat <- ests$ystar[, "mean"]
+plot(ystar_hat, datp$ystar, col = ifelse(y == 1, "green", "blue"))
 abline(0, 1, col = "red")
 par(mfrow = c(1,2))
 plot(datp$y, datp$ystar)
@@ -134,3 +137,44 @@ if (FALSE) {
   head(drop(samp))
   
 }
+
+## regular probit regression ####
+
+truth <- c(0.5, beta.true, 1, 2)
+tmpmu <- cbind(1, X, Z[, 1], Z[, 2]) %*% truth
+dattmp <- dplyr::data_frame(X = drop(X), Z1 = Z[, 1], Z2 = Z[, 2], ystar = drop(tmpmu + eps))
+dattmp$y <- ifelse(dattmp$ystar > 0, 1, 0)
+modtmp <- glm(y ~ X + Z1 + Z2, family = binomial(link = "probit"), data = dattmp)
+coef(modtmp)
+
+niter <- 1000
+
+samps <- list()
+samps$coef <- matrix(NA, niter, 4, dimnames = list(NULL, c("int", "beta", "Z1", "Z2")))
+samps$coef[1, ] <- rep(1, ncol(samps$coef))
+samps$ystar <- matrix(NA, niter, n)
+samps$ystar[1, ] <- ifelse(dattmp$y == 1, 1/2, -1/2)
+
+for (i in 2:niter) {
+  m0 <- lm(samps$ystar[i-1, ] ~ X + Z1 + Z2, data = dattmp)
+  samps$coef[i, ] <- coef(m0)
+  samps$ystar[i, ] <- truncnorm::rtruncnorm(1, a = ifelse(dattmp$y == 1, 0, -Inf), b = ifelse(dattmp$y == 1, Inf, 0), mean = predict(m0), sd = 1)
+}
+
+colMeans(samps$coef)
+coef(modtmp)
+
+apply(samps$coef, 2, sd)
+summary(modtmp)$coef[, "Std. Error"]
+
+plot(dattmp$ystar, colMeans(samps$ystar), col = ifelse(dattmp$y == 1, "green", "blue"))
+abline(0, 1, col = "red")
+
+par(mfrow = c(1,2))
+plot(dattmp$y, dattmp$ystar)
+plot(dattmp$y, colMeans(samps$ystar))
+par(mfrow = c(1,1))
+par(mfrow = c(1,2))
+hist(dattmp$ystar)
+hist(colMeans(samps$ystar))
+par(mfrow = c(1,1))
