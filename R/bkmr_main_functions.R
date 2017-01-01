@@ -59,7 +59,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param Z an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.
 #' @param X an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
 #' @param iter number of iterations to run the sampler
-#' @param family a description of the error distribution and link function to be used in the model. Currently only implemented for \code{gaussian} family.
+#' @param family a description of the error distribution and link function to be used in the model. Currently implemented for \code{gaussian} and \code{binomial} families.
 #' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.
 #' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting. Additional options for can be specifed with control.params 
 #' @param Znew optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.
