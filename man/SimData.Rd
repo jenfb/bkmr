@@ -5,7 +5,7 @@
 \title{Simulate dataset}
 \usage{
 SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3,
-  Zgen = "unif", ind = 1:2)
+  Zgen = "unif", ind = 1:2, family = "gaussian")
 }
 \arguments{
 \item{n}{Number of observations}
