@@ -1,0 +1,114 @@
+---
+title: "Probit Bayesian kernel machine regression for binary outcomes"
+author: "Jennifer F. Bobb"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+---
+
+```{r options, echo=FALSE, message=FALSE, warning=FALSE}
+## if the current working directory is the directory where this file is located rather than the project directory, set the working directory to the project directory
+knitr::opts_chunk$set(fig.width = 5, fig.height = 3, message = FALSE)
+```
+
+In this document, we demonstrate how to apply Bayesian kernel machine regression (BKMR) for binary outcomes using the `bkmr` R package. See the [overview guide](https://jenfb.github.io/bkmr/overview.html) for additional information about BKMR, including guided examples for continuous outcomes.
+
+## Probit kernel machine regression
+
+We implement kernel machine regression (KMR) for binary outcomes,  
+
+$$
+\Phi^{-1}(P(Y_i = 1)) = h(z_{i1}, \ldots, z_{iM}) + \beta{\bf x}_i, \quad i = 1, \ldots, n
+$$
+where $\Phi$ is the cummulative distribution function (CDF) for the standard normal distribution, the outcome $Y_i$ is a binary (0/1) variable, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates ($\beta$ is the corresponding vector of coefficients). We will refer to the predictors ${\bf z}$ as exposure variables and to $h(\cdot)$ as the exposure-response function. The function $h$ is modeled using a kernel machine representation that can capture complex, non-linear and non-additive, exposure-response relationships.
+
+We implement probit, rather than logistic regression, primarily for reasons of computational convenience and efficiency for Bayesien inference using Gibbs sampling. In our example below we will demonstrate how the exposure-response function $h$ can be interpreted under the probit regression model.
+
+## Example
+
+First, load the R package.
+```{r load package 0, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, results='hide'}
+##suppressMessages(library(bkmr))
+suppressMessages(devtools::document())
+##devtools::load_all()
+```
+```{r load package 1, eval=FALSE, message=FALSE, warning=FALSE}
+library(bkmr)
+```
+
+### Generate data
+
+Let's consider a simple example with outcome data are generating under the probit model above, where the true exposure-response function only depends on a single exposure variable. 
+
+```{r simdata}
+set.seed(123)
+n <- 200 ## number of observations
+M <- 4 ## number of exposure variables
+beta.true <- 0.1
+Z <- matrix(runif(n * M, -1, 1), n, M)
+x <- 3*cos(Z[, 1]) + 2*rnorm(n)
+hfun <- function(z) (2*z + 0.5) ^ 2
+h <- hfun(Z[, 1]) ## only depends on z1
+
+## generate using latent normal representation
+eps <- rnorm(n)
+ystar <- x * beta.true + h + eps
+y <- ifelse(ystar > 0, 1, 0)
+
+datp <- list(n = n, M = M, beta.true = beta.true, Z = Z, h = h, X = cbind(x), y = y, eps = eps, ystar = ystar)
+rm(n, M, beta.true, Z, x, h, eps, y, ystar)
+```
+
+Let's view the true exposure-response function used to generate the data.
+```{r plot, fig.height=3.5, fig.width=3.5}
+curve(hfun, from = min(datp$Z[, 1]), max(datp$Z[, 1]),
+      xlab = expression(z[1]), ylab = expression(h(z[1])))
+```
+
+### Fit BKMR 
+
+To fit the BKMR model, we use the `kmbayes` function. 
+```{r fit orig, eval=FALSE}
+set.seed(123)
+fitpr <- kmbayes(y = datp$y, Z = datp$Z, X = datp$X, 
+                 iter = 10000, verbose = FALSE, 
+                 varsel = TRUE, family = "binomial")
+```
+```{r fit orig load, echo=FALSE}
+DIR <- ifelse(grepl("my-doc", getwd()), getwd(), paste(getwd(), "my-doc", sep = "/"))
+load(paste(DIR, "probit_reg.RData", sep = "/"))
+```
+The argument `family` indicates the outcome distribution, which is currently for 'gaussian' and 'binomial'.
+
+```{r summary}
+summary(fitpr)
+```
+
+## Interpretting output
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
