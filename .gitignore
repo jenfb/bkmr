@@ -6,4 +6,5 @@ data
 my-doc/overview.html
 my-doc/fitted_objects.RData
 my-doc/probit_reg.RData
+my-doc/probit_reg.html
 *.DS_Store
