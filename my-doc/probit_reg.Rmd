@@ -23,7 +23,7 @@ We implement kernel machine regression (KMR) for binary outcomes,
 $$
 \Phi^{-1}(P(Y_i = 1)) = h(z_{i1}, \ldots, z_{iM}) + \beta{\bf x}_i, \quad i = 1, \ldots, n
 $$
-where $\Phi$ is the cummulative distribution function (CDF) for the standard normal distribution, the outcome $Y_i$ is a binary (0/1) variable, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates ($\beta$ is the corresponding vector of coefficients). We will refer to the predictors ${\bf z}$ as exposure variables and to $h(\cdot)$ as the exposure-response function. The function $h$ is modeled using a kernel machine representation that can capture complex, non-linear and non-additive, exposure-response relationships.
+where $\Phi$ is the cummulative distribution function (CDF) for the standard normal distribution ($\Phi^{-1}$ is the probit link function), the outcome $Y_i$ is a binary (0/1) variable, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates ($\beta$ is the corresponding vector of coefficients). We will refer to the predictors ${\bf z}$ as exposure variables and to $h(\cdot)$ as the exposure-response function. The function $h$ is modeled using a kernel machine representation that can capture complex, non-linear and non-additive, exposure-response relationships.
 
 We implement probit, rather than logistic regression, primarily for reasons of computational convenience and efficiency for Bayesien inference using Gibbs sampling. In our example below we will demonstrate how the exposure-response function $h$ can be interpreted under the probit regression model.
 
@@ -89,7 +89,55 @@ summary(fitpr)
 
 ## Interpretting output
 
+### On probit scale
 
+Let's investigate the estimated exposure-response function $h$, which quantifies the relationship between the exposures and the probit of the probability of an event ($Y = 1). Here we plot the univariate  relationship h($z_m$), where all of the other exposures are fixed to a particular percentile.
+
+```{r pred-resp}
+pred.resp.univar <- PredictorResponseUnivar(fit = fitpr)
+```
+We use the `ggplot2` package to plot the resulting cross section of $h$.
+```{r plot pred-resp, fig.height=4, fig.width=6}
+library(ggplot2)
+ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+    geom_smooth(stat = "identity") + 
+    facet_wrap(~ variable) +
+  ylab("h(z)")
+```
+
+As expected based on small posterior inclusion probabilities for $z_2$, $z_3$, and $z_4$, there is no association between these exposures and the outcome, which matches the true data generating distribution. We next compare the estimated exposure response function for $z_1$ estimated under BKMR with that estimated by the 'oracle' probit model that knows the true form of the exposure-response function, fitted using maximum likelihood:
+
+```{r probit}
+z1 <- datp$Z[, 1]
+x <- drop(datp$X)
+oracle <- glm(y ~ z1 + I(z1^2) + x, family = binomial(link = "probit"), data = datp)
+#summary(oracle)
+
+z1_grid <- seq(min(datp$Z[, 1]), max(datp$Z[, 1]), length.out = 50)
+hpred_oracle <- predict(oracle, newdata = data.frame(z1 = z1_grid, x = 0), se.fit = TRUE)
+
+Znew <- cbind(z1 = z1_grid, z2 = median(datp$Z[, 2]), 
+              z3 = median(datp$Z[, 3]), z4 = median(datp$Z[, 4]))
+hpred_bkmr <- ComputePostmeanHnew(fit = fitpr, Znew = Znew)
+
+#lin <- glm(y ~ Z + x, family = binomial(link = "probit"), data = datp)
+
+#summary(linadd)
+hpred_lin <- predict(lin, newdata = list(Z = Znew, x = rep(0, nrow(Znew))), se.fit = TRUE)
+
+```
+
+```{r compare}
+#with(datp, plot(Z[, 1], ystar - x*beta.true, pch = 19, col = "gray", cex = 0.5, xlab = expression(z[1]), ylab = expression(h(z[1]))))
+plot(z1_grid, hpred_bkmr$postmean, type = "l", ylim = range(datp$h), xlab = expression(z[1]), ylab = expression(h(z[1])))
+#lines(z1_grid, hpred_bkmr$postmean, lwd = 2)
+lines(z1_grid, hpred_oracle$fit, col = "red", lty = 2, lwd = 2)
+lines(z1_grid, hfun(z1_grid), col = "blue", lty = 3, lwd = 2)
+lines(z1_grid, hpred_lin$fit, col = "orange", lty = 4, lwd = 2)
+legend(-1, 5.5, c("BKMR", "oracle", "truth", "linear"), lwd = 2, col = c("black", "red", "blue", "orange"), lty = 1:4)
+with(datp, rug(Z[y == 0, 1], side = 1))
+with(datp, rug(Z[y == 1, 1], side = 3))
+```
 
 
 
