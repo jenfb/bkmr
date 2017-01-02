@@ -81,7 +81,7 @@ fitpr <- kmbayes(y = datp$y, Z = datp$Z, X = datp$X,
 DIR <- ifelse(grepl("my-doc", getwd()), getwd(), paste(getwd(), "my-doc", sep = "/"))
 load(paste(DIR, "probit_reg.RData", sep = "/"))
 ```
-The argument `family` indicates the outcome distribution, which is currently for 'gaussian' and 'binomial'.
+The argument `family` indicates the outcome distribution, which is currently implemented for 'gaussian' and 'binomial'.
 
 ```{r summary}
 summary(fitpr)
@@ -91,7 +91,7 @@ summary(fitpr)
 
 ### On probit scale
 
-Let's investigate the estimated exposure-response function $h$, which quantifies the relationship between the exposures and the probit of the probability of an event ($Y = 1). Here we plot the univariate  relationship h($z_m$), where all of the other exposures are fixed to a particular percentile.
+Let's investigate the estimated exposure-response function $h$, which quantifies the relationship between the exposures and the probit of the probability of an event ($Y = 1$). Here we plot the univariate  relationship h($z_m$), where all of the other exposures are fixed to their median values.
 
 ```{r pred-resp}
 pred.resp.univar <- PredictorResponseUnivar(fit = fitpr)
@@ -105,36 +105,36 @@ ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)
   ylab("h(z)")
 ```
 
-As expected based on small posterior inclusion probabilities for $z_2$, $z_3$, and $z_4$, there is no association between these exposures and the outcome, which matches the true data generating distribution. We next compare the estimated exposure response function for $z_1$ estimated under BKMR with that estimated by the 'oracle' probit model that knows the true form of the exposure-response function, fitted using maximum likelihood:
+As expected based on small posterior inclusion probabilities for $z_2$, $z_3$, and $z_4$, there is no association between these exposures and the outcome, which matches the true data generating distribution. We next compare the estimated exposure response function for $z_1$ estimated under BKMR with that estimated by a probit model assuming linear terms of each of the exposure variables, as well as with an 'oracle' probit model that knows the true form of the exposure-response function, fitted using maximum likelihood:
 
 ```{r probit}
 z1 <- datp$Z[, 1]
 x <- drop(datp$X)
 oracle <- glm(y ~ z1 + I(z1^2) + x, family = binomial(link = "probit"), data = datp)
-#summary(oracle)
+lin <- glm(y ~ Z + x, family = binomial(link = "probit"), data = datp)
 
+## predictions under the oracle model
 z1_grid <- seq(min(datp$Z[, 1]), max(datp$Z[, 1]), length.out = 50)
 hpred_oracle <- predict(oracle, newdata = data.frame(z1 = z1_grid, x = 0), se.fit = TRUE)
 
+## predictions under BKMR
 Znew <- cbind(z1 = z1_grid, z2 = median(datp$Z[, 2]), 
               z3 = median(datp$Z[, 3]), z4 = median(datp$Z[, 4]))
 hpred_bkmr <- ComputePostmeanHnew(fit = fitpr, Znew = Znew)
 
-#lin <- glm(y ~ Z + x, family = binomial(link = "probit"), data = datp)
-
-#summary(linadd)
+## predictions under the model with linear terms
 hpred_lin <- predict(lin, newdata = list(Z = Znew, x = rep(0, nrow(Znew))), se.fit = TRUE)
-
 ```
 
-```{r compare}
+Now let's compare the estimated exposure-response functions $h(z_1)$.
+```{r compare, fig.height=4, fig.width=6}
 #with(datp, plot(Z[, 1], ystar - x*beta.true, pch = 19, col = "gray", cex = 0.5, xlab = expression(z[1]), ylab = expression(h(z[1]))))
 plot(z1_grid, hpred_bkmr$postmean, type = "l", ylim = range(datp$h), xlab = expression(z[1]), ylab = expression(h(z[1])))
 #lines(z1_grid, hpred_bkmr$postmean, lwd = 2)
 lines(z1_grid, hpred_oracle$fit, col = "red", lty = 2, lwd = 2)
 lines(z1_grid, hfun(z1_grid), col = "blue", lty = 3, lwd = 2)
 lines(z1_grid, hpred_lin$fit, col = "orange", lty = 4, lwd = 2)
-legend(-1, 5.5, c("BKMR", "oracle", "truth", "linear"), lwd = 2, col = c("black", "red", "blue", "orange"), lty = 1:4)
+legend(-1, 5.5, c("BKMR", "oracle", "truth", "linear"), lwd = 2, col = c("black", "red", "blue", "orange"), lty = 1:4, y.intersp = 0.8)
 with(datp, rug(Z[y == 0, 1], side = 1))
 with(datp, rug(Z[y == 1, 1], side = 3))
 ```
