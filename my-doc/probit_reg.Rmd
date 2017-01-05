@@ -40,7 +40,7 @@ suppressMessages(devtools::document())
 ##devtools::load_all()
 ```
 ```{r load package 1, eval=FALSE, message=FALSE, warning=FALSE}
-library(bkmr)
+devtools::install_github("jenfb/bkmr")
 ```
 
 ### Generate data
