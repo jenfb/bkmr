@@ -1,0 +1,76 @@
+#' Obtain posterior samples of predictions at new points
+#'
+#' Obtains posterior samples of \code{E(Y) = h(Znew) + beta*Xnew} or of \code{g^{-1}[E(y)]}
+#' 
+#' @inheritParams kmbayes
+#' @inheritParams ExtractEsts
+#' @param sel A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
+#' @export
+SamplePred <- function(fit, Znew, Xnew = NULL, Z = NULL, X = NULL, y = NULL, sel = NULL, type = c("link", "response"), ...) {
+  
+  if (inherits(fit, "bkmrfit")) {
+    if (is.null(y)) y <- fit$y
+    if (is.null(Z)) Z <- fit$Z
+    if (is.null(X)) X <- fit$X
+  }
+  if (length(type) > 1) type <- type[1]
+
+  if (is.null(dim(Znew))) Znew <- matrix(Znew, nrow = 1)
+  if (class(Znew) == "data.frame") Znew <- data.matrix(Znew)
+  if (ncol(Z) != ncol(Znew)) {
+    stop("Znew must have the same number of columns as Z")
+  }
+
+  if (is.null(Xnew)) Xnew <- matrix(0, nrow = 1, ncol = ncol(X))
+  if (class(Xnew) != "matrix") Xnew <- matrix(Xnew, nrow = 1)
+  if (ncol(X) != ncol(Xnew)) {
+    stop("Xnew must have the same number of columns as X")
+  }
+  
+  if (is.null(sel)) {
+    sel <- with(fit, seq(floor(iter/2) + 1, iter, 10))
+    if (length(sel) < 100) {
+      sel <- with(fit, seq(floor(iter/2) + 1, iter, length.out = 100))
+    }
+    sel <- unique(floor(sel))
+  }
+  
+  family <- fit$family
+  data.comps <- fit$data.comps
+  lambda <- fit$lambda
+  sigsq.eps <- fit$sigsq.eps
+  beta <- fit$beta
+  r <- fit$r
+  
+  preds <- matrix(NA, length(sel), nrow(Znew))
+  colnames(preds) <- paste0("znew", 1:nrow(Znew))
+  rownames(preds) <- paste0("iter", sel)
+  for (s in sel) {
+    beta.samp <- beta[s, ]
+    
+    if (family == "gaussian") {
+      ycont <- y
+    } else if (family == "binomial") {
+      ycont <- fit$ystar[s, ]
+    }
+    hsamp <- newh.update(Z = Z, Znew = Znew, Vcomps = NULL, lambda = lambda[s, ], sigsq.eps = sigsq.eps[s], r = r[s, ], y = ycont, X = X, beta = beta.samp, data.comps = data.comps)
+    
+    Xbeta <- drop(beta.samp %*% Xnew)
+    linpred <- hsamp + Xbeta
+    
+    if (type == "link") {
+      pred <- linpred
+    } else if (type == "response") {
+      if (family == "gaussian") {
+        pred <- linpred
+      } else if (family == "binomial") {
+        pred <- pnorm(linpred)
+      }
+    }
+    preds[paste0("iter", s), ] <- pred
+  }
+  attr(preds, "type") <- type
+  attr(preds, "family") <- family
+  preds
+  
+}
