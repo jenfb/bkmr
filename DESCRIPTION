@@ -20,5 +20,6 @@ Imports:
     fields,
     truncnorm,
     tidyr,
-    MASS
+    MASS,
+    tmvtnorm
 RoxygenNote: 5.0.1

@@ -7,7 +7,7 @@
 kmbayes(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   verbose = TRUE, Znew = NULL, starting.values = NULL,
   control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL,
-  ztest = NULL, rmethod = "varying")
+  ztest = NULL, rmethod = "varying", est.h = FALSE)
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}
@@ -39,6 +39,8 @@ kmbayes(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
 \item{ztest}{optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).}
 
 \item{rmethod}{for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values}
+
+\item{est.h}{TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler}
 }
 \description{
 Fits the Bayesian kernel machine regression (BKMR) model using Markov chain Monte Carlo (MCMC) methods.
