@@ -25,7 +25,11 @@ $$
 $$
 where $\Phi$ is the cummulative distribution function (CDF) for the standard normal distribution ($\Phi^{-1}$ is the probit link function), the outcome $Y_i$ is a binary (0/1) variable, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates ($\beta$ is the corresponding vector of coefficients). We will refer to the predictors ${\bf z}$ as exposure variables and to $h(\cdot)$ as the exposure-response function. The function $h$ is modeled using a kernel machine representation that can capture complex, non-linear and non-additive, exposure-response relationships.
 
-We implement probit, rather than logistic regression, primarily for reasons of computational convenience and efficiency for Bayesien inference using Gibbs sampling. In our example below we will demonstrate how the exposure-response function $h$ can be interpreted under the probit regression model.
+We implement probit, rather than logistic regression, primarily for reasons of computational convenience and efficiency for Bayesien inference using Gibbs sampling. In particular, for this we note that the probit  model above can be reexpressed by incorporating a latent normal random variable ($Y^*$), as 
+$$
+Y_i^* = h(z_{i1}, \ldots, z_{iM}) + \beta{\bf x}_i + \epsilon_i, \quad i = 1, \ldots, n
+$$
+where $\epsilon_i ~ \mbox{N}(0,1)$ and $Y_i = I(Y_i^* > 0)$ is equal to 1 if $Y_i^* > 0$ and is equal to 0 otherwise. In our example below we will demonstrate how the exposure-response function $h$ can be interpreted under the probit regression model.
 
 ## Example
 
@@ -75,13 +79,15 @@ To fit the BKMR model, we use the `kmbayes` function.
 set.seed(123)
 fitpr <- kmbayes(y = datp$y, Z = datp$Z, X = datp$X, 
                  iter = 10000, verbose = FALSE, 
-                 varsel = TRUE, family = "binomial")
+                 varsel = TRUE, family = "binomial",
+                 control.params = list(r.jump2 = 0.5))
 ```
 ```{r fit orig load, echo=FALSE}
 DIR <- ifelse(grepl("my-doc", getwd()), getwd(), paste(getwd(), "my-doc", sep = "/"))
 load(paste(DIR, "probit_reg.RData", sep = "/"))
+rm(DIR)
 ```
-The argument `family` indicates the outcome distribution, which is currently implemented for 'gaussian' and 'binomial'.
+The argument `family` indicates the outcome distribution, which is currently implemented for 'gaussian' and 'binomial'. Note that here we changed the tuning parameter `r.jump2` of the Metropolis-Hastings algorithm for updating the $r_m$ parameters under variable selection to get an improved acceptance rate of `r 100*with(fitpr, round(mean(acc.rdelta[move.type == 2]), 2))`% versus ~65% under the default tuning parameters (details of the tuning parameters are in the [overview guide](https://jenfb.github.io/bkmr/overview.html)).
 
 ```{r summary}
 summary(fitpr)
@@ -91,7 +97,9 @@ summary(fitpr)
 
 ### On probit scale
 
-Let's investigate the estimated exposure-response function $h$, which quantifies the relationship between the exposures and the probit of the probability of an event ($Y = 1$). Here we plot the univariate  relationship h($z_m$), where all of the other exposures are fixed to their median values.
+We may wish to interpret the estimated $h$ function directly. We note that $h$ quantifies the relationship between the exposures and the (probit of the) probability of an event ($Y = 1$), holding the covariates ${\bf x}$ fixed. By considering the latent normal formulation above, $h$ may alternatively be interpreted as the relationship between the exposures and some underlying, continuous latent variable $Y^*$. For example, if $Y$ is an indicator variable for whether an individual has a particular health outcome, $Y^*$ could be interpreted as a latent health marker of health status.
+
+Let's investigate the estimated exposure-response function $h$. Here we plot the univariate relationship h($z_m$), where all of the other exposures are fixed to their median values.
 
 ```{r pred-resp}
 pred.resp.univar <- PredictorResponseUnivar(fit = fitpr)
@@ -128,16 +136,36 @@ hpred_lin <- predict(lin, newdata = list(Z = Znew, x = rep(0, nrow(Znew))), se.f
 
 Now let's compare the estimated exposure-response functions $h(z_1)$.
 ```{r compare, fig.height=4, fig.width=6}
-#with(datp, plot(Z[, 1], ystar - x*beta.true, pch = 19, col = "gray", cex = 0.5, xlab = expression(z[1]), ylab = expression(h(z[1]))))
-plot(z1_grid, hpred_bkmr$postmean, type = "l", ylim = range(datp$h), xlab = expression(z[1]), ylab = expression(h(z[1])))
-#lines(z1_grid, hpred_bkmr$postmean, lwd = 2)
+plot(z1_grid, hpred_bkmr$postmean, type = "l", 
+     ylim = c(0.95*min(datp$h), max(datp$h)), 
+     xlab = expression(z[1]), ylab = expression(h(z[1])))
 lines(z1_grid, hpred_oracle$fit, col = "red", lty = 2, lwd = 2)
 lines(z1_grid, hfun(z1_grid), col = "blue", lty = 3, lwd = 2)
 lines(z1_grid, hpred_lin$fit, col = "orange", lty = 4, lwd = 2)
-legend(-1, 5.5, c("BKMR", "oracle", "truth", "linear"), lwd = 2, col = c("black", "red", "blue", "orange"), lty = 1:4, y.intersp = 0.8)
-with(datp, rug(Z[y == 0, 1], side = 1))
-with(datp, rug(Z[y == 1, 1], side = 3))
+legend(-1, 6, c("BKMR", "oracle", "truth", "linear"), lwd = 2, 
+       col = c("black", "red", "blue", "orange"), lty = 1:4, 
+       y.intersp = 0.8)
 ```
+
+We see that 
+
+### On probability scale
+
+Alternatively, we may wish to interpret the association between the exposures and the (untransformed) probility of the outcome. For this we observe 
+$$
+P(Y = 1 \mid {\bf z}, {\bf x}) = \Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x}\},
+$$
+so that the probability of the event depends not just on $h$, but also on the particular values of the covariates ${\bf x}$. Thus, to estimate the association between $h$ and the probabiilty of the outcome, we must either fix the covariates or integrate over them. To integrate over the covariates, we estimate the probability of the outcome as
+$$
+P(Y = 1 \mid {\bf z})
+= \mbox{E}[P(Y = 1 \mid {\bf z}, {\bf x}) \mid {\bf z}]
+= \mbox{E}[\Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x}\} \mid z_{1}, \ldots, z_{M}],
+$$
+which we estimate as 
+$$
+\frac{1}{n}\sum_{i = 1}^n\Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x_i}\}
+$$
+Currently, built-in functions to do this have not yet been implemented.
 
 
 
