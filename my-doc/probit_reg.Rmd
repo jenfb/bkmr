@@ -147,7 +147,7 @@ legend(-1, 6, c("BKMR", "oracle", "truth", "linear"), lwd = 2,
        y.intersp = 0.8)
 ```
 
-We see that 
+As expected, we see that the BKMR fit performs better than the model assuming a linear exposure-response relationship, but not as well as the oracle model. 
 
 ### On probability scale
 
@@ -155,15 +155,42 @@ Alternatively, we may wish to interpret the association between the exposures an
 $$
 P(Y = 1 \mid {\bf z}, {\bf x}) = \Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x}\},
 $$
-so that the probability of the event depends not just on $h$, but also on the particular values of the covariates ${\bf x}$. Thus, to estimate the association between $h$ and the probabiilty of the outcome, we must either fix the covariates or integrate over them. To integrate over the covariates, we estimate the probability of the outcome as
+so that the probability of the event depends not just on $h$, but also on the particular values of the covariates ${\bf x}$. Thus, to estimate the association between $h$ and the probability of the outcome, we must either fix the covariates or integrate over them. Posterior samples of the predicted probabilities may be obtained using the `SamplePred` function, in which the user specifies the new Z matrix at which to obtain predictions, as well as a particular value of the vector ${\bf x}$. Here we plot the posterior mean of the predicted probabilities as a function of $z_1$ for particular, fixed values of the covariates and for the other exposures set to zero.
+
+```{r pred, fig.height=3.5, fig.width=7}
+Xnew1 <- quantile(datp$X, 0.1)
+Xnew2 <- quantile(datp$X, 0.9)
+
+ptrue1 <- with(datp, pnorm(hfun(z1_grid) + Xnew1*beta.true))
+ptrue2 <- with(datp, pnorm(hfun(z1_grid) + Xnew2*beta.true))
+
+pred_samps1 <- SamplePred(fit = fitpr, Znew = Znew, Xnew = Xnew1, type = "response")
+pred_samps2 <- SamplePred(fit = fitpr, Znew = Znew, Xnew = Xnew2, type = "response")
+pred_ests1 <- colMeans(pred_samps1)
+pred_ests2 <- colMeans(pred_samps2)
+
+par(mfrow = c(1, 2))
+plot(z1_grid, pred_ests1, type = "l", ylim = range(ptrue1),
+     xlab = expression(z[1]), ylab = expression(P(Y == 1)))
+lines(z1_grid, ptrue1, col = "blue", lty = 3, lwd = 2)
+legend("bottomright", c("BKMR", "truth"), lwd = 2, 
+       col = c("black", "blue"), lty = c(1,3), 
+       y.intersp = 0.8, cex = 0.8)
+plot(z1_grid, pred_ests2, type = "l", ylim = range(ptrue1),
+     xlab = expression(z[1]), ylab = expression(P(Y == 1)))
+lines(z1_grid, ptrue2, col = "blue", lty = 3, lwd = 2)
+```
+
+
+To integrate over the covariates, we use the fact that, under the assumed probit model, the probability of the outcome given the exposure variables ${\bf z}$ may be expressed as
 $$
 P(Y = 1 \mid {\bf z})
 = \mbox{E}[P(Y = 1 \mid {\bf z}, {\bf x}) \mid {\bf z}]
-= \mbox{E}[\Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x}\} \mid z_{1}, \ldots, z_{M}],
+= \mbox{E}[\Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x}\} \mid z_{1}, \ldots, z_{M}].
 $$
-which we estimate as 
+We estimate this quantity as 
 $$
-\frac{1}{n}\sum_{i = 1}^n\Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x_i}\}
+\frac{1}{n}\sum_{i = 1}^n\Phi\{h(z_{1}, \ldots, z_{M}) + \beta{\bf x_i}\}.
 $$
 Currently, built-in functions to do this have not yet been implemented.
 
