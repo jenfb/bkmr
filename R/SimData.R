@@ -8,6 +8,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #'
 #' @export
 #'
+#' @inheritParams kmbayes
 #' @param n Number of observations
 #' @param M Number of predictor variables to generate
 #' @param sigsq.true Variance of normally distributed residual error

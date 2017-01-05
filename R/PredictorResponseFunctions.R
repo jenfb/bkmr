@@ -208,6 +208,7 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' 
 #' @export
 #' @inheritParams kmbayes
+#' @inheritParams PredictorResponseBivar
 #' @param pred.resp.df object obtained from running the function \code{\link{PredictorResponseBivar}}
 #' @param qs vector of quantiles at which to fix the second variable
 #' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
