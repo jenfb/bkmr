@@ -70,10 +70,11 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
+#' @param est.h TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler
 #' 
 #' @seealso For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @import utils
-kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = NULL, control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying") {
+kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = NULL, control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying", est.h = FALSE) {
   
   missingX <- is.null(X)
   if (missingX) X <- matrix(0, length(y), 1)
@@ -339,8 +340,11 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     if (family == "gaussian") {
       ycont <- y
     } else if (family == "binomial") {
-      chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
-      #chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
+      if (est.h) {
+        chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
+      } else {
+        chain$ystar[s,] <- ystar.update.noh(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
+      }
       ycont <- chain$ystar[s, ]
     }
     
@@ -406,13 +410,15 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     ###################################################
     ## generate posterior sample of h(z) from its posterior P(h | beta, sigsq.eps, lambda, r, y)
     
-    hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z)
-    chain$h.hat[s,] <- hcomps$hsamp
-    if (!is.null(hcomps$hsamp.star)) { ## GPP
-      Vcomps$hsamp.star <- hcomps$hsamp.star
+    if (est.h) {
+      hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z)
+      chain$h.hat[s,] <- hcomps$hsamp
+      if (!is.null(hcomps$hsamp.star)) { ## GPP
+        Vcomps$hsamp.star <- hcomps$hsamp.star
+      }
+      rm(hcomps)
     }
-    rm(hcomps)
-    
+      
     ###################################################
     ## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
     

@@ -20,14 +20,15 @@ ystar.update <- function(y, X, beta, h) {
   samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
   drop(samp)
 }
-# ystar.update <- function(y, X, beta, Vinv, ystar) {
-#   mu <-  drop(X %*% beta)
-#   lower <- ifelse(y == 1, 0, -Inf)
-#   upper <- ifelse(y == 0, 0,  Inf)
-#   samp <- tmvtnorm::rtmvnorm(1, mean = mu, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
-#   #samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
-#   drop(samp)
-# }
+#' @importFrom tmvtnorm rtmvnorm
+ystar.update.noh <- function(y, X, beta, Vinv, ystar) {
+  mu <-  drop(X %*% beta)
+  lower <- ifelse(y == 1, 0, -Inf)
+  upper <- ifelse(y == 0, 0,  Inf)
+  samp <- tmvtnorm::rtmvnorm(1, mean = mu, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
+  #samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
+  drop(samp)
+}
 
 r.update <- function(r, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, ...) {
 	# r.params <- set.r.params(r.prior = control.params$r.prior, comp = whichcomp, r.params = control.params$r.params)
