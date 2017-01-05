@@ -221,10 +221,6 @@ MHstep <- function(r, lambda, lambda.star, r.star, delta, delta.star, y, X, Z, b
 	logMHratio <- diffliks + diffpriors + negdifflogproposal
 	logalpha <- min(0,logMHratio)
 
-	if(is.na(logalpha)) {
-		save(r, lambda, delta, r.star, lambda.star, delta.star, sigsq.eps, Vcomps, diffliks, negdifflogproposal, diffpriors, logalpha, beta, move.type, data.comps, file="~/Desktop/isnan_logalpha.RData")
-	}
-
 	## return value
 	acc <- FALSE
 	if( log(runif(1)) <= logalpha ) {
