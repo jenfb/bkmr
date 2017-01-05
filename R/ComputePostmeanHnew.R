@@ -22,6 +22,11 @@ ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew, sel = N
     r <- ests$r[, "mean"]
     beta <- ests$beta[, "mean"]
     lambda <- ests$lambda[, "mean"]
+    if (fit$family == "gaussian") {
+      ycont <- y
+    } else if (fit$family == "binomial") {
+      ycont <- ests$ystar[, "mean"]
+    }
 
     # if(is.null(data.comps$knots)) {
     n0 <- nrow(Z)
@@ -40,7 +45,7 @@ ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew, sel = N
 
     lamK10Vinv <- lambda[1]*Kmat10 %*% Vinv
     Sigma.hnew <- lambda[1]*sigsq.eps*(Kmat1 - lamK10Vinv %*% t(Kmat10))
-    mu.hnew <- lamK10Vinv %*% (y - X%*%beta)
+    mu.hnew <- lamK10Vinv %*% (ycont - X%*%beta)
     # } else {
     # stop("GPP not yet implemented")
     # }

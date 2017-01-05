@@ -65,26 +65,30 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
     Z <- fit$Z
     X <- fit$X
   }
- 
-    df <- dplyr::data_frame()
-    for(i in which.z) {
-        res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
-        df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
-            dplyr::select_(~variable, ~z, ~est, ~se)
-        df <- dplyr::bind_rows(df, df0)
-    }
-    df$variable <- factor(df$variable, levels = z.names[which.z])
-    df
+
+  if (is.null(z.names)) {
+    z.names <- paste0("z", 1:ncol(Z))
+  }
+  
+  df <- dplyr::data_frame()
+  for(i in which.z) {
+    res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
+    df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
+      dplyr::select_(~variable, ~z, ~est, ~se)
+    df <- dplyr::bind_rows(df, df0)
+  }
+  df$variable <- factor(df$variable, levels = z.names[which.z])
+  df
 }
 
 
 
-PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
+PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3 = NULL, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
     if(ncol(Z) < 3) stop("requires there to be at least 3 Z variables")
 
     if(is.null(colnames(Z))) colnames(Z) <- paste0("z", 1:ncol(Z))
 
-    if(missing(whichz3)) {
+    if(is.null(whichz3)) {
         ord <- c(whichz1, whichz2, setdiff(1:ncol(Z), c(whichz1, whichz2)))
     } else {
         ord <- c(whichz1, whichz2, whichz3, setdiff(1:ncol(Z), c(whichz1, whichz2, whichz3)))
@@ -153,6 +157,13 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
     if (is.null(X)) X <- fit$X
   }
   
+  if (is.null(z.names)) {
+    z.names <- colnames(Z)
+    if (is.null(z.names)) {
+      z.names <- paste0("z", 1:ncol(Z))
+    }
+  }
+  
   if (is.null(z.pairs)) {
     z.pairs <- expand.grid(z1 = 1:ncol(Z), z2 = 1:ncol(Z))
     z.pairs <- z.pairs[z.pairs$z1 < z.pairs$z2, ]
@@ -197,10 +208,11 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' 
 #' @export
 #' @inheritParams kmbayes
+#' @inheritParams PredictorResponseBivar
 #' @param pred.resp.df object obtained from running the function \code{\link{PredictorResponseBivar}}
 #' @param qs vector of quantiles at which to fix the second variable
 #' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
-PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE) {
+PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE, z.names = NULL) {
   var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
   if (both_pairs) {
     var.pairs.rev <- dplyr::data_frame(
@@ -209,6 +221,14 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.
       variable2 = var.pairs$variable1
     )
     var.pairs <- rbind(var.pairs, var.pairs.rev)
+  }
+
+  if (is.null(z.names)) {
+    z.names <- colnames(Z)
+    if (is.null(z.names)) {
+      z.names <- paste0("z", 1:ncol(Z))
+      colnames(Z) <- z.names
+    }
   }
   
   df <- data.frame()

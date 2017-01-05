@@ -13,6 +13,22 @@ sigsq.eps.update <- function(y, X, beta, Vinv, a.eps=1e-3, b.eps=1e-3) {
 	1/prec.y
 }
 
+ystar.update <- function(y, X, beta, h) {
+  mu <-  drop(h + X %*% beta)
+  lower <- ifelse(y == 1, 0, -Inf)
+  upper <- ifelse(y == 0, 0,  Inf)
+  samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
+  drop(samp)
+}
+# ystar.update <- function(y, X, beta, Vinv, ystar) {
+#   mu <-  drop(X %*% beta)
+#   lower <- ifelse(y == 1, 0, -Inf)
+#   upper <- ifelse(y == 0, 0,  Inf)
+#   samp <- tmvtnorm::rtmvnorm(1, mean = mu, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
+#   #samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
+#   drop(samp)
+# }
+
 r.update <- function(r, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, ...) {
 	# r.params <- set.r.params(r.prior = control.params$r.prior, comp = whichcomp, r.params = control.params$r.params)
 	r.params <- make_r_params_comp(control.params$r.params, whichcomp)
@@ -204,10 +220,6 @@ MHstep <- function(r, lambda, lambda.star, r.star, delta, delta.star, y, X, Z, b
 	diffliks <- 1/2*Vcomps.star$logdetVinv - 1/2*Vcomps$logdetVinv - 1/2/sigsq.eps*crossprod(mu, Vcomps.star$Vinv - Vcomps$Vinv)%*%mu
 	logMHratio <- diffliks + diffpriors + negdifflogproposal
 	logalpha <- min(0,logMHratio)
-
-	if(is.na(logalpha)) {
-		save(r, lambda, delta, r.star, lambda.star, delta.star, sigsq.eps, Vcomps, diffliks, negdifflogproposal, diffpriors, logalpha, beta, move.type, data.comps, file="~/Desktop/isnan_logalpha.RData")
-	}
 
 	## return value
 	acc <- FALSE

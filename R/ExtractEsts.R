@@ -26,7 +26,7 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
     sigsq.eps <- SummarySamps(fit$sigsq.eps[sel], q = q)
     rownames(sigsq.eps) <- "sigsq.eps"
     
-    r <- t(apply(fit$r[sel, ], 2, SummarySamps, q = q))
+    r <- t(apply(fit$r[sel, , drop = FALSE], 2, SummarySamps, q = q))
     rownames(r) <- paste0("r", 1:nrow(r))
     
     beta <- t(apply(fit$beta[sel, , drop = FALSE], 2, SummarySamps, q = q))
@@ -45,6 +45,11 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
       hnew <- t(apply(fit$hnew[sel, ], 2, SummarySamps, q = q))
       rownames(hnew) <- paste0("hnew", 1:nrow(hnew))
     }
+    
+    if (!is.null(fit$ystar)) {
+      ystar <- t(apply(fit$ystar[sel, ], 2, SummarySamps, q = q))
+      rownames(ystar) <- paste0("ystar", 1:nrow(ystar))
+    }
   }
   
   if (nrow(beta) > 1) {
@@ -60,9 +65,14 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
   if (!is.null(fit$hnew)) {
     colnames(hnew) <- colnames(sigsq.eps)
   }
+  if (!is.null(fit$ystar)) {
+    colnames(ystar) <- colnames(sigsq.eps)
+  }
   
   ret <- list(sigsq.eps = data.frame(sigsq.eps), beta = beta, lambda = lambda, h = h, r = r)
   if (!is.null(fit$hnew)) ret$hnew <- hnew
+  if (!is.null(fit$ystar)) ret$ystar <- ystar
+  
   ret
 }
 
@@ -81,20 +91,23 @@ ExtractSamps <- function(fit, sel = NULL) {
     
     sigsq.eps <- fit$sigsq.eps[sel]
     sig.eps <- sqrt(sigsq.eps)
-    r <- fit$r[sel, ]
+    r <- fit$r[sel, , drop = FALSE]
     beta <- fit$beta[sel, ]
     lambda <- fit$lambda[sel, ]
     tau <- lambda*sigsq.eps
     h <- fit$h.hat[sel, ]
     if (!is.null(fit$hnew)) hnew <- fit$hnew[sel, ]
+    if (!is.null(fit$ystar)) ystar <- fit$ystar[sel, ]
   }
   
     if (!is.null(ncol(beta))) colnames(beta) <- paste0("beta", 1:ncol(beta))
     colnames(r) <- paste0("r", 1:ncol(r))
     colnames(h) <- paste0("h", 1:ncol(h))
     if (!is.null(fit$hnew)) colnames(hnew) <- paste0("hnew", 1:ncol(hnew))
-
+    if (!is.null(fit$ystar)) colnames(ystar) <- paste0("ystar", 1:ncol(ystar))
+    
     res <- list(sigsq.eps = sigsq.eps, sig.eps = sig.eps, r = r, beta = beta, lambda = lambda, tau = tau, h = h)
     if (!is.null(fit$hnew)) res$hnew <- hnew
+    if (!is.null(fit$ystar)) res$ystar <- ystar
     res
 }

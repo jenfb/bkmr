@@ -5,7 +5,7 @@
 \title{Plot cross-sections of the bivariate predictor-response function}
 \usage{
 PredictorResponseBivarLevels(pred.resp.df, Z = NULL, qs = c(0.25, 0.5,
-  0.75), both_pairs = TRUE)
+  0.75), both_pairs = TRUE, z.names = NULL)
 }
 \arguments{
 \item{pred.resp.df}{object obtained from running the function \code{\link{PredictorResponseBivar}}}
@@ -15,6 +15,8 @@ PredictorResponseBivarLevels(pred.resp.df, Z = NULL, qs = c(0.25, 0.5,
 \item{qs}{vector of quantiles at which to fix the second variable}
 
 \item{both_pairs}{flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1)}
+
+\item{z.names}{optional vector of names for the columns of \code{z}}
 }
 \description{
 Function to plot the \code{h} function of a particular variable at different levels (quantiles) of a second variable

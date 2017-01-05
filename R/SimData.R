@@ -8,6 +8,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #'
 #' @export
 #'
+#' @inheritParams kmbayes
 #' @param n Number of observations
 #' @param M Number of predictor variables to generate
 #' @param sigsq.true Variance of normally distributed residual error
@@ -25,9 +26,13 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #'  \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two predictor variables}
 #' }
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
-                    beta.true = 2, hfun = 3, Zgen = "unif", ind = 1:2) {
+                    beta.true = 2, hfun = 3, Zgen = "unif", ind = 1:2, family = "gaussian") {
   
-  stopifnot(n > 0, M > 0, sigsq.true >= 0)
+  stopifnot(n > 0, M > 0, sigsq.true >= 0, family %in% c("gaussian", "binomial"))
+  
+  if (family == "binomial") {
+    sigsq.true <- 1
+  }
   
   if (hfun == 1) {
     HFun <- HFun1
@@ -79,7 +84,17 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
   X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
   eps <- rnorm(n, sd = sqrt(sigsq.true))
   h <- apply(Z, 1, HFun)
-  y <- drop(X * beta.true + h + eps)
+  mu <- X * beta.true + h
+  y <- drop(mu + eps)
   
-  dat <- list(n = n, M = M, sigsq.true = sigsq.true, beta.true = beta.true, Z = Z, h = h, X = X, y = y, hfun = hfun, HFun = HFun)
+  if (family == "binomial") {
+    ystar <- y
+    y <- ifelse(ystar > 0, 1, 0)
+  }
+  
+  dat <- list(n = n, M = M, sigsq.true = sigsq.true, beta.true = beta.true, Z = Z, h = h, X = X, y = y, hfun = hfun, HFun = HFun, family = family)
+  if (family == "binomial") {
+    dat$ystar <- ystar
+  }
+  dat
 }

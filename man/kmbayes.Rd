@@ -4,9 +4,10 @@
 \alias{kmbayes}
 \title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE,
-  Znew, starting.values = list(), control.params = list(), varsel = FALSE,
-  groups, knots, ztest, rmethod = "varying")
+kmbayes(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
+  verbose = TRUE, Znew = NULL, starting.values = NULL,
+  control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL,
+  ztest = NULL, rmethod = "varying")
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}
@@ -17,7 +18,7 @@ kmbayes(y, Z, X, iter = 1000, family = "gaussian", id, verbose = TRUE,
 
 \item{iter}{number of iterations to run the sampler}
 
-\item{family}{a description of the error distribution and link function to be used in the model. Currently only implemented for \code{gaussian} family.}
+\item{family}{a description of the error distribution and link function to be used in the model. Currently implemented for \code{gaussian} and \code{binomial} families.}
 
 \item{id}{optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If missing then no random intercept will be included.}
 

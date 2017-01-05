@@ -50,7 +50,7 @@ print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel,
       ## r_m
       if (!varsel) {
         nm <- "r"
-        rate <- colMeans(chain$acc.r[2:s, ])
+        rate <- colMeans(chain$acc.r[2:s, , drop = FALSE])
         if (length(rate) > 1) nm <- paste0(nm, seq_along(rate))
         accep_rates %<>% rbind(data.frame(param = nm, rate = rate))
       } else {
