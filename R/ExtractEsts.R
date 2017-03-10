@@ -38,8 +38,10 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
       rownames(lambda) <- "lambda"
     }
     
-    h <- t(apply(fit$h.hat[sel, ], 2, SummarySamps, q = q))
-    rownames(h) <- paste0("h", 1:nrow(h))
+    if (fit$est.h) {
+      h <- t(apply(fit$h.hat[sel, ], 2, SummarySamps, q = q))
+      rownames(h) <- paste0("h", 1:nrow(h))
+    }
     
     if (!is.null(fit$hnew)) {
       hnew <- t(apply(fit$hnew[sel, ], 2, SummarySamps, q = q))
@@ -61,7 +63,9 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
   colnames(beta) <- colnames(sigsq.eps)
   colnames(r) <- colnames(sigsq.eps)
   colnames(lambda) <- colnames(sigsq.eps)
-  colnames(h) <- colnames(sigsq.eps)
+  if (fit$est.h) {
+    colnames(h) <- colnames(sigsq.eps)
+  }
   if (!is.null(fit$hnew)) {
     colnames(hnew) <- colnames(sigsq.eps)
   }
@@ -69,7 +73,8 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
     colnames(ystar) <- colnames(sigsq.eps)
   }
   
-  ret <- list(sigsq.eps = data.frame(sigsq.eps), beta = beta, lambda = lambda, h = h, r = r)
+  ret <- list(sigsq.eps = data.frame(sigsq.eps), beta = beta, lambda = lambda, r = r)
+  if (fit$est.h) ret$h <- h
   if (!is.null(fit$hnew)) ret$hnew <- hnew
   if (!is.null(fit$ystar)) ret$ystar <- ystar
   
