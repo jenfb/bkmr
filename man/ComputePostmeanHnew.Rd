@@ -4,7 +4,8 @@
 \alias{ComputePostmeanHnew}
 \title{Compute the posterior mean and variance of \code{h} at a new predictor values}
 \usage{
-ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew, sel = NULL)
+ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
+  sel = NULL)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}
@@ -17,7 +18,7 @@ ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew, sel = NULL)
 
 \item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
 
-\item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference. Currently only implemented for \code{method == "r"}.}
+\item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference.}
 }
 \description{
 Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
