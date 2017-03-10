@@ -1,3 +1,7 @@
+## Update vignette to show:
+  ## how to compute h at observed Z
+  ## how to compute h at new Z
+
 devtools::load_all()
 
 ## gaussian
