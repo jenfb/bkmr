@@ -87,7 +87,6 @@ Let's visually inspect the trace plots, showing how various parameter values cha
 TracePlot(fit = fitkm, par = "beta")
 TracePlot(fit = fitkm, par = "sigsq.eps")
 TracePlot(fit = fitkm, par = "r", comp = 1)
-TracePlot(fit = fitkm, par = "h", comp = 20)
 ```
 
 ### Estimated posterior inclusion probabilities
