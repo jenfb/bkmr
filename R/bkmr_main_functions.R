@@ -328,6 +328,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     chain$delta[1,ztest] <- starting.values$delta
     chain$r[1,ztest] <- ifelse(chain$delta[1,ztest] == 1, chain$r[1,ztest], 0)
   }
+  chain$est.h <- est.h
   
   ## components
   Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
@@ -411,7 +412,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     ## generate posterior sample of h(z) from its posterior P(h | beta, sigsq.eps, lambda, r, y)
     
     if (est.h) {
-      hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z)
+      hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z, data.comps = data.comps)
       chain$h.hat[s,] <- hcomps$hsamp
       if (!is.null(hcomps$hsamp.star)) { ## GPP
         Vcomps$hsamp.star <- hcomps$hsamp.star
@@ -528,11 +529,16 @@ summary.bkmrfit <- function(object, q = c(0.025, 0.975), digits = 5, show_ests =
     sel <- with(x, seq(floor(iter/2) + 1, iter))
     cat("\nParameter estimates (based on iterations ", min(sel), "-", max(sel), "):\n", sep = "")
     ests <- ExtractEsts(x, q = q, sel = sel)
-    ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
+    if (!is.null(ests$h)) {
+      ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
+    }
     if (!is.null(ests$ystar)) {
       ests$ystar <- ests$ystar[c(1,2,nrow(ests$ystar)), ]
     }
-    summ <- with(ests, rbind(beta, sigsq.eps, r, lambda, h))
+    summ <- with(ests, rbind(beta, sigsq.eps, r, lambda))
+    if (!is.null(ests$h)) {
+      summ <- rbind(summ, ests$h)
+    }
     if (!is.null(ests$ystar)) {
       summ <- rbind(summ, ests$ystar)
     }
