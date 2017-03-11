@@ -5,6 +5,8 @@
 #' @param sel A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
 #' @param Znew optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If not specified, defaults to using observed Z values
 #' @param Xnew optional matrix of new covariate values at which to obtain predictions. If not specified, defaults to using observed X values
+#' @param type whether to make predictions on the scale of the link or of the response; only relevant for the binomial outcome family
+#' @param ... other arguments; not currently used
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
 #' @export
