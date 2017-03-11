@@ -2,9 +2,11 @@
 #'
 #' Obtains posterior samples of \code{E(Y) = h(Znew) + beta*Xnew} or of \code{g^{-1}[E(y)]}
 #' 
+#' @param sel A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
+#' @param Znew optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If not specified, defaults to using observed Z values
+#' @param Xnew optional matrix of new covariate values at which to obtain predictions. If not specified, defaults to using observed X values
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
-#' @param sel A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
 #' @export
 SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NULL, sel = NULL, type = c("link", "response"), ...) {
   
@@ -23,7 +25,7 @@ SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NU
     }
   }
 
-  if (is.null(Xnew)) Xnew <- matrix(0, nrow = 1, ncol = ncol(X))
+  if (is.null(Xnew)) Xnew <- X
   if (class(Xnew) != "matrix") Xnew <- matrix(Xnew, nrow = 1)
   if (ncol(X) != ncol(Xnew)) {
     stop("Xnew must have the same number of columns as X")
