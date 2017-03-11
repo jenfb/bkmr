@@ -5,7 +5,7 @@
 \title{Simulate dataset}
 \usage{
 SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3,
-  Zgen = "unif", ind = 1:2, family = "gaussian")
+  Zgen = "norm", ind = 1:2, family = "gaussian")
 }
 \arguments{
 \item{n}{Number of observations}
@@ -18,7 +18,7 @@ SimData(n = 100, M = 5, sigsq.true = 0.5, beta.true = 2, hfun = 3,
 
 \item{hfun}{An integer from 1 to 3 identifying which predictor-response function to generate}
 
-\item{Zgen}{Method for generating the matrix Z of exposure variables, taking one of the values c("unif", "corr", "realistic")}
+\item{Zgen}{Method for generating the matrix Z of exposure variables, taking one of the values c("unif", "norm", "corr", "realistic")}
 
 \item{ind}{select which predictor(s) will be included in the \code{h} function; how many predictors that can be included will depend on which \code{h} function is being used.}
 

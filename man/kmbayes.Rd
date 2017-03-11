@@ -34,7 +34,7 @@ kmbayes(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
 
 \item{groups}{optional vector (of length \code{M}) of group indictors for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.}
 
-\item{knots}{optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for \code{family == gaussian} and models without a random intercept.}
+\item{knots}{optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al (2008). Currently only implemented for models without a random intercept.}
 
 \item{ztest}{optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).}
 

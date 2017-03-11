@@ -10,7 +10,9 @@ SamplePred(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL,
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}
 
-\item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
+\item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If not specified, defaults to using observed Z values}
+
+\item{Xnew}{optional matrix of new covariate values at which to obtain predictions. If not specified, defaults to using observed X values}
 
 \item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
 
@@ -18,7 +20,11 @@ SamplePred(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL,
 
 \item{y}{a vector of outcome data of length \code{n}.}
 
-\item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept}
+\item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept}
+
+\item{type}{whether to make predictions on the scale of the link or of the response; only relevant for the binomial outcome family}
+
+\item{...}{other arguments; not currently used}
 }
 \description{
 Obtains posterior samples of \code{E(Y) = h(Znew) + beta*Xnew} or of \code{g^{-1}[E(y)]}
