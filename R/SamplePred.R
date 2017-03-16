@@ -56,7 +56,7 @@ SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NU
   }
   rownames(preds) <- paste0("iter", sel)
   for (s in sel) {
-    beta.samp <- beta[s, ]
+    beta.samp <- beta[s, , drop = FALSE]
     
     if (family == "gaussian") {
       ycont <- y
@@ -69,7 +69,7 @@ SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NU
       hsamp <- h.update(lambda = lambda[s, ], Vcomps = NULL, sigsq.eps = sigsq.eps[s], y = ycont, X = X, beta = beta.samp, r = r[s, ], Z = Z, data.comps = data.comps)$hsamp
     }
     
-    Xbeta <- drop(beta.samp %*% Xnew)
+    Xbeta <- drop(Xnew %*% beta.samp)
     linpred <- hsamp + Xbeta
     
     if (type == "link") {
