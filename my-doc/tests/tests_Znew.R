@@ -15,7 +15,7 @@ set.seed(111)
 fit0 <- kmbayes(y = y, Z = Z, X = X, iter = 10000, verbose = FALSE, varsel = TRUE, Znew = Znew)
 
 ests_samp <- ExtractEsts(fit0)$hnew
-ests_samp2 <- SamplePred(fit0, Znew = Znew, Xnew = matrix(0, nrow(Znew), ncol(datp$X))) %>%
+ests_samp2 <- SamplePred(fit0, Znew = Znew, Xnew = matrix(0, nrow(Znew), ncol(X))) %>%
 {cbind(colMeans(.), apply(., 2, sd))}
 system.time(
   ests_approx <- ComputePostmeanHnew(fit0, Znew = Znew) %$%
