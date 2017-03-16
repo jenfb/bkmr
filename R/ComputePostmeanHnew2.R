@@ -91,7 +91,7 @@ ComputePostmeanHnew2 <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
                             dim = c(nrow(postvar[[1]]), ncol(postvar[[1]]), length(postvar)))
                       )
   ve <- var(postmean_mat)
-  ev <- apply(arr, c(1, 2), mean)
+  ev <- apply(postvar_arr, c(1, 2), mean)
   v <- ve + ev
   ret <- list(postmean = m, postvar = v)
   
