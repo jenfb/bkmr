@@ -21,7 +21,11 @@ ComputePostmeanHnew2 <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
     }
   }
 
-  if(is.null(dim(X))) X <- matrix(X, ncol=1)
+  if (is.null(dim(X))) X <- matrix(X, ncol=1)
+  
+  # if (!is.null(fit$Vinv)) {
+  #   sel <- attr(fit$Vinv, "sel")
+  # }
 
   if (is.null(sel)) {
     sel <- with(fit, seq(floor(iter/2) + 1, iter, 10))
@@ -52,9 +56,13 @@ ComputePostmeanHnew2 <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
 
     Kpart <- makeKpart(r, Z)
     K <- exp(-Kpart)
-    V <- diag(1, nrow(Z), nrow(Z)) + lambda[1]*K
-    cholV <- chol(V)
-    Vinv <- chol2inv(cholV)
+    # if (is.null(fit$Vinv)) {
+      V <- diag(1, nrow(Z), nrow(Z)) + lambda[1]*K
+      cholV <- chol(V)
+      Vinv <- chol2inv(cholV)
+    # } else {
+    #   Vinv <- fit$Vinv[[i]]
+    # }
     
     if (!is.null(Znew)) {
       # if(is.null(data.comps$knots)) {
