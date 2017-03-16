@@ -71,10 +71,11 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
 #' @param est.h TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler
+#' @param keep.Vcomps TRUE or FALSE: indicator for whether to keep the components used to compute the variance V at each iteration. Keeping these components will make subsequent post-processing of model fit faster at the expense of a larger fitted object size
 #' 
 #' @seealso For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @import utils
-kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = NULL, control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying", est.h = FALSE) {
+kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = NULL, control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying", est.h = FALSE, keep.Vcomps = TRUE) {
   
   missingX <- is.null(X)
   if (missingX) X <- matrix(0, length(y), 1)
@@ -335,6 +336,10 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   
   ## components
   Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
+  if (keep.Vcomps) {
+    Vcomps.store <- vector("list", nsamp)
+    Vcomps.store[[1]] <- Vcomps
+  }
   
   ## start sampling ####
   chain$time1 <- Sys.time()
@@ -438,7 +443,8 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
       verbose_show_ests = control.params$verbose_show_ests
       )
     print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z, groups = groups)
-    
+   
+    if (keep.Vcomps) Vcomps.store[[s]] <- Vcomps
   }
   control.params$r.params <- NULL
   chain$time2 <- Sys.time()
@@ -454,6 +460,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   if (!is.null(Znew)) chain$Znew <- Znew
   if (!is.null(groups)) chain$groups <- groups
   chain$varsel <- varsel
+  if (keep.Vcomps) chain$Vcomps <- Vcomps.store
   class(chain) <- c("bkmrfit", class(chain))
   chain
 }
