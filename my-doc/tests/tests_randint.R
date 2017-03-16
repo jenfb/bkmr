@@ -37,7 +37,7 @@ sigsq_u_chain <- fit0$lambda[, 2]*fit0$sigsq.eps
 plot(sigsq_u_chain, type = "l")
 plot(sigsq_u_chain[2501:5000], type = "l")
 
-sigsq_u_est <- meansigsq_u_chain
+sigsq_u_est <- mean(sigsq_u_chain)
 sigsq_u_est
 
 TracePlot(fit = fit0, par = "beta")
