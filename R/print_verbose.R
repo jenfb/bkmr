@@ -81,8 +81,8 @@ print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel,
         chain$Z <- Z
         if (hier_varsel) chain$groups <- groups
         ests <- ExtractEsts(chain, q = c(0.025, 0.975), sel = 2:s)
-        ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
-        summ <- with(ests, rbind(beta, sigsq.eps, r, lambda, h))
+        #ests$h <- ests$h[c(1,2,nrow(ests$h)), ]
+        summ <- with(ests, rbind(beta, sigsq.eps, r, lambda))
         summ <- data.frame(param = rownames(summ), round(summ, verbose_digits))
         rownames(summ) <- NULL
         print(summ)

@@ -14,7 +14,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #' @param sigsq.true Variance of normally distributed residual error
 #' @param beta.true Coefficient on the covariate
 #' @param hfun An integer from 1 to 3 identifying which predictor-response function to generate
-#' @param Zgen Method for generating the matrix Z of exposure variables, taking one of the values c("unif", "corr", "realistic")
+#' @param Zgen Method for generating the matrix Z of exposure variables, taking one of the values c("unif", "norm", "corr", "realistic")
 #' @param ind select which predictor(s) will be included in the \code{h} function; how many predictors that can be included will depend on which \code{h} function is being used.
 #' @examples
 #' set.seed(5)
@@ -26,7 +26,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #'  \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two predictor variables}
 #' }
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
-                    beta.true = 2, hfun = 3, Zgen = "unif", ind = 1:2, family = "gaussian") {
+                    beta.true = 2, hfun = 3, Zgen = "norm", ind = 1:2, family = "gaussian") {
   
   stopifnot(n > 0, M > 0, sigsq.true >= 0, family %in% c("gaussian", "binomial"))
   
@@ -45,6 +45,8 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
   }
   
   if (Zgen == "unif") {
+    Z <- matrix(runif(n * M, -2, 2), n, M)
+  } else if (Zgen == "norm") {
     Z <- matrix(rnorm(n * M), n, M)
   } else if (Zgen == "corr") {
     if (M < 3) {
@@ -73,7 +75,7 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                                 0.13, 0.42, 1.27, 0.1, 0.11, 0.12, 0.14, 0.18, 0.13, 0.1, 0.25, 
                                 0.1, 0.16, 0.08, 0.12, 0.1, 0.67), .Dim = c(13L, 13L))
     if (M > ncol(VarRealistic)) {
-      stop("Currently can only generate exposure data based on a realistic correlation structure with M = 13 or fewer. Please set M = 13 or use Zgen = 'unif'")
+      stop("Currently can only generate exposure data based on a realistic correlation structure with M = 13 or fewer. Please set M = 13 or use Zgen = c('unif','norm'")
     } else if (M <= 13) {
       Sigma <- VarRealistic[1:M, 1:M]
     }

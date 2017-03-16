@@ -87,7 +87,6 @@ Let's visually inspect the trace plots, showing how various parameter values cha
 TracePlot(fit = fitkm, par = "beta")
 TracePlot(fit = fitkm, par = "sigsq.eps")
 TracePlot(fit = fitkm, par = "r", comp = 1)
-TracePlot(fit = fitkm, par = "h", comp = 20)
 ```
 
 ### Estimated posterior inclusion probabilities
@@ -244,7 +243,7 @@ The following table summarizes these parameters.
 
 | Control parameter | Model parameter | When used | Description | Note |
 |----------|--------|---------|-------------------------|-------------------|
-| `lambda.jump` | $\lambda$ | For all models | Specifies   the standard deviation (SD) of the proposal distribution for $\lambda =   \tau^2/\sigma^2$, where $\tau$ is a variance component in the kernel matrix   that controls the overall smoothness of the exposure-response function. | When   the model includes a random intercept, then $\lambda$ is a vector with 2   components. In this case, we need `lambda.jump` to be a vector with 2   components |
+| `lambda.jump` | $\lambda$ | For all models | Specifies   the standard deviation (SD) of the proposal distribution for $\lambda =   \tau/\sigma^2$, where $\tau$ is a variance component in the kernel matrix that controls the overall smoothness of the exposure-response function. | When   the model includes a random intercept, then $\lambda$ is a vector with 2   components. In this case, we need `lambda.jump` to be a vector with 2   components |
 | `r.jump` | $r_m$ | When   `varsel = FALSE` | Specifies   the SD of the proposal distribution for `r_m` |   |
 | `r.jump1` | $r_m$ | When   `varsel = TRUE` | Specifies   the SD of the proposal distribution for `r_m` under one of the moves of the   M-H algorithm, where the exposure variable (or group of exposure variables   under hierarchical variable selection) goes from not being in the model to   being in the model ("switching step") |   |
 | `r.jump2` | $r_m$ | When   `varsel = TRUE` | Specifies   SD of proposal distribution for `r_m` under one of the moves of the M-H   algorithm, where a new value of a pollutant that stays in the model is   proposed ("refinement step") |   |
@@ -263,10 +262,10 @@ Some of these components are hyperparameters for the prior distributions; others
 The following table summarizes the choices for specifying the prior distributions.
 
 | Control parameter | Model parameter | When used | Description | Note |
-|-----------|-------|----------------|------------------|-----------------------|
+|-----------|-------|-----------|------------|-----------------------------|
 | a.sigsq, b.sigsq | $\sigma^2$ | When `family = gaussian` | Shape   and rate for gamma prior |   |
-| mu.lambda,   sigma.lambda | $\lambda$ | When `family = gaussian` | Mean   and SD for gamma prior | When   the model includes a random intercept, then lambda is a vector with 2   components. In this case, we need both mu.lambda and sigma.lambda to be   vectors with 2 components each |
-| r.prior | $r_m$ | For all models | Specifies   which family of prior distributions to use for $r_m$ parameters  | Current   options are "gamma", "invunif", and "unif" |
+| mu.lambda,   sigma.lambda | $\lambda$ |   | Mean   and SD for gamma prior | When the model includes a random intercept, then lambda is a vector with 2   components. In this case, we need both mu.lambda and sigma.lambda to be vectors with 2 components each |
+| r.prior | $r_m$ | For all models | Specifies which family of prior distributions to use for $r_m$ parameters  | Current   options are "gamma", "invunif", and "unif" |
 | mu.r, sigma.r | $r_m$ | When `control.params$r.prior = "gamma"` | Mean   and SD for gamma prior |   |
 | r.a, r.b | $r_m$ | When   `control.params$r.prior = "unif"` or `"invunif"` | Lower and upper bound for uniform prior on $r_m$ (when `r.prior = "unif"`)   or for $1/r_m$ (when `r.prior = "invunif"`) |   |
 | a.p0, b.p0 | $\pi$ | When `varsel = TRUE` | Shape   parameters for beta prior |   |
