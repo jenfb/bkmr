@@ -48,15 +48,16 @@ SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NU
   beta <- fit$beta
   r <- fit$r
   
-  preds <- matrix(NA, length(sel), nrow(Znew))
   if (!is.null(Znew)) {
+    preds <- matrix(NA, length(sel), nrow(Znew))
     colnames(preds) <- paste0("znew", 1:nrow(Znew))
   } else {
+    preds <- matrix(NA, length(sel), nrow(Z))
     colnames(preds) <- paste0("z", 1:nrow(Z))
   }
   rownames(preds) <- paste0("iter", sel)
   for (s in sel) {
-    beta.samp <- beta[s, , drop = FALSE]
+    beta.samp <- beta[s, ]
     
     if (family == "gaussian") {
       ycont <- y
