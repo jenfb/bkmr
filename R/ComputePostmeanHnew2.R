@@ -2,8 +2,7 @@
 #'
 #' Function to estimate the posterior mean and variance by obtaining the posterior mean and variance at particular iterations and then using the iterated mean and variance formulas
 #' @inheritParams kmbayes
-#' @inheritParams ExtractEsts
-#' @param sel A vector selecting which iterations of the BKMR fit should be retained for inference. 
+#' @inheritParams SamplePred
 #' @export
 ComputePostmeanHnew2 <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL) {
 
