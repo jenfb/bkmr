@@ -16,7 +16,7 @@ ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
 
 \item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
-\item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
+\item{Znew}{matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If set to NULL then will default to using the observed exposures Z.}
 
 \item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
 }
