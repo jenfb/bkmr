@@ -21,9 +21,9 @@ In this document, we illustrate the main features of the `bkmr` R package throug
 Kernel machine regression (KMR), also called Gaussian process regression, is a popular tool in the machine learning literature. The main idea behind KMR is to flexibly model the relationship between a large number of variables and a particular outcome (dependent variable). The general modeling framework we consider here is 
 
 $$
-g(E(Y_i)) = h(z_{i1}, \ldots, z_{iM}) + \beta{\bf x}_i, \quad i = 1, \ldots, n
+g(\mu_i) = h(z_{i1}, \ldots, z_{iM}) + \beta{\bf x}_i, \quad i = 1, \ldots, n
 $$
-where $g$ is a monotonic link function, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates assumed to have a linear relationship with the outcome ($\beta$ is the corresponding vector of coefficients). We will refer to the predictors ${\bf z}$ as exposure variables and to $h(\cdot)$ as the exposure-response function. In settings where there are a large number of exposures, or when the exposure-response function is a complex, potentially nonlinear and non-additive relation, it may be challenging to specify a set of basis functions to represent $h$. In these settings, an alternative way to characterize $h$ is through a kernel machine representation.
+where $g$ is a monotonic link function, $\mu_i = E(Y_i)$, $h$ is a flexible function of the predictor variables $z_{i1}, \ldots, z_{iM}$, and ${\bf x}$ is a vector of covariates assumed to have a linear relationship with the outcome ($\beta$ is the corresponding vector of coefficients). We will refer to the predictors ${\bf z}$ as exposure variables and to $h(\cdot)$ as the exposure-response function. In settings where there are a large number of exposures, or when the exposure-response function is a complex, potentially nonlinear and non-additive relation, it may be challenging to specify a set of basis functions to represent $h$. In these settings, an alternative way to characterize $h$ is through a kernel machine representation.
 
 There are several choices for the kernel function used to represent $h$ under KMR. Here we focus on the Gaussian kernel, which flexibly captures a wide range of underlying functional forms for $h$, and can be expressed as 
 $$
@@ -97,6 +97,42 @@ Because we fit the model with variable selection (we set the argument `varsel` t
 ExtractPIPs(fitkm)
 ```
 
+### Estimating h
+
+To estimate $h({\bf z})$ at a particular vector of exposures ${\bf z}$, we note that the posterior distribution of $h$ is normally distributed with posterior mean $\mu_h(\theta)$ and variance $V_h(\theta)$, where $\theta$ denotes the vector of model parameters (e.g., $\beta$, $r_m$); the specific forms of these mean and variance functions are given in the supplemental material of [Bobb et al. 2015](http://biostatistics.oxfordjournals.org/content/16/3/493). 
+
+The `bkmr` package provides three post-processing functions for estimating $h({\bf z})$. 
+
+- Approach 1: estimates the posterior mean as $\mu_h(\hat\theta)$ and the posterior variance as $V_h(\hat\theta)$ where $\hat\theta$ is the posterior mean estimate of $\theta$.
+    + This approach is very fast but is only an approximate method
+
+- Approach 2: estimates the posterior mean as $E[\mu_h(\theta)]$ by taking the mean of posterior samples of $\mu_h(\theta)$, and the posterior variance as $E[V_h(\theta)] + Var[\mu_h(\theta)]$ by taking the mean of the posterior samples of $V_h(\theta)$ and the variance of the posterior samples of $\mu_h(\theta)$ and them summing these quantities.
+    + This approach is fast for moderate sized datasets but can be slow for large datasets
+
+- Approach 3: generates posterior samples of $h({\bf z})$ by sampling $h \sim N(\mu_h(\theta), V_h(\theta))$, given particular samples of $\theta$ from the fitted BKMR model.
+    + This approach is the slowest, but allows for estimating the full posterior distribution of $h({\bf z})$ rather than just the posterior mean and variance.
+  
+Approaches 2 and 3 are exact methods in the sense that they will provide unbiased estimates of the posterior summaries if the BKMR model is correctly specified and if the model has converged. To illustrate the three different approaches, here we estimate $h$ at the median value of the exposures:
+
+```{r predvals}
+med_vals <- apply(Z, 2, median)
+Znew <- matrix(med_vals, nrow = 1)
+h_true <- dat$HFun(Znew)
+
+h_est1 <- ComputePostmeanHnew(fitkm, Znew = Znew)
+h_est2 <- ComputePostmeanHnew2(fitkm, Znew = Znew)
+set.seed(111)
+samps3 <- SamplePred(fitkm, Znew = Znew, Xnew = cbind(0))
+
+h_est_compare <- data.frame(
+  method = c("truth", 1:3),
+  post_mean = c(h_true, h_est1$postmean, h_est2$postmean, mean(samps3)),
+  post_sd = c(NA, sqrt(h_est1$postvar), sqrt(h_est2$postvar), sd(samps3))
+)
+h_est_compare
+```
+
+We see that the posterior mean estimates are similar for all of the approaches, with the two exact methods (2 and 3) having very similar posterior standard deviation (SD) estimates. To speed up computation for methods 2 and 3, one can select which iterations from the original model fit to use, using the `sel` argument.
 
 ### Summarize model output
 
