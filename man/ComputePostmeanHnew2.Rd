@@ -8,6 +8,8 @@ ComputePostmeanHnew2(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
   sel = NULL)
 }
 \arguments{
+\item{fit}{An object containing the results returned by a the \code{kmbayes} function}
+
 \item{y}{a vector of outcome data of length \code{n}.}
 
 \item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}

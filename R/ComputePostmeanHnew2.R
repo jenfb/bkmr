@@ -3,6 +3,7 @@
 #' Function to estimate the posterior mean and variance by obtaining the posterior mean and variance at particular iterations and then using the iterated mean and variance formulas
 #' @inheritParams kmbayes
 #' @inheritParams SamplePred
+#' @inheritParams ExtractEsts
 #' @export
 ComputePostmeanHnew2 <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL) {
 
