@@ -18,7 +18,7 @@ ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
 
 \item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
 
-\item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference.}
+\item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
 }
 \description{
 Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
