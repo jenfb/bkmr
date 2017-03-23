@@ -53,6 +53,7 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, method = "appro
 #' @param ngrid number of grid points to cover the range of each predictor (column in \code{Z})
 #' @param min.plot.dist specifies a minimum distance that a new grid point needs to be from an observed data point in order to compute the prediction; points further than this will not be computed
 #' @param center flag for whether to scale the exposure-response function to have mean zero
+#' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #'
 #' @export
 PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
@@ -142,6 +143,7 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
 #' @param z.pairs data frame showing which pairs of pollutants to plot
 #' @param ngrid number of grid points in each dimension
 #' @param verbose TRUE or FALSE: flag of whether to print intermediate output to the screen
+#' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
 PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = NULL, method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
   
@@ -206,6 +208,7 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' @param pred.resp.df object obtained from running the function \code{\link{PredictorResponseBivar}}
 #' @param qs vector of quantiles at which to fix the second variable
 #' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
+#' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE, z.names = NULL) {
   var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
   if (both_pairs) {
@@ -232,6 +235,16 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.
     preds <- pred.resp.df[pred.resp.df$variable1 == var1 & pred.resp.df$variable2 == var2, ]
     if (nrow(preds) == 0) {
       preds <- pred.resp.df[pred.resp.df$variable1 == var2 & pred.resp.df$variable2 == var1, ]
+      preds.rev <- dplyr::data_frame(
+        variable1 = preds$variable2,
+        variable2 = preds$variable1,
+        z1 = preds$z2,
+        z2 = preds$z1,
+        est = preds$est,
+        se = preds$se
+      )
+      preds <- preds.rev
+      preds <- dplyr::arrange_(preds, ~z2, ~z1)
     }
     
     ngrid <- sqrt(nrow(preds))
