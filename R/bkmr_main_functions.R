@@ -78,7 +78,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' }
 #' 
 #' @seealso For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
-#' @references Bobb, JF, Valeri L, Claus Henn B, Christiani DC, Wright RO, Mazumdar M, Godleski JJ, Coull BA (2015). Bayesian Kernel Machine Regression for Estimating the Health Effects of Multi-Pollutant Mixtures. Biostatistics 16, no. 3: 493–508.
+#' @references Bobb, JF, Valeri L, Claus Henn B, Christiani DC, Wright RO, Mazumdar M, Godleski JJ, Coull BA (2015). Bayesian Kernel Machine Regression for Estimating the Health Effects of Multi-Pollutant Mixtures. Biostatistics 16, no. 3: 493-508.
 #' @references Banerjee S, Gelfand AE, Finley AO, Sang H (2008). Gaussian predictive process models for large spatial data sets. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 70(4), 825-848.
 #' @import utils
 kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL, verbose = TRUE, Znew = NULL, starting.values = NULL, control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL, ztest = NULL, rmethod = "varying", est.h = FALSE) {
