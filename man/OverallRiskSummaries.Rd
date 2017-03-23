@@ -5,11 +5,9 @@
 \title{Calculate overall risk summaries}
 \usage{
 OverallRiskSummaries(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25,
-  0.75, by = 0.05), q.fixed = 0.5, preds.method = "approx", sel = NULL)
+  0.75, by = 0.05), q.fixed = 0.5, method = "approx", sel = NULL)
 }
 \arguments{
-\item{fit}{An object containing the results returned by a the \code{kmbayes} function}
-
 \item{y}{a vector of outcome data of length \code{n}.}
 
 \item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
@@ -20,11 +18,14 @@ OverallRiskSummaries(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25,
 
 \item{q.fixed}{a second quantile at which to compare the estimated \code{h} function}
 
-\item{preds.method}{method for obtaining posterior summaries at a vector of new point. Currently only implemented for \code{preds.method = "approx"}}
+\item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
 
-\item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
+\item{sel}{selects which iterations of the MCMC sampler to use for inference; see details}
 }
 \description{
-Compare estimated \code{h} function when all predictors are at a particular quantile to when all are at a second fixed percentile
+Compare estimated \code{h} function when all predictors are at a particular quantile to when all are at a second fixed quantile
+}
+\details{
+see \code{\link{ComputePostmeanHnew}} for details.
 }
 

@@ -6,7 +6,7 @@
 \usage{
 SingVarRiskSummaries(fit, y = NULL, Z = NULL, X = NULL,
   which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.5,
-  0.75), preds.method = "approx", sel = NULL, z.names = colnames(Z), ...)
+  0.75), method = "approx", sel = NULL, z.names = colnames(Z), ...)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}
@@ -23,7 +23,7 @@ SingVarRiskSummaries(fit, y = NULL, Z = NULL, X = NULL,
 
 \item{q.fixed}{vector of quantiles at which to fix the remaining predictors in \code{Z}}
 
-\item{preds.method}{method for obtaining posterior summaries at a vector of new point. Currently only implemented for \code{preds.method = "approx"}}
+\item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
 
 \item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
 

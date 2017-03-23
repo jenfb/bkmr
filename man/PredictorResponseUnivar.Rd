@@ -5,9 +5,9 @@
 \title{Plot univariate predictor-response function on a new grid of points}
 \usage{
 PredictorResponseUnivar(fit, y = NULL, Z = NULL, X = NULL,
-  which.z = 1:ncol(Z), preds.method = "approx", ngrid = 50,
-  q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE,
-  z.names = colnames(Z), ...)
+  which.z = 1:ncol(Z), method = "approx", ngrid = 50, q.fixed = 0.5,
+  sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z),
+  ...)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}
@@ -20,7 +20,7 @@ PredictorResponseUnivar(fit, y = NULL, Z = NULL, X = NULL,
 
 \item{which.z}{vector identifying which predictors (columns of \code{Z}) should be plotted}
 
-\item{preds.method}{method for obtaining posterior summaries at a vector of new point. Currently only implemented for \code{preds.method = "approx"}}
+\item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
 
 \item{ngrid}{number of grid points to cover the range of each predictor (column in \code{Z})}
 

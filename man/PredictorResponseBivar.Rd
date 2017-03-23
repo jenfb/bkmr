@@ -5,7 +5,7 @@
 \title{Predict the exposure-response function at a new grid of points}
 \usage{
 PredictorResponseBivar(fit, y = NULL, Z = NULL, X = NULL,
-  z.pairs = NULL, preds.method = "approx", ngrid = 50, q.fixed = 0.5,
+  z.pairs = NULL, method = "approx", ngrid = 50, q.fixed = 0.5,
   sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z),
   verbose = TRUE, ...)
 }
@@ -20,7 +20,7 @@ PredictorResponseBivar(fit, y = NULL, Z = NULL, X = NULL,
 
 \item{z.pairs}{data frame showing which pairs of pollutants to plot}
 
-\item{preds.method}{method for obtaining posterior summaries at a vector of new point. Currently only implemented for \code{preds.method = "approx"}}
+\item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
 
 \item{ngrid}{number of grid points in each dimension}
 

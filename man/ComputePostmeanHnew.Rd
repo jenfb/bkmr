@@ -5,11 +5,9 @@
 \title{Compute the posterior mean and variance of \code{h} at a new predictor values}
 \usage{
 ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
-  sel = NULL)
+  sel = NULL, method = "approx")
 }
 \arguments{
-\item{fit}{An object containing the results returned by a the \code{kmbayes} function}
-
 \item{y}{a vector of outcome data of length \code{n}.}
 
 \item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
@@ -18,9 +16,17 @@ ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
 
 \item{Znew}{matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If set to NULL then will default to using the observed exposures Z.}
 
-\item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
+\item{sel}{selects which iterations of the MCMC sampler to use for inference; see details}
+
+\item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
 }
 \description{
-Function to approximate the posterior mean and variance as a function of the estimated tau, lambda, beta, and sigsq.eps
+Compute the posterior mean and variance of \code{h} at a new predictor values
+}
+\details{
+\itemize{
+  \item If \code{method == "approx"} then calls the function \code{\link{ComputePostmeanHnew.approx}}. In this case, the argument \code{sel} defaults to the second half of the MCMC iterations.
+  \item If \code{method == "exact"} then calls the function \code{\link{ComputePostmeanHnew.exact}}. In this case, the argument \code{sel} defaults to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
+}
 }
 
