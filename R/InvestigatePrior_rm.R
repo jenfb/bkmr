@@ -8,6 +8,8 @@
 #' @param r.seq sequence of values at which to fix \code{r} for estimating the exposure-response function
 #' @param verbose TRUE or FALSE: flag indicating whether to print to the screen which exposure variable and q value has been completed
 #' @param Drange the range of the \code{z_m} data over which to apply the values of \code{q.seq}. If not specified, will be calculated as the maximum of the ranges of \code{z_1} through \code{z_M}.
+#' @details 
+#' For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
 #' @import nlme
 InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16), r.seq = NULL, Drange = NULL, verbose = FALSE) {

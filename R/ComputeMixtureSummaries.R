@@ -36,9 +36,9 @@ interactionSummary.samp <- function(newz.q1, newz.q2, preds.fun, ...) {
 #' Compare estimated \code{h} function when all predictors are at a particular quantile to when all are at a second fixed quantile
 #' @inheritParams kmbayes
 #' @inheritParams ComputePostmeanHnew
+#' @inherit ComputePostmeanHnew details
 #' @param qs vector of quantiles at which to calculate the overall risk summary 
 #' @param q.fixed a second quantile at which to compare the estimated \code{h} function
-#' @details see \code{\link{ComputePostmeanHnew}} for details.
 #' @export
 OverallRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx", sel = NULL) {
   
@@ -89,6 +89,7 @@ VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.dif
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
 #' @inheritParams OverallRiskSummaries
+#' @inherit ComputePostmeanHnew details
 #' @param qs.diff vector indicating the two quantiles \code{q_1} and \code{q_2} at which to compute \code{h(z_{q2}) - h(z_{q1})}
 #' @param q.fixed vector of quantiles at which to fix the remaining predictors in \code{Z}
 #' @param z.names optional vector of names for the columns of \code{z}
@@ -153,6 +154,7 @@ SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
 #' @inheritParams SingVarRiskSummaries
+#' @inherit ComputePostmeanHnew details
 #' @param qs.diff vector indicating the two quantiles at which to compute the single-predictor risk summary
 #' @param qs.fixed vector indicating the two quantiles at which to fix all of the remaining exposures in \code{Z}
 #' @export

@@ -9,6 +9,7 @@
 #' @param ... other arguments; not currently used
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
+#' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
 SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NULL, sel = NULL, type = c("link", "response"), ...) {
   

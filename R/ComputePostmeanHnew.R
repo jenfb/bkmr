@@ -1,6 +1,7 @@
 #' Compute the posterior mean and variance of \code{h} at a new predictor values
 #'
 #' @inheritParams kmbayes
+#' @param fit An object containing the results returned by a the \code{kmbayes} function 
 #' @param Znew matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If set to NULL then will default to using the observed exposures Z.
 #' @param method method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details
 #' @param sel selects which iterations of the MCMC sampler to use for inference; see details
@@ -9,6 +10,7 @@
 #'   \item If \code{method == "approx"} then calls the function \code{\link{ComputePostmeanHnew.approx}}. In this case, the argument \code{sel} defaults to the second half of the MCMC iterations.
 #'   \item If \code{method == "exact"} then calls the function \code{\link{ComputePostmeanHnew.exact}}. In this case, the argument \code{sel} defaults to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
 #' }
+#' For guided examples and additional information, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
 ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL, method = "approx") {
   if (method == "approx") {

@@ -4,7 +4,7 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 
 #' Simulate dataset
 #'
-#' Simulate predictor, covariate, and outcome data
+#' Simulate predictor, covariate, and continuous outcome data
 #'
 #' @export
 #'
@@ -21,9 +21,9 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #' dat <- SimData()
 #' @details 
 #' \itemize{
-#'  \item{"hfun = 1"}{A nonlinear function of the first predictor}
-#'  \item{"hfun = 2"}{A linear function of the first two predictors and their product term}
-#'  \item{"hfun = 3"}{A nonlinear and nonadditive function of the first two predictor variables}
+#'  \item \code{hfun = 1}: A nonlinear function of the first predictor 
+#'  \item \code{hfun = 2}: A linear function of the first two predictors and their product term
+#'  \item \code{hfun = 3}: A nonlinear and nonadditive function of the first two predictor variables
 #' }
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                     beta.true = 2, hfun = 3, Zgen = "norm", ind = 1:2, family = "gaussian") {
