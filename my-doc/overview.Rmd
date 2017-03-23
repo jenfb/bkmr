@@ -119,8 +119,8 @@ med_vals <- apply(Z, 2, median)
 Znew <- matrix(med_vals, nrow = 1)
 h_true <- dat$HFun(Znew)
 
-h_est1 <- ComputePostmeanHnew(fitkm, Znew = Znew)
-h_est2 <- ComputePostmeanHnew2(fitkm, Znew = Znew)
+h_est1 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "approx")
+h_est2 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "exact")
 set.seed(111)
 samps3 <- SamplePred(fitkm, Znew = Znew, Xnew = cbind(0))
 
@@ -161,8 +161,7 @@ Here we see that for $z_1$ and $z_2$, increasing values of the exposures is asso
 Building upon the previous example, we can similarly visualze the bivarate exposure-response function for two predictors, where all of the other predictors are fixed at a particular percentile.
 
 ```{r pred-resp2, message=FALSE}
-pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, 
-                                          min.plot.dist = 1)
+pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, min.plot.dist = 1)
 ```
 
 This output can be used to create image or contour plots (e.g., by using the `geom_raster` function from the `ggplot2` package.
@@ -178,8 +177,10 @@ ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
 
 Because it can be hard to see what's going on in these types of image plots, an alternative approach is to investigate the predictor-response function of a single predictor in `Z` for the second predictor in `Z` fixed at various quantiles (and for the remaining predictors fixed to a particular value). These can be obtained using the `PredictorResponseBivarLevels` function, which takes as input the bivariate exposure-response function outputted from the previous command, where the argument `qs` specifies a sequence of quantiles at which to fix the second predictor.
 ```{r pred-resp2 opt2, message=FALSE}
-pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, 
-                                                       both_pairs = FALSE, Z = Z, qs = c(0.25, 0.5, 0.75))
+pred.resp.bivar.levels <- PredictorResponseBivarLevels(
+  pred.resp.df = pred.resp.bivar, 
+                                                       
+  both_pairs = FALSE, Z = Z, qs = c(0.25, 0.5, 0.75))
 ```
 
 ```{r plot pred-resp2 opt2, fig.height=5, fig.width=6.5, warning=FALSE}
@@ -196,13 +197,14 @@ In addition to visually inspecting the estimated predictor-response function $h$
 One potential summary measure of interest is to compute the overall effect of the predictors, by comparing the value of $h$ when all of predictors are at a particular percentile as compared to when all of them are at their 50th percentile. The function `OverallRiskSummaries` allows one to specify a sequence of values of quantiles using the argument `qs` and the fixed quantile (the default is the 50th percentile) using the argument `q.fixed`.
 
 ```{r overall} 
-risks.overall.approx <- OverallRiskSummaries(fit = fitkm, y = y, Z = Z, X = X, 
-                                             qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5)
-risks.overall.approx
+risks.overall <- OverallRiskSummaries(fit = fitkm, y = y, Z = Z, X = X, 
+                                      qs = seq(0.25, 0.75, by = 0.05), 
+                                      q.fixed = 0.5, method = "exact")
+risks.overall
 ```
 We can also plot the overall risk summaries; here we use the `ggplot` package.
 ```{r plot overall}
-ggplot(risks.overall.approx, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
+ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + 
     geom_pointrange()
 ```
 
@@ -210,14 +212,17 @@ Another summary of $h$ that may be of interest would be to summarize the contrib
 
 ```{r single var}
 risks.singvar <- SingVarRiskSummaries(fit = fitkm, y = y, Z = Z, X = X, 
-                                      qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75))
+                                      qs.diff = c(0.25, 0.75), 
+                                      q.fixed = c(0.25, 0.50, 0.75),
+                                      method = "exact")
 risks.singvar
 ```
 Here we see, for example, that a change in the predictor $z_1$ from its 75th to its 25th percentile, where the predictors $z_2$, $z_3$, and $z_4$ are fixed at their 75th percentile (and for the covariates $x$ fixed), is given by `r round(drop(subset(risks.singvar, variable == "z1" & q.fixed == 0.75, "est")), 2)`. It is easier to investigate trends in the estimates by plotting the results:
 ```{r plot single var}
-ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd, 
-                          col = q.fixed)) + 
-    geom_pointrange(position = position_dodge(width = 0.75)) + coord_flip()
+ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd, 
+                          ymax = est + 1.96*sd, col = q.fixed)) + 
+    geom_pointrange(position = position_dodge(width = 0.75)) + 
+  coord_flip()
 ```
 
 We see that the predictors $z_3$ and $z_4$ do not contribute to the risk, and that higher values of $z_1$ and $z_2$ are associated with higher values of the $h$ function. In addition, the plot suggests that for $z_1$, as the remaining predictors increase in value from their 25th to their 75th percentile, the risk of the outcome associated with $z_1$ increases. A similar pattern occurs for $z_2$. This indicates the potential for interaction of $z_1$ and $z_2$.
@@ -226,7 +231,9 @@ To make this notion a bit more formal, we may wish to compute specific 'interact
 
 ```{r int}
 risks.int <- SingVarIntSummaries(fit = fitkm, y = y, Z = Z, X = X, 
-                                 qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75))
+                                 qs.diff = c(0.25, 0.75), 
+                                 qs.fixed = c(0.25, 0.75),
+                                 method = "exact")
 risks.int
 ```
 We see that single pollutant risk associated with a change in $z_1$ from its 25th to 75th percentile increases by `r round(drop(subset(risks.int, variable == "z1", "est")), 2)` when $z_2$ to $z_4$ are fixed at their 25th percentile, as compared to when $z_2$ to $z_4$ are fixed at their 75th percentile.
