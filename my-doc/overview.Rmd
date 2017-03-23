@@ -112,7 +112,7 @@ The `bkmr` package provides three post-processing functions for estimating $h({\
 - Approach 3: generates posterior samples of $h({\bf z})$ by sampling $h \sim N(\mu_h(\theta), V_h(\theta))$, given particular samples of $\theta$ from the fitted BKMR model.
     + This approach is the slowest, but allows for estimating the full posterior distribution of $h({\bf z})$ rather than just the posterior mean and variance.
   
-Approaches 2 and 3 are exact methods in the sense that they will provide unbiased estimates of the posterior summaries if the BKMR model is correctly specified and if the model has converged. To illustrate the three different approaches, here we estimate $h$ at the median value of the exposures:
+Approaches 2 and 3 are *exact* methods in the sense that they will provide unbiased estimates of the posterior summaries if the BKMR model is correctly specified and if the model has converged. To illustrate the three different approaches, here we estimate $h$ at the median value of the exposures:
 
 ```{r predvals}
 med_vals <- apply(Z, 2, median)
@@ -180,7 +180,7 @@ Because it can be hard to see what's going on in these types of image plots, an 
 pred.resp.bivar.levels <- PredictorResponseBivarLevels(
   pred.resp.df = pred.resp.bivar, 
                                                        
-  both_pairs = FALSE, Z = Z, qs = c(0.25, 0.5, 0.75))
+  Z = Z, qs = c(0.1, 0.5, 0.9))
 ```
 
 ```{r plot pred-resp2 opt2, fig.height=5, fig.width=6.5, warning=FALSE}
