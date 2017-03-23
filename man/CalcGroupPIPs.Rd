@@ -14,4 +14,3 @@ CalcGroupPIPs(fit, sel = NULL)
 \description{
 Calculate posterior inclusion probabilities for each group of variables
 }
-

@@ -27,4 +27,6 @@ TracePlot(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration",
 \description{
 Trace plot
 }
-
+\details{
+For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}

@@ -21,4 +21,6 @@ PredictorResponseBivarLevels(pred.resp.df, Z = NULL, qs = c(0.25, 0.5,
 \description{
 Function to plot the \code{h} function of a particular variable at different levels (quantiles) of a second variable
 }
-
+\details{
+For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}

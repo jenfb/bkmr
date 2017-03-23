@@ -8,6 +8,8 @@ ComputePostmeanHnew(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL,
   sel = NULL, method = "approx")
 }
 \arguments{
+\item{fit}{An object containing the results returned by a the \code{kmbayes} function}
+
 \item{y}{a vector of outcome data of length \code{n}.}
 
 \item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
@@ -28,5 +30,5 @@ Compute the posterior mean and variance of \code{h} at a new predictor values
   \item If \code{method == "approx"} then calls the function \code{\link{ComputePostmeanHnew.approx}}. In this case, the argument \code{sel} defaults to the second half of the MCMC iterations.
   \item If \code{method == "exact"} then calls the function \code{\link{ComputePostmeanHnew.exact}}. In this case, the argument \code{sel} defaults to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
 }
+For guided examples and additional information, go to \url{https://jenfb.github.io/bkmr/overview.html}
 }
-

@@ -17,4 +17,3 @@ set_verbose_opts(verbose_freq = NULL, verbose_show_ests = NULL,
 \description{
 Set options for what will be printed to the console when verbose = TRUE in the main kmbayes function
 }
-

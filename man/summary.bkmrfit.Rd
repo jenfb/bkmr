@@ -23,4 +23,3 @@
 \description{
 \code{summary} method for class "bkmrfit"
 }
-

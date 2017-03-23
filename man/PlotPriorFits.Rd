@@ -29,4 +29,3 @@ PlotPriorFits(y, X, Z, fits, which.z = NULL, which.q = NULL,
 \description{
 Plot the estimated \code{h(z[m])} estimated from frequentist KMR for \code{r[m]} fixed to specific values
 }
-

@@ -34,4 +34,10 @@ SingVarRiskSummaries(fit, y = NULL, Z = NULL, X = NULL,
 \description{
 Compute summaries of the risks associated with a change in a single variable in \code{Z} from a single level (quantile) to a second level (quantile), for the other variables in \code{Z} fixed to a specific level (quantile)
 }
-
+\details{
+\itemize{
+  \item If \code{method == "approx"} then calls the function \code{\link{ComputePostmeanHnew.approx}}. In this case, the argument \code{sel} defaults to the second half of the MCMC iterations.
+  \item If \code{method == "exact"} then calls the function \code{\link{ComputePostmeanHnew.exact}}. In this case, the argument \code{sel} defaults to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
+}
+For guided examples and additional information, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}

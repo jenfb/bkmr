@@ -16,11 +16,10 @@ ComputePostmeanHnew.exact(fit, y = NULL, Z = NULL, X = NULL,
 
 \item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
-\item{Znew}{optional matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. This will slow down the model fitting.}
+\item{Znew}{optional matrix of new predictor values at which to predict \code{h}, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using \code{\link{SamplePred}}}
 
 \item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept}
 }
 \description{
 Function to estimate the posterior mean and variance by obtaining the posterior mean and variance at particular iterations and then using the iterated mean and variance formulas
 }
-

@@ -16,4 +16,3 @@
 \description{
 \code{print} method for class "bkmrfit"
 }
-

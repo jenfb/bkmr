@@ -29,4 +29,6 @@ SamplePred(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL,
 \description{
 Obtains posterior samples of \code{E(Y) = h(Znew) + beta*Xnew} or of \code{g^{-1}[E(y)]}
 }
-
+\details{
+For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}

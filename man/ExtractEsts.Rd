@@ -16,4 +16,3 @@ ExtractEsts(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL)
 \description{
 Obtain summary statistics of each parameter from the BKMR fit
 }
-

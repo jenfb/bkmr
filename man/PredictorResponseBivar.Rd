@@ -41,4 +41,6 @@ PredictorResponseBivar(fit, y = NULL, Z = NULL, X = NULL,
 \description{
 Predict the exposure-response function at a new grid of points
 }
-
+\details{
+For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}

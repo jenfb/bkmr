@@ -14,4 +14,3 @@ ExtractSamps(fit, sel = NULL)
 \description{
 Extract samples of each parameter from the BKMR fit
 }
-

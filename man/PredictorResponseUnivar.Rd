@@ -39,4 +39,6 @@ PredictorResponseUnivar(fit, y = NULL, Z = NULL, X = NULL,
 \description{
 Plot univariate predictor-response function on a new grid of points
 }
-
+\details{
+For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}

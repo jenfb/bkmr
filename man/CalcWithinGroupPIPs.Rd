@@ -14,4 +14,3 @@ CalcWithinGroupPIPs(fit, sel = NULL)
 \description{
 For those predictors within a multi-preditor group, as defined using the \code{groups} argument, the posterior inclusion probabilities for the predictor conditional on the group being selected into the model.
 }
-

@@ -23,4 +23,3 @@ ComputePostmeanHnew.approx(fit, y = NULL, Z = NULL, X = NULL,
 \description{
 Function to approximate the posterior mean and variance as a function of the estimated model parameters (e.g., tau, lambda, beta, and sigsq.eps)
 }
-

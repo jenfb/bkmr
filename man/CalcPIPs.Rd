@@ -14,4 +14,3 @@ CalcPIPs(fit, sel = NULL)
 \description{
 Calculate variable-specific posterior inclusion probabilities from BKMR model fit
 }
-

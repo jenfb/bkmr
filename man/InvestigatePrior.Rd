@@ -27,4 +27,6 @@ InvestigatePrior(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16),
 \description{
 Investigate the impact of the \code{r[m]} parameters on the smoothness of the exposure-response function \code{h(z[m])}.
 }
-
+\details{
+For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
