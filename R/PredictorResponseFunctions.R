@@ -1,4 +1,4 @@
-PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
+PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
 
     if (ncol(Z) < 2) stop("requires there to be at least 2 predictor variables")
 
@@ -25,15 +25,12 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, preds.method = 
         }
     }
 
-    if(preds.method == "approx") {
-        preds <- ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = newz.grid, sel = sel)
-        preds.plot <- preds$postmean
-        se.plot <- sqrt(diag(preds$postvar))
-    } else if(preds.method == "samp") {
-        stop("not yet implemented")
-#         preds <- SampleHnew(Znew = newz.grid, fit = fit, Z = Z, X = X, y = y, ...)
-#         preds.plot <- colMeans(preds, na.rm = TRUE)
-#         se.plot <- apply(preds, 2, sd, na.rm = TRUE)
+    if (method %in% c("approx", "exact")) {
+      preds <- ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = newz.grid, sel = sel, method = method)
+      preds.plot <- preds$postmean
+      se.plot <- sqrt(diag(preds$postvar))
+    } else {
+      stop("method must be one of c('approx', 'exact')")
     }
     if(center) preds.plot <- preds.plot - mean(preds.plot)
     if(!is.null(min.plot.dist)) {
@@ -58,7 +55,7 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, preds.method = 
 #' @param center flag for whether to scale the exposure-response function to have mean zero
 #'
 #' @export
-PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
+PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
   
   if (inherits(fit, "bkmrfit")) {
     y <- fit$y
@@ -72,7 +69,7 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
   
   df <- dplyr::data_frame()
   for(i in which.z) {
-    res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
+    res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, method = method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
     df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
       dplyr::select_(~variable, ~z, ~est, ~se)
     df <- dplyr::bind_rows(df, df0)
@@ -83,7 +80,7 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
 
 
 
-PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3 = NULL, preds.method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
+PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3 = NULL, method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
     if(ncol(Z) < 3) stop("requires there to be at least 3 Z variables")
 
     if(is.null(colnames(Z))) colnames(Z) <- paste0("z", 1:ncol(Z))
@@ -116,15 +113,12 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
         }
     }
 
-    if(preds.method == "approx") {
-        preds <- ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = newz.grid, sel = sel)
-        preds.plot <- preds$postmean
-        se.plot <- sqrt(diag(preds$postvar))
-    } else if(preds.method == "samp") {
-        stop("not yet implemented")
-#         preds <- SampleHnew(Znew = newz.grid, fit = fit, Z = Z, X = X, y = y, ...)
-#         preds.plot <- colMeans(preds)
-#         se.plot <- apply(preds, 2, sd)
+    if (method %in% c("approx", "exact")) {
+      preds <- ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = newz.grid, sel = sel, method = method)
+      preds.plot <- preds$postmean
+      se.plot <- sqrt(diag(preds$postvar))
+    } else {
+      stop("method must be one of c('approx', 'exact')")
     }
     if(center) preds.plot <- preds.plot - mean(preds.plot)
     if(!is.null(min.plot.dist)) {
@@ -149,7 +143,7 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
 #' @param ngrid number of grid points in each dimension
 #' @param verbose TRUE or FALSE: flag of whether to print intermediate output to the screen
 #' @export
-PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = NULL, preds.method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
+PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = NULL, method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
   
   if (inherits(fit, "bkmrfit")) {
     if (is.null(y)) y <- fit$y
@@ -188,7 +182,7 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
     }
     if(compute) {
       if(verbose) message("Pair ", i, " out of ", nrow(z.pairs))
-      res <- PredictorResponseBivarPair(fit = fit, y = y, Z = Z, X = X, whichz1 = whichz1, whichz2 = whichz2, preds.method = preds.method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
+      res <- PredictorResponseBivarPair(fit = fit, y = y, Z = Z, X = X, whichz1 = whichz1, whichz2 = whichz2, method = method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
       df0 <- res
       df0$variable1 <- z.name1
       df0$variable2 <- z.name2

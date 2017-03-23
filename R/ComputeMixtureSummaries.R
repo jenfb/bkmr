@@ -33,14 +33,14 @@ interactionSummary.samp <- function(newz.q1, newz.q2, preds.fun, ...) {
 
 #' Calculate overall risk summaries
 #' 
-#' Compare estimated \code{h} function when all predictors are at a particular quantile to when all are at a second fixed percentile
+#' Compare estimated \code{h} function when all predictors are at a particular quantile to when all are at a second fixed quantile
 #' @inheritParams kmbayes
-#' @inheritParams ExtractEsts
+#' @inheritParams ComputePostmeanHnew
 #' @param qs vector of quantiles at which to calculate the overall risk summary 
 #' @param q.fixed a second quantile at which to compare the estimated \code{h} function
-#' @param preds.method method for obtaining posterior summaries at a vector of new point. Currently only implemented for \code{preds.method = "approx"}
+#' @details see \code{\link{ComputePostmeanHnew}} for details.
 #' @export
-OverallRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, preds.method = "approx", sel = NULL) {
+OverallRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx", sel = NULL) {
   
   if (inherits(fit, "bkmrfit")) {
     if (is.null(y)) y <- fit$y
@@ -49,20 +49,18 @@ OverallRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.2
   }
   
   point1 <- apply(Z, 2, quantile, q.fixed)
-  if(preds.method == "approx") {
-    preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = znew, sel = sel)
+  if (method %in% c("approx", "exact")) {
+    preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = znew, sel = sel, method = method)
     riskSummary <- riskSummary.approx
-  } else if(preds.method == "samp") {
-    stop("not yet implemented")
-    #         preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, Z = Z, X = X, y = y, ...)
-    #         riskSummary <- riskSummary.samp
+  } else {
+    stop("method must be one of c('approx', 'exact')")
   }
   risks.overall <- t(sapply(qs, function(quant) riskSummary(point1 = point1, point2 = apply(Z, 2, quantile, quant), preds.fun = preds.fun)))
   risks.overall <- data.frame(quantile = qs, risks.overall)
 }
 
 #Compare estimated \code{h} function when a single variable (or a set of variables) is at the 75th versus 25th percentile, when all of the other variables are fixed at a particular percentile
-VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.diff = c(0.25, 0.75), q.fixed = 0.5, preds.method = "approx", sel = NULL, ...) {
+VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.diff = c(0.25, 0.75), q.fixed = 0.5, method = "approx", sel = NULL, ...) {
   
   if (inherits(fit, "bkmrfit")) {
     if (is.null(y)) y <- fit$y
@@ -75,13 +73,11 @@ VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.dif
   point1[whichz] <- apply(Z[, whichz, drop = FALSE], 2, quantile, qs.diff[1])
   # point1 <- makePoint(whichz, Z, qs.diff[1], q.fixed)
   # point2 <- makePoint(whichz, Z, qs.diff[2], q.fixed)
-  if(preds.method == "approx") {
-    preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = znew, sel = sel)
+  if (method %in% c("approx", "exact")) {
+    preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = znew, sel = sel, method = method)
     riskSummary <- riskSummary.approx
-  } else if(preds.method == "samp") {
-    stop("not yet implemented")
-    #         preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, Z = Z, X = X, y = y, ...)
-    #         riskSummary <- riskSummary.samp
+  }  else {
+    stop("method must be one of c('approx', 'exact')")
   }
   riskSummary(point1 = point1, point2 = point2, preds.fun = preds.fun, ...)
 }
@@ -99,7 +95,7 @@ VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.dif
 #' @param ... other argumentd to pass on to the prediction function
 #' @param which.z vector indicating which variables (columns of \code{Z}) for which the summary should be computed
 #' @export
-SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), preds.method = "approx", sel = NULL, z.names = colnames(Z), ...) {
+SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), method = "approx", sel = NULL, z.names = colnames(Z), ...) {
   
   if (inherits(fit, "bkmrfit")) {
     if (is.null(y)) y <- fit$y
@@ -112,7 +108,7 @@ SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:
   df <- dplyr::data_frame()
   for(i in seq_along(q.fixed)) {
     for(j in seq_along(which.z)) {
-      risk <- VarRiskSummary(whichz = which.z[j], fit = fit, y = y, Z = Z, X = X, qs.diff = qs.diff, q.fixed = q.fixed[i], preds.method = preds.method, sel = sel, ...)
+      risk <- VarRiskSummary(whichz = which.z[j], fit = fit, y = y, Z = Z, X = X, qs.diff = qs.diff, q.fixed = q.fixed[i], method = method, sel = sel, ...)
       df0 <- dplyr::data_frame(q.fixed = q.fixed[i], variable = z.names[j], est = risk["est"], sd = risk["sd"])
       df <- dplyr::bind_rows(df, df0)
     }
@@ -122,7 +118,7 @@ SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:
   df
 }
 
-SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL, ...) {
+SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), method = "approx", sel = NULL, ...) {
   
   if (inherits(fit, "bkmrfit")) {
     if (is.null(y)) y <- fit$y
@@ -142,13 +138,11 @@ SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.
   point1[whichz] <- quantile(Z[, whichz], qs.diff[1])
   newz.q2 <- rbind(point1, point2)
   
-  if(preds.method == "approx") {
-    preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = znew, sel = sel)
+  if (method %in% c("approx", "exact")) {
+    preds.fun <- function(znew) ComputePostmeanHnew(fit = fit, y = y, Z = Z, X = X, Znew = znew, sel = sel, method = method)
     interactionSummary <- interactionSummary.approx
-  } else if(preds.method == "samp") {
-    stop("not yet implemented")
-    #         preds.fun <- function(znew, ...) SampleHnew(Znew = znew, fit = fit, Z = Z, X = X, y = y, ...)
-    #         interactionSummary <- interactionSummary.samp
+  } else {
+    stop("method must be one of c('approx', 'exact')")
   }
   interactionSummary(newz.q1, newz.q2, preds.fun, ...)
 }
@@ -162,7 +156,7 @@ SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.
 #' @param qs.diff vector indicating the two quantiles at which to compute the single-predictor risk summary
 #' @param qs.fixed vector indicating the two quantiles at which to fix all of the remaining exposures in \code{Z}
 #' @export
-SingVarIntSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), preds.method = "approx", sel = NULL, z.names = colnames(Z), ...) {
+SingVarIntSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), method = "approx", sel = NULL, z.names = colnames(Z), ...) {
   
   if (inherits(fit, "bkmrfit")) {
     if (is.null(y)) y <- fit$y
@@ -173,7 +167,7 @@ SingVarIntSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:n
   if(is.null(z.names)) z.names <- paste0("z", 1:ncol(Z))
   
   ints <- sapply(which.z, function(whichz)
-    SingVarIntSummary(whichz = whichz, fit = fit, Z = Z, X = X, y = y, qs.diff = qs.diff, qs.fixed = qs.fixed, preds.method, sel = sel, ...)
+    SingVarIntSummary(whichz = whichz, fit = fit, Z = Z, X = X, y = y, qs.diff = qs.diff, qs.fixed = qs.fixed, method, sel = sel, ...)
   )
   
   df <- dplyr::data_frame(variable = factor(z.names[which.z], levels = z.names), est = ints["est", ], sd = ints["sd", ])
