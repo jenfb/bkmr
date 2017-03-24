@@ -3,5 +3,4 @@
 ^cran-comments\.md$
 ^my-doc$
 ^data-raw$
-^README\.md$
 ^.*\.DS_Store
