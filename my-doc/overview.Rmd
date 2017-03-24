@@ -37,8 +37,8 @@ This package includes functions for conducting Bayesian inference for the model 
 
 First, load the R package.
 ```{r load package 0, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, results='hide'}
-##suppressMessages(library(bkmr))
-suppressMessages(devtools::document())
+suppressMessages(library(bkmr))
+##suppressMessages(devtools::document())
 ##devtools::load_all()
 ```
 ```{r load package 1, eval=FALSE, message=FALSE, warning=FALSE}
