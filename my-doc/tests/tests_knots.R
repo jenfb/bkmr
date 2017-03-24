@@ -31,6 +31,23 @@ with(fit_full, difftime(time2, time1))
 fit_knots <- kmbayes(y = y, Z = Z, X = X, iter = 300, varsel = TRUE, family = family, verbose = FALSE, knots = knots)
 with(fit_knots, difftime(time2, time1))
 
+pred.resp.univar <- PredictorResponseUnivar(fit = fit_full)
+s1 <- system.time(pred.resp.univar <- pred.resp.univar.full <- PredictorResponseUnivar(fit = fit_full, method = "exact"))
+s1
+ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+  geom_smooth(stat = "identity") + 
+  facet_wrap(~ variable) +
+  ylab("h(z)")
+
+pred.resp.univar <- PredictorResponseUnivar(fit = fit_knots)
+s2 <- system.time(pred.resp.univar <- pred.resp.univar.knots <- PredictorResponseUnivar(fit = fit_knots, method = "exact"))
+s2
+ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + 
+  geom_smooth(stat = "identity") + 
+  facet_wrap(~ variable) +
+  ylab("h(z)")
+
+
 ## with with a larger number of iterations
 fit0 <- kmbayes(y = y, Z = Z, X = X, iter = 5000, varsel = TRUE, family = family, knots = knots, control.params = list(verbose_show_ests = TRUE))
 

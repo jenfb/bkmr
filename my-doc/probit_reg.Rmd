@@ -40,7 +40,7 @@ suppressMessages(devtools::document())
 ##devtools::load_all()
 ```
 ```{r load package 1, eval=FALSE, message=FALSE, warning=FALSE}
-devtools::install_github("jenfb/bkmr")
+library("bkmr")
 ```
 
 ### Generate data
@@ -102,7 +102,7 @@ We may wish to interpret the estimated $h$ function directly. We note that $h$ q
 Let's investigate the estimated exposure-response function $h$. Here we plot the univariate relationship h($z_m$), where all of the other exposures are fixed to their median values.
 
 ```{r pred-resp}
-pred.resp.univar <- PredictorResponseUnivar(fit = fitpr)
+pred.resp.univar <- PredictorResponseUnivar(fit = fitpr, method = "exact")
 ```
 We use the `ggplot2` package to plot the resulting cross section of $h$.
 ```{r plot pred-resp, fig.height=4, fig.width=6}
@@ -128,7 +128,7 @@ hpred_oracle <- predict(oracle, newdata = data.frame(z1 = z1_grid, x = 0), se.fi
 ## predictions under BKMR
 Znew <- cbind(z1 = z1_grid, z2 = median(datp$Z[, 2]), 
               z3 = median(datp$Z[, 3]), z4 = median(datp$Z[, 4]))
-hpred_bkmr <- ComputePostmeanHnew(fit = fitpr, Znew = Znew)
+hpred_bkmr <- ComputePostmeanHnew(fit = fitpr, Znew = Znew, method = "exact")
 
 ## predictions under the model with linear terms
 hpred_lin <- predict(lin, newdata = list(Z = Znew, x = rep(0, nrow(Znew))), se.fit = TRUE)
