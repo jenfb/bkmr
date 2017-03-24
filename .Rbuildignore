@@ -4,5 +4,4 @@
 ^my-doc$
 ^data-raw$
 ^README\.md$
-^NEWS\.md$
 ^.*\.DS_Store
