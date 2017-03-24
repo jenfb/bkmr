@@ -144,10 +144,12 @@ ComputePostmeanHnew.exact <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = 
     
     Kpart <- makeKpart(r, Z)
     K <- exp(-Kpart)
+    Vcomps <- makeVcomps(r = r, lambda = lambda, Z = Z, data.comps = data.comps)
+    Vinv <- Vcomps$Vinv
     # if (is.null(fit$Vinv)) {
-    V <- diag(1, nrow(Z), nrow(Z)) + lambda[1]*K
-    cholV <- chol(V)
-    Vinv <- chol2inv(cholV)
+    # V <- diag(1, nrow(Z), nrow(Z)) + lambda[1]*K
+    # cholV <- chol(V)
+    # Vinv <- chol2inv(cholV)
     # } else {
     #   Vinv <- fit$Vinv[[i]]
     # }
