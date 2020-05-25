@@ -90,9 +90,9 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   ##Argument check 1, required arguments without defaults
   ##check vector/matrix sizes
   stopifnot (length(y) > 0, is.numeric(y), anyNA(y) == FALSE)
-  if (inherits(class(Z), "matrix") == FALSE)  Z <- as.matrix(Z)
+  if (!inherits(Z, "matrix"))  Z <- as.matrix(Z)
   stopifnot (is.numeric(Z), nrow(Z) == length(y), anyNA(Z) == FALSE)
-  if (inherits(class(X), "matrix") == FALSE)  X <- as.matrix(X)
+  if (!inherits(X, "matrix"))  X <- as.matrix(X)
   stopifnot (is.numeric(X), nrow(X) == length(y), anyNA(X) == FALSE) 
   
   ##Argument check 2: for those with defaults, write message and reset to default if invalid
@@ -133,11 +133,11 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     }
   }
   if (!is.null(Znew)) { 
-    if (class(Znew) != "matrix")  Znew <- as.matrix(Znew)
+    if (!inherits(Znew, "matrix"))  Znew <- as.matrix(Znew)
     stopifnot(is.numeric(Znew), ncol(Znew) == ncol(Z), anyNA(Znew) == FALSE)
   }
   if (!is.null(knots)) { 
-    if (class(knots) != "matrix")  knots <- as.matrix(knots)
+    if (!inherits(knots, "matrix"))  knots <- as.matrix(knots)
     stopifnot(is.numeric(knots), ncol(knots )== ncol(Z), anyNA(knots) == FALSE)
   }
   if (!is.null(groups)) { 
@@ -201,7 +201,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   ## components to predict h(Znew)
   if (!is.null(Znew)) {
     if (is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
-    if (class(Znew) == "data.frame") Znew <- data.matrix(Znew)
+    if (inherits(Znew, "data.frame")) Znew <- data.matrix(Znew)
     if (ncol(Z) != ncol(Znew)) {
       stop("Znew must have the same number of columns as Z")
     }
