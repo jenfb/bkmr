@@ -38,7 +38,7 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, method = "appro
         se.plot[mindists > min.plot.dist] <- NA
     }
 
-    res <- dplyr::data_frame(z = z1, est = preds.plot, se = se.plot)
+    res <- dplyr::tibble(z = z1, est = preds.plot, se = se.plot)
 }
 
 #' Plot univariate predictor-response function on a new grid of points
@@ -68,7 +68,7 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
     z.names <- paste0("z", 1:ncol(Z))
   }
   
-  df <- dplyr::data_frame()
+  df <- dplyr::tibble()
   for(i in which.z) {
     res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, method = method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
     df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
@@ -129,7 +129,7 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
 #     hgrid <- matrix(preds.plot, ngrid, ngrid, dimnames=list(z1=round(z1,2), z2=round(z2,2)))
 #     se.grid <- matrix(se.plot, ngrid, ngrid, dimnames=list(z1=round(z1,2), z2=round(z2,2)))
 
-    res <- dplyr::data_frame(z1 = z1save, z2 = z2save, est = preds.plot, se = se.plot)
+    res <- dplyr::tibble(z1 = z1save, z2 = z2save, est = preds.plot, se = se.plot)
 }
 
 #' Predict the exposure-response function at a new grid of points
@@ -165,7 +165,7 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
     z.pairs <- z.pairs[z.pairs$z1 < z.pairs$z2, ]
   }
   
-  df <- dplyr::data_frame()
+  df <- dplyr::tibble()
   for(i in 1:nrow(z.pairs)) {
     compute <- TRUE
     whichz1 <- z.pairs[i, 1] %>% unlist %>% unname
@@ -212,7 +212,7 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE, z.names = NULL) {
   var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
   if (both_pairs) {
-    var.pairs.rev <- dplyr::data_frame(
+    var.pairs.rev <- dplyr::tibble(
       variable1 = var.pairs$variable2,
       
       variable2 = var.pairs$variable1
@@ -235,7 +235,7 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.
     preds <- pred.resp.df[pred.resp.df$variable1 == var1 & pred.resp.df$variable2 == var2, ]
     if (nrow(preds) == 0) {
       preds <- pred.resp.df[pred.resp.df$variable1 == var2 & pred.resp.df$variable2 == var1, ]
-      preds.rev <- dplyr::data_frame(
+      preds.rev <- dplyr::tibble(
         variable1 = preds$variable2,
         variable2 = preds$variable1,
         z1 = preds$z2,

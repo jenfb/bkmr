@@ -97,8 +97,8 @@ ExtractPIPs <- function(fit, sel = NULL, z.names = NULL) {
       df$group <- groups
       grps <- unique(groups)
       groupincl.probs <- sapply(grps, function(x) mean(rowSums(fit$delta[sel, groups == x, drop = FALSE]) > 0))
-      df.group <- dplyr::data_frame(group = grps,
-                                    groupPIP = groupincl.probs)
+      df.group <- dplyr::tibble(group = grps,
+                                groupPIP = groupincl.probs)
       df <- dplyr::inner_join(df, df.group, by = "group")
       
       ## within-group conditional PIP

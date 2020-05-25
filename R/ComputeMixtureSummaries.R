@@ -106,11 +106,11 @@ SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:
   
   if(is.null(z.names)) z.names <- paste0("z", 1:ncol(Z))
   
-  df <- dplyr::data_frame()
+  df <- dplyr::tibble()
   for(i in seq_along(q.fixed)) {
     for(j in seq_along(which.z)) {
       risk <- VarRiskSummary(whichz = which.z[j], fit = fit, y = y, Z = Z, X = X, qs.diff = qs.diff, q.fixed = q.fixed[i], method = method, sel = sel, ...)
-      df0 <- dplyr::data_frame(q.fixed = q.fixed[i], variable = z.names[j], est = risk["est"], sd = risk["sd"])
+      df0 <- dplyr::tibble(q.fixed = q.fixed[i], variable = z.names[j], est = risk["est"], sd = risk["sd"])
       df <- dplyr::bind_rows(df, df0)
     }
   }
@@ -172,7 +172,7 @@ SingVarIntSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:n
     SingVarIntSummary(whichz = whichz, fit = fit, Z = Z, X = X, y = y, qs.diff = qs.diff, qs.fixed = qs.fixed, method, sel = sel, ...)
   )
   
-  df <- dplyr::data_frame(variable = factor(z.names[which.z], levels = z.names), est = ints["est", ], sd = ints["sd", ])
+  df <- dplyr::tibble(variable = factor(z.names[which.z], levels = z.names), est = ints["est", ], sd = ints["sd", ])
 }
 
 
