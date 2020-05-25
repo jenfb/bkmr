@@ -22,14 +22,14 @@ SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NU
 
   if (!is.null(Znew)) {
     if (is.null(dim(Znew))) Znew <- matrix(Znew, nrow = 1)
-    if (class(Znew) == "data.frame") Znew <- data.matrix(Znew)
+    if (inherits(Znew, "data.frame")) Znew <- data.matrix(Znew)
     if (ncol(Z) != ncol(Znew)) {
       stop("Znew must have the same number of columns as Z")
     }
   }
 
   if (is.null(Xnew)) Xnew <- X
-  if (class(Xnew) != "matrix") Xnew <- matrix(Xnew, nrow = 1)
+  if (!inherits(Xnew, "matrix")) Xnew <- matrix(Xnew, nrow = 1)
   if (ncol(X) != ncol(Xnew)) {
     stop("Xnew must have the same number of columns as X")
   }

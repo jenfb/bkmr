@@ -38,7 +38,7 @@ ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew =
   
   if (!is.null(Znew)) {
     if(is.null(dim(Znew))) Znew <- matrix(Znew, nrow=1)
-    if(class(Znew) == "data.frame") Znew <- data.matrix(Znew)
+    if(inherits(Znew, "data.frame")) Znew <- data.matrix(Znew)
   }
   if(is.null(dim(X))) X <- matrix(X, ncol=1)
   
@@ -103,7 +103,7 @@ ComputePostmeanHnew.exact <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = 
   
   if (!is.null(Znew)) {
     if (is.null(dim(Znew))) Znew <- matrix(Znew, nrow = 1)
-    if (class(Znew) == "data.frame") Znew <- data.matrix(Znew)
+    if (inherits(Znew, "data.frame")) Znew <- data.matrix(Znew)
     if (ncol(Z) != ncol(Znew)) {
       stop("Znew must have the same number of columns as Z")
     }
