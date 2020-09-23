@@ -12,7 +12,7 @@
 ##r.a, r.b                / default=0, 100
 
 # 
-validateStartingValues <- function(varsel, y, X, Z, starting.values) {
+validateStartingValues <- function(varsel, y, X, Z, starting.values, rmethod) {
   Ylength <- length(y)
   Xwidth <- ncol(X)
   Zwidth <- ncol(Z) 
@@ -42,17 +42,21 @@ validateStartingValues <- function(varsel, y, X, Z, starting.values) {
     if (length(starting.values$r) != Zwidth) {
       message("r should be a vector of length equal to the number of columns of Z.  Input will be repeated or truncated as necessary.")
     }
+    stopifnot(starting.values$r >= 0) ## note: still need to add check that delta starting values and r starting values do not conflict (e.g., delta = 1 but r_m = 0)
   }
   else {
-    if (length(starting.values$r) > 1) {
+    if (rmethod == "equal" & length(starting.values$r) > 1) {
       message("r should a scalar.  Vector input will be truncated.")
       starting.values$r=starting.values$r[1]
+    } else if (length(starting.values$r) != Zwidth) {
+      message("r should be a vector of length equal to the number of columns of Z.  Input will be repeated or truncated as necessary.")
     }
+    stopifnot(starting.values$r > 0)
   }
 
-  for (i in 1:length(starting.values$r)) {
-    stopifnot(starting.values$r > 0) 
-  }
+  # for (i in 1:length(starting.values$r)) {
+  #   stopifnot(starting.values$r > 0) 
+  # }
 }
   
     

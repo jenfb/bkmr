@@ -265,7 +265,7 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     starting.values <- starting.values0
   } else {
     starting.values <- modifyList(starting.values0, starting.values)
-    validateStartingValues (varsel, y, X, Z, starting.values)
+    validateStartingValues(varsel, y, X, Z, starting.values, rmethod)
   }
   if (family == "gaussian") {
     if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
@@ -310,8 +310,8 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   if (length(starting.values$delta) > ncol(Z)) {
     starting.values$delta <- starting.values$delta[1:ncol(Z)]
   }
-  if (varsel==FALSE & length(starting.values$r) > 1) {
-    starting.values$r <- starting.values$r[1]
+  if (varsel==FALSE & rmethod == "equal" & length(starting.values$r) > 1) {
+    starting.values$r <- starting.values$r[1] ## this should only happen if rmethod == "equal"
   } else if (length(starting.values$r) > ncol(Z)) {
     starting.values$r <- starting.values$r[1:ncol(Z)]
   }

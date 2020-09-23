@@ -1,5 +1,13 @@
 # bkmr 0.2.0.9000
 
+## Bug fixes
+
+* allowable values for starting parameter for `r[m]` parameters updated as follows
+
+  * no longer truncated to a single value (when `varsel = FALSE` and `rmethod = "varying"`)
+
+  * can be equal to 0 (when `varsel = TRUE`)
+
 # bkmr 0.2.0
 
 ## Major changes
