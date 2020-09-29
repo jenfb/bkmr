@@ -8,6 +8,8 @@
 
   * can be equal to 0 (when `varsel = TRUE`)
 
+* Error no longer generated if starting values for h.hat are not positive 
+
 # bkmr 0.2.0
 
 ## Major changes

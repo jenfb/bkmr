@@ -27,9 +27,9 @@ validateStartingValues <- function(varsel, y, X, Z, starting.values, rmethod) {
   if (length(starting.values$h.hat) != Ylength) {
     message("h.hat should be a vector of length equal to number of rows in Y.  Input will be repeated or truncated as necessary.")
   }
-  for (i in 1:length(starting.values$h.hat)) {
-    stopifnot(starting.values$h.hat > 0) 
-  }
+  # for (i in 1:length(starting.values$h.hat)) {
+  #   stopifnot(starting.values$h.hat > 0) 
+  # }
   ##delta length, 0 or 1 are valid values
   if (length(starting.values$delta) != Zwidth) {
     message("delta should be a vector of length equal to the number of columns of Z.  Input will be repeated or truncated as necessary.")
