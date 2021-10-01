@@ -3,13 +3,13 @@
 # Kpart
 # }
 makeKpart <- function(r, Z1, Z2 = NULL) {
-  Z1r <- sweep(Z1, 2, sqrt(r), "*")
+  Z1r <- t(t(Z1) * c(sqrt(r)))
   if (is.null(Z2)) {
-    Z2r <- Z1r
+    Kpart <- fields::rdist(Z1r)^2
   } else {
-    Z2r <- sweep(Z2, 2, sqrt(r), "*")
+    Z2r <- t(t(Z2) * c(sqrt(r)))
+    Kpart <- fields::rdist(Z1r, Z2r)^2
   }
-  Kpart <- fields::rdist(Z1r, Z2r)^2
   Kpart
 }
 makeVcomps <- function(r, lambda, Z, data.comps) {
