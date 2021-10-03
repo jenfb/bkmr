@@ -396,7 +396,14 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     comp <- which(!1:ncol(Z) %in% ztest)
     if (length(comp) != 0) {
       if (rmethod == "equal") { ## common r for those variables not being selected
-        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,],
+                             lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
+                             sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
+                             data.comps = data.comps, control.params = control.params,
+                             rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
+                             rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
+                             rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
+                             rprop.logdens = rprop.logdens)
         rSim <- varcomps$r
         if (varcomps$acc) {
           Vcomps <- varcomps$Vcomps
@@ -404,7 +411,14 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
         }
       } else if (rmethod == "varying") { ## allow a different r_m
         for (whichr in comp) {
-          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,],
+                               lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
+                               sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
+                               data.comps = data.comps, control.params = control.params,
+                               rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
+                               rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
+                               rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
+                               rprop.logdens = rprop.logdens)
           rSim <- varcomps$r
           if (varcomps$acc) {
             Vcomps <- varcomps$Vcomps
@@ -415,7 +429,15 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     }
     ## for those variables being selected: joint posterior of (r,delta)
     if (varsel) {
-      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,],
+                                lambda = chain$lambda[s,], y = ycont, X = X,
+                                beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s],
+                                Vcomps = Vcomps, Z = Z, ztest = ztest,
+                                data.comps = data.comps, control.params = control.params,
+                                rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
+                                rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
+                                rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
+                                rprop.logdens = rprop.logdens)
       chain$delta[s,] <- varcomps$delta
       rSim <- varcomps$r
       chain$move.type[s] <- varcomps$move.type
