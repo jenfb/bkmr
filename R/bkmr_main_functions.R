@@ -343,6 +343,14 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   ## components
   Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
 
+  # set print progress options
+  opts <- set_verbose_opts(
+    verbose_freq = control.params$verbose_freq, 
+    verbose_digits = control.params$verbose_digits,
+    verbose_show_ests = control.params$verbose_show_ests,
+    tot_iter=nsamp
+  )
+  
   ## start sampling ####
   chain$time1 <- Sys.time()
   for (s in 2:nsamp) {
@@ -439,11 +447,6 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     
     ###################################################
     ## print details of the model fit so far
-    opts <- set_verbose_opts(
-      verbose_freq = control.params$verbose_freq, 
-      verbose_digits = control.params$verbose_digits,
-      verbose_show_ests = control.params$verbose_show_ests
-      )
     print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z, groups = groups)
    
   }
