@@ -4,8 +4,16 @@
 \alias{InvestigatePrior}
 \title{Investigate prior}
 \usage{
-InvestigatePrior(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16),
-  r.seq = NULL, Drange = NULL, verbose = FALSE)
+InvestigatePrior(
+  y,
+  Z,
+  X,
+  ngrid = 50,
+  q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16),
+  r.seq = NULL,
+  Drange = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}

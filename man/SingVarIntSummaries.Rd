@@ -4,9 +4,19 @@
 \alias{SingVarIntSummaries}
 \title{Single Variable Interaction Summaries}
 \usage{
-SingVarIntSummaries(fit, y = NULL, Z = NULL, X = NULL,
-  which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75),
-  method = "approx", sel = NULL, z.names = colnames(Z), ...)
+SingVarIntSummaries(
+  fit,
+  y = NULL,
+  Z = NULL,
+  X = NULL,
+  which.z = 1:ncol(Z),
+  qs.diff = c(0.25, 0.75),
+  qs.fixed = c(0.25, 0.75),
+  method = "approx",
+  sel = NULL,
+  z.names = colnames(Z),
+  ...
+)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}

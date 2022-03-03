@@ -4,8 +4,11 @@
 \alias{set_verbose_opts}
 \title{Options for printing summary of model fit to the console}
 \usage{
-set_verbose_opts(verbose_freq = NULL, verbose_show_ests = NULL,
-  verbose_digits = NULL)
+set_verbose_opts(
+  verbose_freq = NULL,
+  verbose_show_ests = NULL,
+  verbose_digits = NULL
+)
 }
 \arguments{
 \item{verbose_freq}{After this percentage of iterations has been completed the summary of the model fit so far will be printed to the console}

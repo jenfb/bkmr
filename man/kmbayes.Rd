@@ -4,10 +4,24 @@
 \alias{kmbayes}
 \title{Fit Bayesian kernel machine regression}
 \usage{
-kmbayes(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
-  verbose = TRUE, Znew = NULL, starting.values = NULL,
-  control.params = NULL, varsel = FALSE, groups = NULL, knots = NULL,
-  ztest = NULL, rmethod = "varying", est.h = FALSE)
+kmbayes(
+  y,
+  Z,
+  X = NULL,
+  iter = 1000,
+  family = "gaussian",
+  id = NULL,
+  verbose = TRUE,
+  Znew = NULL,
+  starting.values = NULL,
+  control.params = NULL,
+  varsel = FALSE,
+  groups = NULL,
+  knots = NULL,
+  ztest = NULL,
+  rmethod = "varying",
+  est.h = FALSE
+)
 }
 \arguments{
 \item{y}{a vector of outcome data of length \code{n}.}

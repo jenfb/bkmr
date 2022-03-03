@@ -4,8 +4,16 @@
 \alias{OverallRiskSummaries}
 \title{Calculate overall risk summaries}
 \usage{
-OverallRiskSummaries(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25,
-  0.75, by = 0.05), q.fixed = 0.5, method = "approx", sel = NULL)
+OverallRiskSummaries(
+  fit,
+  y = NULL,
+  Z = NULL,
+  X = NULL,
+  qs = seq(0.25, 0.75, by = 0.05),
+  q.fixed = 0.5,
+  method = "approx",
+  sel = NULL
+)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}

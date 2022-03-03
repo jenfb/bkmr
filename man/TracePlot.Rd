@@ -4,8 +4,16 @@
 \alias{TracePlot}
 \title{Trace plot}
 \usage{
-TracePlot(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration",
-  ylab = "parameter value", ...)
+TracePlot(
+  fit,
+  par,
+  comp = 1,
+  sel = NULL,
+  main = "",
+  xlab = "iteration",
+  ylab = "parameter value",
+  ...
+)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}

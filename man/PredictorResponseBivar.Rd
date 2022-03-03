@@ -4,10 +4,22 @@
 \alias{PredictorResponseBivar}
 \title{Predict the exposure-response function at a new grid of points}
 \usage{
-PredictorResponseBivar(fit, y = NULL, Z = NULL, X = NULL,
-  z.pairs = NULL, method = "approx", ngrid = 50, q.fixed = 0.5,
-  sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z),
-  verbose = TRUE, ...)
+PredictorResponseBivar(
+  fit,
+  y = NULL,
+  Z = NULL,
+  X = NULL,
+  z.pairs = NULL,
+  method = "approx",
+  ngrid = 50,
+  q.fixed = 0.5,
+  sel = NULL,
+  min.plot.dist = 0.5,
+  center = TRUE,
+  z.names = colnames(Z),
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}

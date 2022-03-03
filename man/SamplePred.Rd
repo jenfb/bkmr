@@ -4,8 +4,17 @@
 \alias{SamplePred}
 \title{Obtain posterior samples of predictions at new points}
 \usage{
-SamplePred(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL,
-  y = NULL, sel = NULL, type = c("link", "response"), ...)
+SamplePred(
+  fit,
+  Znew = NULL,
+  Xnew = NULL,
+  Z = NULL,
+  X = NULL,
+  y = NULL,
+  sel = NULL,
+  type = c("link", "response"),
+  ...
+)
 }
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}

@@ -4,8 +4,13 @@
 \alias{PredictorResponseBivarLevels}
 \title{Plot cross-sections of the bivariate predictor-response function}
 \usage{
-PredictorResponseBivarLevels(pred.resp.df, Z = NULL, qs = c(0.25, 0.5,
-  0.75), both_pairs = TRUE, z.names = NULL)
+PredictorResponseBivarLevels(
+  pred.resp.df,
+  Z = NULL,
+  qs = c(0.25, 0.5, 0.75),
+  both_pairs = TRUE,
+  z.names = NULL
+)
 }
 \arguments{
 \item{pred.resp.df}{object obtained from running the function \code{\link{PredictorResponseBivar}}}

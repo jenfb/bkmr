@@ -4,8 +4,14 @@
 \alias{summary.bkmrfit}
 \title{Summarizing BKMR model fits}
 \usage{
-\method{summary}{bkmrfit}(object, q = c(0.025, 0.975), digits = 5,
-  show_ests = TRUE, show_MH = TRUE, ...)
+\method{summary}{bkmrfit}(
+  object,
+  q = c(0.025, 0.975),
+  digits = 5,
+  show_ests = TRUE,
+  show_MH = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{an object of class "bkmrfit"}
