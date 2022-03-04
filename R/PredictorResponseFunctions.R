@@ -89,7 +89,8 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
 #' @inheritParams PredictorResponseUnivar
 #' @param whichz1 vector identifying the first predictor that (column of \code{Z}) should be plotted
 #' @param whichz2 vector identifying the second predictor that (column of \code{Z}) should be plotted
-#' @param whichz3 vector identifying the third exposure that will be set to a pre-specified fixed level (determined by \code{q.fixed})
+#' @param whichz3 vector identifying the third predictor that will be set to a pre-specified fixed quantile (determined by \code{prob})
+#' @param prob pre-specified quantile to set the third predictor (determined by \code{whichz3}); defaults to 0.5 (50th percentile)
 #'
 #' @export
 PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3 = NULL, method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {

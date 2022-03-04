@@ -45,7 +45,7 @@ PredictorResponseUnivar(
 
 \item{z.names}{optional vector of names for the columns of \code{z}}
 
-\item{...}{other argumentd to pass on to the prediction function}
+\item{...}{other arguments to pass on to the prediction function}
 }
 \description{
 Plot univariate predictor-response function on a new grid of points

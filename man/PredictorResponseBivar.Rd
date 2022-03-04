@@ -48,7 +48,7 @@ PredictorResponseBivar(
 
 \item{verbose}{TRUE or FALSE: flag of whether to print intermediate output to the screen}
 
-\item{...}{other argumentd to pass on to the prediction function}
+\item{...}{other arguments to pass on to the prediction function}
 }
 \description{
 Predict the exposure-response function at a new grid of points

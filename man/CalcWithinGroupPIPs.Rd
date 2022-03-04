@@ -12,5 +12,5 @@ CalcWithinGroupPIPs(fit, sel = NULL)
 \item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
 }
 \description{
-For those predictors within a multi-preditor group, as defined using the \code{groups} argument, the posterior inclusion probabilities for the predictor conditional on the group being selected into the model.
+For those predictors within a multi-predictor group, as defined using the \code{groups} argument, the posterior inclusion probabilities for the predictor conditional on the group being selected into the model.
 }

@@ -93,7 +93,7 @@ VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.dif
 #' @param qs.diff vector indicating the two quantiles \code{q_1} and \code{q_2} at which to compute \code{h(z_{q2}) - h(z_{q1})}
 #' @param q.fixed vector of quantiles at which to fix the remaining predictors in \code{Z}
 #' @param z.names optional vector of names for the columns of \code{z}
-#' @param ... other argumentd to pass on to the prediction function
+#' @param ... other arguments to pass on to the prediction function
 #' @param which.z vector indicating which variables (columns of \code{Z}) for which the summary should be computed
 #' @export
 SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), method = "approx", sel = NULL, z.names = colnames(Z), ...) {

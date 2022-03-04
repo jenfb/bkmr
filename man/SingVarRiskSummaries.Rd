@@ -39,7 +39,7 @@ SingVarRiskSummaries(
 
 \item{z.names}{optional vector of names for the columns of \code{z}}
 
-\item{...}{other argumentd to pass on to the prediction function}
+\item{...}{other arguments to pass on to the prediction function}
 }
 \description{
 Compute summaries of the risks associated with a change in a single variable in \code{Z} from a single level (quantile) to a second level (quantile), for the other variables in \code{Z} fixed to a specific level (quantile)

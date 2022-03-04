@@ -39,7 +39,7 @@ SingVarIntSummaries(
 
 \item{z.names}{optional vector of names for the columns of \code{z}}
 
-\item{...}{other argumentd to pass on to the prediction function}
+\item{...}{other arguments to pass on to the prediction function}
 }
 \description{
 Compare the single-predictor health risks when all of the other predictors in Z are fixed to their a specific quantile to when all of the other predictors in Z are fixed to their a second specific quantile.

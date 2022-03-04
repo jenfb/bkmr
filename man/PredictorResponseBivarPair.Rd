@@ -35,9 +35,11 @@ PredictorResponseBivarPair(
 
 \item{whichz2}{vector identifying the second predictor that (column of \code{Z}) should be plotted}
 
-\item{whichz3}{vector identifying the third exposure that will be set to a pre-specified fixed level (determined by \code{q.fixed})}
+\item{whichz3}{vector identifying the third predictor that will be set to a pre-specified fixed quantile (determined by \code{prob})}
 
 \item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
+
+\item{prob}{pre-specified quantile to set the third predictor (determined by \code{whichz3}); defaults to 0.5 (50th percentile)}
 
 \item{q.fixed}{vector of quantiles at which to fix the remaining predictors in \code{Z}}
 
@@ -49,7 +51,7 @@ PredictorResponseBivarPair(
 
 \item{center}{flag for whether to scale the exposure-response function to have mean zero}
 
-\item{...}{other argumentd to pass on to the prediction function}
+\item{...}{other arguments to pass on to the prediction function}
 }
 \description{
 Plot bivariate predictor-response function on a new grid of points
