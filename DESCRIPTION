@@ -12,7 +12,6 @@ BugReports: https://github.com/jenfb/bkmr/issues
 Depends:
     R (>= 3.1.2)
 License: GPL-2
-LazyData: true
 Imports:
     dplyr,
     magrittr,

@@ -1,4 +1,4 @@
-# bkmr 0.2.0.9000
+# bkmr 0.2.1
 
 ## Bug fixes
 
@@ -9,6 +9,8 @@
   * can be equal to 0 (when `varsel = TRUE`)
 
 * Error no longer generated if starting values for h.hat are not positive 
+
+* When checking class of an object, use 'inherits()' instead of 'class()'
 
 # bkmr 0.2.0
 

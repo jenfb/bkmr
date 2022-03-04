@@ -2,7 +2,7 @@
 % Please edit documentation in R/InvestigatePrior_rm.R
 \name{PlotPriorFits}
 \alias{PlotPriorFits}
-\title{Plot of exposure-response function from univariate KMR fot}
+\title{Plot of exposure-response function from univariate KMR fit}
 \usage{
 PlotPriorFits(
   y,
