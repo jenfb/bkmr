@@ -18,7 +18,7 @@ validateStartingValues <- function(varsel, y, X, Z, starting.values, rmethod) {
   Zwidth <- ncol(Z) 
   message ("Validating starting.values...")
   ##print(starting.values)
-  stopifnot(starting.values$sigsq.eps > 0, starting.values$lambda > 0)
+  stopifnot(starting.values$sigsq.eps > 0, all(starting.values$lambda > 0))
   ##messages only for scalar where vector required, expansion happens in main function
   if (length(starting.values$beta) != Xwidth) {
     message("beta should be a vector of length equal to the number of columns of X.  Input will be repeated or truncated as necessary.")
@@ -34,9 +34,10 @@ validateStartingValues <- function(varsel, y, X, Z, starting.values, rmethod) {
   if (length(starting.values$delta) != Zwidth) {
     message("delta should be a vector of length equal to the number of columns of Z.  Input will be repeated or truncated as necessary.")
   }
-  for (i in 1:length(starting.values$delta)) {
-    stopifnot(starting.values$delta == 1 || starting.values$delta == 0) 
-  }
+  #for (i in 1:length(starting.values$delta)) {
+    #stopifnot(starting.values$delta == 1 || starting.values$delta == 0)
+    stopifnot(all(starting.values$delta %in% c(1, 0)))
+  #}
   ## r length depends on varsel, truncate here but expand if necessary in main function
   if (varsel == TRUE) {
     if (length(starting.values$r) != Zwidth) {
@@ -51,7 +52,7 @@ validateStartingValues <- function(varsel, y, X, Z, starting.values, rmethod) {
     } else if (length(starting.values$r) != Zwidth) {
       message("r should be a vector of length equal to the number of columns of Z.  Input will be repeated or truncated as necessary.")
     }
-    stopifnot(starting.values$r > 0)
+    stopifnot(all(starting.values$r > 0))
   }
 
   # for (i in 1:length(starting.values$r)) {
@@ -78,13 +79,13 @@ validateControlParams <- function(varsel, family, id, control.params) {
   }
   ##regardless of id, validate each element of these params
   for (i in 1:length(control.params$mu.lambda)) {
-    stopifnot(control.params$mu.lambda > 0) 
+    stopifnot(control.params$mu.lambda[i] > 0) 
   }
   for (i in 1:length(control.params$sigma.lambda)) {
-    stopifnot(control.params$sigma.lambda > 0) 
+    stopifnot(control.params$sigma.lambda[i] > 0) 
   }
   for (i in 1:length(control.params$lambda.jump)) {
-    stopifnot(control.params$lambda.jump > 0) 
+    stopifnot(control.params$lambda.jump[i] > 0) 
   }
   rprior=control.params$r.prior
   stopifnot(rprior == "gamma" | rprior == "unif" | rprior == "invunif")

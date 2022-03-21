@@ -1,5 +1,9 @@
 # bkmr 0.2.1.9000
 
+## Bug fixes
+
+* Corrected code that produced warning `length > 1 in coercion to logical`
+
 # bkmr 0.2.1
 
 ## Bug fixes
