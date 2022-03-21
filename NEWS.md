@@ -1,4 +1,4 @@
-# bkmr 0.2.1.9000
+# bkmr 0.2.2
 
 ## Bug fixes
 
