@@ -4,6 +4,8 @@
 
 * Corrected code that produced warning `length > 1 in coercion to logical`
 
+* Update functions that use deprecated functions from `dplyr` package 
+
 # bkmr 0.2.1
 
 ## Bug fixes

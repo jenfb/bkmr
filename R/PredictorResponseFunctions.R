@@ -71,8 +71,10 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
   df <- dplyr::tibble()
   for(i in which.z) {
     res <- PredictorResponseUnivarVar(whichz = i, fit = fit, y = y, Z = Z, X = X, method = method, ngrid = ngrid, q.fixed = q.fixed, sel = sel, min.plot.dist = min.plot.dist, center = center, z.names = z.names, ...)
+    #df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
+    #  dplyr::select_(~variable, ~z, ~est, ~se)
     df0 <- dplyr::mutate(res, variable = z.names[i]) %>%
-      dplyr::select_(~variable, ~z, ~est, ~se)
+      dplyr::select_at(c("variable", "z", "est", "se"))
     df <- dplyr::bind_rows(df, df0)
   }
   df$variable <- factor(df$variable, levels = z.names[which.z])
@@ -188,7 +190,8 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
     names.pair <- c(z.name1, z.name2)
     if(nrow(df) > 0) { ## determine whether the current pair of variables has already been done
       completed.pairs <- df %>%
-        dplyr::select_('variable1', 'variable2') %>%
+        #dplyr::select_('variable1', 'variable2') %>%
+        dplyr::select_at(c('variable1', 'variable2')) %>%
         dplyr::distinct() %>%
         dplyr::transmute(z.pair = paste('variable1', 'variable2', sep = ":")) %>%
         unlist %>% unname
@@ -201,7 +204,8 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
       df0$variable1 <- z.name1
       df0$variable2 <- z.name2
       df0 %<>%
-        dplyr::select_(~variable1, ~variable2, ~z1, ~z2, ~est, ~se)
+        #dplyr::select_(~variable1, ~variable2, ~z1, ~z2, ~est, ~se)
+        dplyr::select_at(c("variable1", "variable2", "z1", "z2", "est", "se"))
       df <- dplyr::bind_rows(df, df0)
     }
   }
@@ -222,7 +226,8 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE, z.names = NULL) {
-  var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
+  #var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
+  var.pairs <- dplyr::distinct(dplyr::select_at(pred.resp.df, c("variable1", "variable2")))
   if (both_pairs) {
     var.pairs.rev <- dplyr::tibble(
       variable1 = var.pairs$variable2,
@@ -256,7 +261,8 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.
         se = preds$se
       )
       preds <- preds.rev
-      preds <- dplyr::arrange_(preds, ~z2, ~z1)
+      #preds <- dplyr::arrange_(preds, ~z2, ~z1)
+      preds <- dplyr::arrange_at(preds, c("z2", "z1"))
     }
     
     ngrid <- sqrt(nrow(preds))
@@ -284,7 +290,8 @@ PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.
     df.curr <- data.frame(variable1 = var1, variable2 = var2, z1 = z1, quantile = factor(hgrid.df$quantile, labels = qs), est = hgrid.df$est, se = se.grid.df$se, stringsAsFactors = FALSE)
     df <- rbind(df, df.curr)
   }
-  df <- dplyr::tbl_df(df) %>%
-    dplyr::arrange_(~variable1, ~variable2)
+  df <- tibble::as_tibble(df) %>% #dplyr::tbl_df(df) %>%
+    #dplyr::arrange_(~variable1, ~variable2)
+    dplyr::arrange_at(c("variable1", "variable2"))
   df
 }
