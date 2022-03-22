@@ -1,6 +1,6 @@
 Package: bkmr
 Title: Bayesian Kernel Machine Regression
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("Jennifer F.", "Bobb", 
                   email = "jenniferfederbobb@gmail.com", 
                   role = c("aut", "cre"))
@@ -20,5 +20,6 @@ Imports:
     truncnorm,
     tidyr,
     MASS,
-    tmvtnorm
+    tmvtnorm,
+    tibble
 RoxygenNote: 7.1.2
