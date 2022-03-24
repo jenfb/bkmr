@@ -6,7 +6,8 @@ Authors@R: person("Jennifer F.", "Bobb",
                   role = c("aut", "cre"))
 Description: Implementation of a statistical approach 
   for estimating the joint health effects of multiple 
-  concurrent exposures.
+  concurrent exposures, as described in Bobb et al (2015) 
+  <doi:10.1093/biostatistics/kxu058>.
 URL: https://github.com/jenfb/bkmr
 BugReports: https://github.com/jenfb/bkmr/issues
 Depends:
