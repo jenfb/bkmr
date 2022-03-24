@@ -3,7 +3,7 @@
 #' Calculate posterior inclusion probabilities for each group of variables
 #' 
 #' @inheritParams ExtractEsts
-#' @export
+#' 
 CalcGroupPIPs <- function(fit, sel = NULL) {
     groups <- fit$groups
     if (is.null(groups)) {
@@ -22,7 +22,7 @@ CalcGroupPIPs <- function(fit, sel = NULL) {
 #' For those predictors within a multi-predictor group, as defined using the \code{groups} argument, the posterior inclusion probabilities for the predictor conditional on the group being selected into the model.
 #' 
 #' @inheritParams ExtractEsts
-#' @export
+#' 
 CalcWithinGroupPIPs <- function(fit, sel = NULL) {
     groups <- fit$groups
     if (is.null(groups)) {
@@ -48,7 +48,7 @@ CalcWithinGroupPIPs <- function(fit, sel = NULL) {
 #' Calculate variable-specific posterior inclusion probabilities from BKMR model fit
 #' 
 #' @inheritParams ExtractEsts
-#' @export
+#' 
 CalcPIPs <- function(fit, sel = NULL) {
   if (inherits(fit, "bkmrfit")) {
     if (is.null(sel)) {
@@ -73,6 +73,8 @@ CalcPIPs <- function(fit, sel = NULL) {
 #' @return a data frame with the variable-specific PIPs for BKMR fit with component-wise variable selection, and with the group-specific and conditional (within-group) PIPs for BKMR fit with hierarchical variable selection.
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
+#' 
+#' 
 ExtractPIPs <- function(fit, sel = NULL, z.names = NULL) {
   if (inherits(fit, "bkmrfit")) {
     if (!fit$varsel) {
