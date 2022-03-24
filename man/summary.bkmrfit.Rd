@@ -26,6 +26,22 @@
 
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+No return value, prints more detailed summary of fit to console
+}
 \description{
 \code{summary} method for class "bkmrfit"
+}
+\examples{
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+set.seed(111)
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+summary(fitkm)
 }

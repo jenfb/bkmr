@@ -57,7 +57,7 @@ kmbayes(
 \item{est.h}{TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting.}
 }
 \value{
-an object of class "bkmrfit", which has the associated methods:
+an object of class "bkmrfit" (containing the posterior samples from the model fit), which has the associated methods:
 \itemize{
   \item \code{\link{print}} (i.e., \code{\link{print.bkmrfit}}) 
   \item \code{\link{summary}} (i.e., \code{\link{summary.bkmrfit}})
@@ -65,6 +65,18 @@ an object of class "bkmrfit", which has the associated methods:
 }
 \description{
 Fits the Bayesian kernel machine regression (BKMR) model using Markov chain Monte Carlo (MCMC) methods.
+}
+\examples{
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+set.seed(111)
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
 }
 \references{
 Bobb, JF, Valeri L, Claus Henn B, Christiani DC, Wright RO, Mazumdar M, Godleski JJ, Coull BA (2015). Bayesian Kernel Machine Regression for Estimating the Health Effects of Multi-Pollutant Mixtures. Biostatistics 16, no. 3: 493-508.
