@@ -2,12 +2,7 @@
 
 S3method(print,bkmrfit)
 S3method(summary,bkmrfit)
-export(CalcGroupPIPs)
-export(CalcPIPs)
-export(CalcWithinGroupPIPs)
 export(ComputePostmeanHnew)
-export(ComputePostmeanHnew.approx)
-export(ComputePostmeanHnew.exact)
 export(ExtractEsts)
 export(ExtractPIPs)
 export(ExtractSamps)
