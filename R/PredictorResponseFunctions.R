@@ -56,6 +56,9 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, method = "appro
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #'
 #' @export
+#' 
+#' @return a long data frame with the predictor name, predictor value, posterior mean estimate, and posterior standard deviation
+#' 
 PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -95,7 +98,17 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
 #' @param prob pre-specified quantile to set the third predictor (determined by \code{whichz3}); defaults to 0.5 (50th percentile)
 #'
 #' @export
-PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, whichz3 = NULL, method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
+#' 
+#' @return a data frame with value of the first predictor, the value of the second predictor, the posterior mean estimate, and the posterior standard deviation
+#' 
+PredictorResponseBivarPair <- function(fit, y = NULL, Z = NULL, X = NULL, whichz1 = 1, whichz2 = 2, whichz3 = NULL, method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
+  
+  if (inherits(fit, "bkmrfit")) {
+    if (is.null(y)) y <- fit$y
+    if (is.null(Z)) Z <- fit$Z
+    if (is.null(X)) X <- fit$X
+  }
+  
     if(ncol(Z) < 3) stop("requires there to be at least 3 Z variables")
 
     if(is.null(colnames(Z))) colnames(Z) <- paste0("z", 1:ncol(Z))
@@ -159,6 +172,9 @@ PredictorResponseBivarPair <- function(fit, y, Z, X, whichz1 = 1, whichz2 = 2, w
 #' @param verbose TRUE or FALSE: flag of whether to print intermediate output to the screen
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
+#' 
+#' @return a long data frame with the name of the first predictor, the name of the second predictor, the value of the first predictor, the value of the second predictor, the posterior mean estimate, and the posterior standard deviation of the estimated exposure response function
+#' 
 PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = NULL, method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -225,6 +241,10 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' @param qs vector of quantiles at which to fix the second variable
 #' @param both_pairs flag indicating whether, if \code{h(z1)} is being plotted for z2 fixed at different levels, that they should be plotted in the reverse order as well (for \code{h(z2)} at different levels of z1) 
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+#' 
+#' @return a long data frame with the name of the first predictor, the name of the second predictor, the value of the first predictor, the quantile at which the second predictor is fixed, the posterior mean estimate, and the posterior standard deviation of the estimated exposure response function
+
+#' 
 PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE, z.names = NULL) {
   #var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
   var.pairs <- dplyr::distinct(dplyr::select_at(pred.resp.df, c("variable1", "variable2")))
