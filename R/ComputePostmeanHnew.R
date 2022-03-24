@@ -12,6 +12,9 @@
 #' }
 #' For guided examples and additional information, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
+#' 
+#' @return a list of length two containing the posterior mean vector and posterior variance matrix 
+#' 
 ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL, method = "approx") {
   if (method == "approx") {
     res <- ComputePostmeanHnew.approx(fit = fit, y = y, Z = Z, X = X, Znew = Znew, sel = sel)
@@ -27,7 +30,6 @@ ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, 
 #' @param Znew matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If set to NULL then will default to using the observed exposures Z.
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
-#' @export
 ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -92,7 +94,6 @@ ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew =
 #' @inheritParams kmbayes
 #' @inheritParams SamplePred
 #' @inheritParams ExtractEsts
-#' @export
 ComputePostmeanHnew.exact <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL) {
   
   if (inherits(fit, "bkmrfit")) {
