@@ -10,6 +10,9 @@
 #' @export
 #' @import graphics
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+#' 
+#' @return No return value, generates plot
+#' 
 TracePlot <- function(fit, par, comp = 1, sel = NULL, main = "", xlab = "iteration", ylab = "parameter value", ...) {
     samps <- ExtractSamps(fit, sel = sel)[[par]]
     if (!is.null(ncol(samps))) {

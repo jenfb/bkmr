@@ -71,7 +71,7 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
 #' @param est.h TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting.
-#' @return an object of class "bkmrfit", which has the associated methods:
+#' @return an object of class "bkmrfit" (containing the posterior samples from the model fit), which has the associated methods:
 #' \itemize{
 #'   \item \code{\link{print}} (i.e., \code{\link{print.bkmrfit}}) 
 #'   \item \code{\link{summary}} (i.e., \code{\link{summary.bkmrfit}})
@@ -474,6 +474,9 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
 #' @param ...	further arguments passed to or from other methods.
 #'  
 #' @export
+#' 
+#' @return No return value, prints basic summary of fit to console
+#' 
 print.bkmrfit <- function(x, digits = 5, ...) {
   cat("Fitted object of class 'bkmrfit'\n")
   cat("Iterations:", x$iter, "\n")
@@ -493,6 +496,9 @@ print.bkmrfit <- function(x, digits = 5, ...) {
 #' @param ...	further arguments passed to or from other methods.
 #'  
 #' @export
+#' 
+#' @return No return value, prints more detailed summary of fit to console
+#' 
 summary.bkmrfit <- function(object, q = c(0.025, 0.975), digits = 5, show_ests = TRUE, show_MH = TRUE, ...) {
   x <- object
   elapsed_time <- difftime(x$time2, x$time1)
@@ -562,4 +568,5 @@ summary.bkmrfit <- function(object, q = c(0.025, 0.975), digits = 5, show_ests =
       print(pips)
     }
   }
+  return()
 }

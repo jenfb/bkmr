@@ -11,6 +11,9 @@
 #' @details 
 #' For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
+#' 
+#' @return a list containing the predicted values, residuals, and estimated predictor-response function for each degree of smoothness being considered
+#' 
 #' @import nlme
 InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16), r.seq = NULL, Drange = NULL, verbose = FALSE) {
   
@@ -90,6 +93,9 @@ InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8,
 #' @param ... other plotting arguments
 #' @export
 #' @import graphics
+#' 
+#' @return No return value, generates plot
+#' 
 PlotPriorFits <- function(y, X, Z, fits, which.z = NULL, which.q = NULL, plot.resid = TRUE, ylim = NULL, ...) {
   q.seq <- fits$q.seq
   r.seq <- fits$r.seq

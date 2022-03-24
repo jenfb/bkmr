@@ -11,6 +11,9 @@
 #' @inheritParams ExtractEsts
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
+#' 
+#' @return a matrix with the posterior samples at the new points
+#' 
 SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NULL, sel = NULL, type = c("link", "response"), ...) {
   
   if (inherits(fit, "bkmrfit")) {

@@ -7,6 +7,8 @@
 #' @param verbose_digits Number of digits to be printed to the console 
 #'
 #' @export
+#' 
+#' @return a named list showing the option values
 #'
 set_verbose_opts <- function(verbose_freq = NULL, verbose_show_ests = NULL, verbose_digits = NULL) {
   if (is.null(verbose_freq)) verbose_freq <- 10

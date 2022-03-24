@@ -18,6 +18,9 @@ SummarySamps <- function(s, q = c(0.025, 0.25, 0.5, 0.75, 0.975)) {
 #' @param sel logical expression indicating samples to keep; defaults to keeping the second half of all samples 
 #'
 #' @export
+#' 
+#' @return a list where each component is a data frame containing the summary statistics of the posterior distribution of one of the parameters (or vector of parameters) being estimated
+#' 
 ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
   if (inherits(fit, "bkmrfit")) {
     if (is.null(sel)) {
