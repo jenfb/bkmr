@@ -15,6 +15,24 @@
 #' 
 #' @return a list of length two containing the posterior mean vector and posterior variance matrix 
 #' 
+#' @examples
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' med_vals <- apply(Z, 2, median)
+#' Znew <- matrix(med_vals, nrow = 1)
+#' h_true <- dat$HFun(Znew)
+#' h_est1 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "approx")
+#' h_est2 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "exact")
 ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL, method = "approx") {
   if (method == "approx") {
     res <- ComputePostmeanHnew.approx(fit = fit, y = y, Z = Z, X = X, Znew = Znew, sel = sel)
@@ -30,6 +48,7 @@ ComputePostmeanHnew <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, 
 #' @param Znew matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If set to NULL then will default to using the observed exposures Z.
 #' @inheritParams kmbayes
 #' @inheritParams ExtractEsts
+#' @noRd
 ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -94,6 +113,8 @@ ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew =
 #' @inheritParams kmbayes
 #' @inheritParams SamplePred
 #' @inheritParams ExtractEsts
+#' 
+#' @noRd
 ComputePostmeanHnew.exact <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = NULL, sel = NULL) {
   
   if (inherits(fit, "bkmrfit")) {

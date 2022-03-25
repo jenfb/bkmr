@@ -32,9 +32,23 @@ InvestigatePrior(
 
 \item{verbose}{TRUE or FALSE: flag indicating whether to print to the screen which exposure variable and q value has been completed}
 }
+\value{
+a list containing the predicted values, residuals, and estimated predictor-response function for each degree of smoothness being considered
+}
 \description{
 Investigate the impact of the \code{r[m]} parameters on the smoothness of the exposure-response function \code{h(z[m])}.
 }
 \details{
 For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
+\examples{
+## First generate dataset
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+priorfits <- InvestigatePrior(y = y, Z = Z, X = X, q.seq = c(2, 1/2, 1/4, 1/16))
+PlotPriorFits(y = y, Z = Z, X = X, fits = priorfits)
 }

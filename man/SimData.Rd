@@ -32,6 +32,9 @@ SimData(
 
 \item{family}{a description of the error distribution and link function to be used in the model. Currently implemented for \code{gaussian} and \code{binomial} families.}
 }
+\value{
+a list containing the parameter values and generated variables of the simulated datasets
+}
 \description{
 Simulate predictor, covariate, and continuous outcome data
 }

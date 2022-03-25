@@ -40,6 +40,23 @@ interactionSummary.samp <- function(newz.q1, newz.q2, preds.fun, ...) {
 #' @param qs vector of quantiles at which to calculate the overall risk summary 
 #' @param q.fixed a second quantile at which to compare the estimated \code{h} function
 #' @export
+#' @return a data frame containing the (posterior mean) estimate and posterior standard deviation of the overall risk measures
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' risks.overall <- OverallRiskSummaries(fit = fitkm, qs = seq(0.25, 0.75, by = 0.05), 
+#' q.fixed = 0.5, method = "exact")
 OverallRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, qs = seq(0.25, 0.75, by = 0.05), q.fixed = 0.5, method = "approx", sel = NULL) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -99,6 +116,21 @@ VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.dif
 #' 
 #' @return a data frame containing the (posterior mean) estimate and posterior standard deviation of the single-predictor risk measures
 #' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' risks.singvar <- SingVarRiskSummaries(fit = fitkm, method = "exact")
 SingVarRiskSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), q.fixed = c(0.25, 0.50, 0.75), method = "approx", sel = NULL, z.names = colnames(Z), ...) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -166,6 +198,21 @@ SingVarIntSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.
 #' 
 #' @return a data frame containing the (posterior mean) estimate and posterior standard deviation of the single-predictor risk measures
 #' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' risks.int <- SingVarIntSummaries(fit = fitkm, method = "exact")
 SingVarIntSummaries <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), qs.diff = c(0.25, 0.75), qs.fixed = c(0.25, 0.75), method = "approx", sel = NULL, z.names = colnames(Z), ...) {
   
   if (inherits(fit, "bkmrfit")) {

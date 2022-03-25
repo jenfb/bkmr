@@ -13,6 +13,27 @@ ExtractEsts(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL)
 
 \item{sel}{logical expression indicating samples to keep; defaults to keeping the second half of all samples}
 }
+\value{
+a list where each component is a data frame containing the summary statistics of the posterior distribution of one of the parameters (or vector of parameters) being estimated
+}
 \description{
 Obtain summary statistics of each parameter from the BKMR fit
+}
+\examples{
+## First generate dataset
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+set.seed(111)
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+
+ests <- ExtractEsts(fitkm)
+names(ests)
+ests$beta
 }

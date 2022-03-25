@@ -5,11 +5,8 @@
 #' @param verbose_freq After this percentage of iterations has been completed the summary of the model fit so far will be printed to the console 
 #' @param verbose_show_ests TRUE or FALSE: flag indicating whether to print out summary statistics of all posterior samples obtained up until this point, for select parameters
 #' @param verbose_digits Number of digits to be printed to the console 
-#'
-#' @export
 #' 
-#' @return a named list showing the option values
-#'
+#' @noRd
 set_verbose_opts <- function(verbose_freq = NULL, verbose_show_ests = NULL, verbose_digits = NULL) {
   if (is.null(verbose_freq)) verbose_freq <- 10
   if (is.null(verbose_digits)) verbose_digits <- 5

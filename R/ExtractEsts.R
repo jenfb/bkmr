@@ -2,6 +2,8 @@
 #'
 #' @param q vector of quantiles
 #' @param s vector of posterior samples
+#' 
+#' @noRd
 SummarySamps <- function(s, q = c(0.025, 0.25, 0.5, 0.75, 0.975)) {
     qs <- quantile(s, q)
     names(qs) <- paste0("q_", 100*q)
@@ -21,6 +23,23 @@ SummarySamps <- function(s, q = c(0.025, 0.25, 0.5, 0.75, 0.975)) {
 #' 
 #' @return a list where each component is a data frame containing the summary statistics of the posterior distribution of one of the parameters (or vector of parameters) being estimated
 #' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' ests <- ExtractEsts(fitkm)
+#' names(ests)
+#' ests$beta
 ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
   if (inherits(fit, "bkmrfit")) {
     if (is.null(sel)) {
@@ -91,6 +110,23 @@ ExtractEsts <- function(fit, q = c(0.025, 0.25, 0.5, 0.75, 0.975), sel = NULL) {
 #' @inheritParams ExtractEsts
 #'
 #' @export
+#' @return a list where each component contains the posterior samples of one of the parameters (or vector of parameters) being estimated
+#' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' samps <- ExtractSamps(fitkm)
 ExtractSamps <- function(fit, sel = NULL) {
   if (inherits(fit, "bkmrfit")) {
     if (is.null(sel)) {

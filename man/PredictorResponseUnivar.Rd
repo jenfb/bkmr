@@ -47,9 +47,27 @@ PredictorResponseUnivar(
 
 \item{...}{other arguments to pass on to the prediction function}
 }
+\value{
+a long data frame with the predictor name, predictor value, posterior mean estimate, and posterior standard deviation
+}
 \description{
 Plot univariate predictor-response function on a new grid of points
 }
 \details{
 For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
+\examples{
+## First generate dataset
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+set.seed(111)
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+pred.resp.univar <- PredictorResponseUnivar(fit = fitkm)
 }

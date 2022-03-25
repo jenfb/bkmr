@@ -15,6 +15,17 @@
 #' @return a list containing the predicted values, residuals, and estimated predictor-response function for each degree of smoothness being considered
 #' 
 #' @import nlme
+#' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' priorfits <- InvestigatePrior(y = y, Z = Z, X = X, q.seq = c(2, 1/2, 1/4, 1/16))
+#' PlotPriorFits(y = y, Z = Z, X = X, fits = priorfits)
 InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8, 1/16), r.seq = NULL, Drange = NULL, verbose = FALSE) {
   
   if (is.null(r.seq)) {
@@ -96,6 +107,16 @@ InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8,
 #' 
 #' @return No return value, generates plot
 #' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' priorfits <- InvestigatePrior(y = y, Z = Z, X = X, q.seq = c(2, 1/2, 1/4, 1/16))
+#' PlotPriorFits(y = y, Z = Z, X = X, fits = priorfits)
 PlotPriorFits <- function(y, X, Z, fits, which.z = NULL, which.q = NULL, plot.resid = TRUE, ylim = NULL, ...) {
   q.seq <- fits$q.seq
   r.seq <- fits$r.seq

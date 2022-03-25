@@ -32,9 +32,30 @@ TracePlot(
 
 \item{...}{other arguments to pass onto the plotting function}
 }
+\value{
+No return value, generates plot
+}
 \description{
 Trace plot
 }
 \details{
 For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
+\examples{
+## First generate dataset
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+set.seed(111)
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+
+TracePlot(fit = fitkm, par = "beta")
+TracePlot(fit = fitkm, par = "sigsq.eps")
+TracePlot(fit = fitkm, par = "r", comp = 1)
 }

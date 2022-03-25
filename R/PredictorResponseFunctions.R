@@ -59,6 +59,20 @@ PredictorResponseUnivarVar <- function(whichz = 1, fit, y, Z, X, method = "appro
 #' 
 #' @return a long data frame with the predictor name, predictor value, posterior mean estimate, and posterior standard deviation
 #' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' pred.resp.univar <- PredictorResponseUnivar(fit = fitkm)
 PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z = 1:ncol(Z), method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = Inf, center = TRUE, z.names = colnames(Z), ...) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -101,6 +115,23 @@ PredictorResponseUnivar <- function(fit, y = NULL, Z = NULL, X = NULL, which.z =
 #' 
 #' @return a data frame with value of the first predictor, the value of the second predictor, the posterior mean estimate, and the posterior standard deviation
 #' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' ## Obtain predicted value on new grid of points
+#' ## Using only a 10-by-10 point grid to make example run quickly
+#' pred.resp.bivar12 <- PredictorResponseBivarPair(fit = fitkm, min.plot.dist = 1, ngrid = 10)
 PredictorResponseBivarPair <- function(fit, y = NULL, Z = NULL, X = NULL, whichz1 = 1, whichz2 = 2, whichz3 = NULL, method = "approx", prob = 0.5, q.fixed = 0.5, sel = NULL, ngrid = 50, min.plot.dist = 0.5, center = TRUE, ...) {
   
   if (inherits(fit, "bkmrfit")) {
@@ -167,13 +198,31 @@ PredictorResponseBivarPair <- function(fit, y = NULL, Z = NULL, X = NULL, whichz
 #' @inheritParams ExtractEsts
 #' @inheritParams SingVarRiskSummaries
 #' @inheritParams PredictorResponseUnivar
-#' @param z.pairs data frame showing which pairs of pollutants to plot
+#' @param z.pairs data frame showing which pairs of predictors to plot
 #' @param ngrid number of grid points in each dimension
 #' @param verbose TRUE or FALSE: flag of whether to print intermediate output to the screen
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' @export
 #' 
 #' @return a long data frame with the name of the first predictor, the name of the second predictor, the value of the first predictor, the value of the second predictor, the posterior mean estimate, and the posterior standard deviation of the estimated exposure response function
+#' 
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' ## Obtain predicted value on new grid of points for each pair of predictors
+#' ## Using only a 10-by-10 point grid to make example run quickly
+#' pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, min.plot.dist = 1, ngrid = 10)
 #' 
 PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = NULL, method = "approx", ngrid = 50, q.fixed = 0.5, sel = NULL, min.plot.dist = 0.5, center = TRUE, z.names = colnames(Z), verbose = TRUE, ...) {
   
@@ -243,8 +292,26 @@ PredictorResponseBivar <- function(fit, y = NULL, Z = NULL, X = NULL, z.pairs = 
 #' @details For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
 #' 
 #' @return a long data frame with the name of the first predictor, the name of the second predictor, the value of the first predictor, the quantile at which the second predictor is fixed, the posterior mean estimate, and the posterior standard deviation of the estimated exposure response function
-
+#'  
+#' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
 #' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' ## Obtain predicted value on new grid of points for each pair of predictors
+#' ## Using only a 10-by-10 point grid to make example run quickly
+#' pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, min.plot.dist = 1, ngrid = 10)
+#' pred.resp.bivar.levels <- PredictorResponseBivarLevels(pred.resp.df = pred.resp.bivar, 
+#' Z = Z, qs = c(0.1, 0.5, 0.9))
 PredictorResponseBivarLevels <- function(pred.resp.df, Z = NULL, qs = c(0.25, 0.5, 0.75), both_pairs = TRUE, z.names = NULL) {
   #var.pairs <- dplyr::distinct(dplyr::select_(pred.resp.df, ~variable1, ~variable2))
   var.pairs <- dplyr::distinct(dplyr::select_at(pred.resp.df, c("variable1", "variable2")))

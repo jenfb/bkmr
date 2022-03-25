@@ -35,9 +35,32 @@ SamplePred(
 
 \item{...}{other arguments; not currently used}
 }
+\value{
+a matrix with the posterior samples at the new points
+}
 \description{
 Obtains posterior samples of \code{E(Y) = h(Znew) + beta*Xnew} or of \code{g^{-1}[E(y)]}
 }
 \details{
 For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
+\examples{
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+set.seed(111)
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+
+med_vals <- apply(Z, 2, median)
+Znew <- matrix(med_vals, nrow = 1)
+h_true <- dat$HFun(Znew)
+set.seed(111)
+samps3 <- SamplePred(fitkm, Znew = Znew, Xnew = cbind(0))
+head(samps3)
 }

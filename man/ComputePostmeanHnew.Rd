@@ -29,6 +29,9 @@ ComputePostmeanHnew(
 
 \item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
 }
+\value{
+a list of length two containing the posterior mean vector and posterior variance matrix
+}
 \description{
 Compute the posterior mean and variance of \code{h} at a new predictor values
 }
@@ -38,4 +41,23 @@ Compute the posterior mean and variance of \code{h} at a new predictor values
   \item If \code{method == "exact"} then calls the function \code{\link{ComputePostmeanHnew.exact}}. In this case, the argument \code{sel} defaults to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
 }
 For guided examples and additional information, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
+\examples{
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+set.seed(111)
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+
+med_vals <- apply(Z, 2, median)
+Znew <- matrix(med_vals, nrow = 1)
+h_true <- dat$HFun(Znew)
+h_est1 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "approx")
+h_est2 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "exact")
 }

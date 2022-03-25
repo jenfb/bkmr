@@ -6,9 +6,9 @@
 \usage{
 PredictorResponseBivarPair(
   fit,
-  y,
-  Z,
-  X,
+  y = NULL,
+  Z = NULL,
+  X = NULL,
   whichz1 = 1,
   whichz2 = 2,
   whichz3 = NULL,
@@ -53,6 +53,27 @@ PredictorResponseBivarPair(
 
 \item{...}{other arguments to pass on to the prediction function}
 }
+\value{
+a data frame with value of the first predictor, the value of the second predictor, the posterior mean estimate, and the posterior standard deviation
+}
 \description{
 Plot bivariate predictor-response function on a new grid of points
+}
+\examples{
+## First generate dataset
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+set.seed(111)
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+
+## Obtain predicted value on new grid of points
+## Using only a 10-by-10 point grid to make example run quickly
+pred.resp.bivar12 <- PredictorResponseBivarPair(fit = fitkm, min.plot.dist = 1, ngrid = 10)
 }

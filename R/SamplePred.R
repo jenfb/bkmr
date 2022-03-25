@@ -14,6 +14,25 @@
 #' 
 #' @return a matrix with the posterior samples at the new points
 #' 
+#' @examples
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#' 
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+#' 
+#' med_vals <- apply(Z, 2, median)
+#' Znew <- matrix(med_vals, nrow = 1)
+#' h_true <- dat$HFun(Znew)
+#' set.seed(111)
+#' samps3 <- SamplePred(fitkm, Znew = Znew, Xnew = cbind(0))
+#' head(samps3)
 SamplePred <- function(fit, Znew = NULL, Xnew = NULL, Z = NULL, X = NULL, y = NULL, sel = NULL, type = c("link", "response"), ...) {
   
   if (inherits(fit, "bkmrfit")) {

@@ -30,7 +30,7 @@ PredictorResponseBivar(
 
 \item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
-\item{z.pairs}{data frame showing which pairs of pollutants to plot}
+\item{z.pairs}{data frame showing which pairs of predictors to plot}
 
 \item{method}{method for obtaining posterior summaries at a vector of new points. Options are "approx" and "exact"; defaults to "approx", which is faster particularly for large datasets; see details}
 
@@ -50,9 +50,31 @@ PredictorResponseBivar(
 
 \item{...}{other arguments to pass on to the prediction function}
 }
+\value{
+a long data frame with the name of the first predictor, the name of the second predictor, the value of the first predictor, the value of the second predictor, the posterior mean estimate, and the posterior standard deviation of the estimated exposure response function
+}
 \description{
 Predict the exposure-response function at a new grid of points
 }
 \details{
 For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+}
+\examples{
+## First generate dataset
+set.seed(111)
+dat <- SimData(n = 50, M = 4)
+y <- dat$y
+Z <- dat$Z
+X <- dat$X
+
+## Fit model with component-wise variable selection
+## Using only 100 iterations to make example run quickly
+## Typically should use a large number of iterations for inference
+set.seed(111)
+fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
+
+## Obtain predicted value on new grid of points for each pair of predictors
+## Using only a 10-by-10 point grid to make example run quickly
+pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, min.plot.dist = 1, ngrid = 10)
+
 }
