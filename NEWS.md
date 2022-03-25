@@ -6,6 +6,18 @@
 
 * Update functions that use deprecated functions from `dplyr` package 
 
+## Minor changes
+
+* No longer export the following functions:
+
+  * `CalcGroupPIPs`, `CalcWithinGroupPIPs`, and `CalcPIPs` as these should typically be calculated using the function `ExtractPIPs`
+
+  * `ComputePostmeanHnew.approx` and `ComputePostmeanHnew.exact` as these should typically be calculated using the function `ComputePostmeanHnew`
+  
+  * `set_verbose_opts` as this is only called internally
+
+* Expanded function documentation by adding example code
+
 # bkmr 0.2.1
 
 ## Bug fixes
