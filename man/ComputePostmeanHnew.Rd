@@ -37,8 +37,8 @@ Compute the posterior mean and variance of \code{h} at a new predictor values
 }
 \details{
 \itemize{
-  \item If \code{method == "approx"} then calls the function \code{\link{ComputePostmeanHnew.approx}}. In this case, the argument \code{sel} defaults to the second half of the MCMC iterations.
-  \item If \code{method == "exact"} then calls the function \code{\link{ComputePostmeanHnew.exact}}. In this case, the argument \code{sel} defaults to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
+  \item If \code{method == "approx"}, the argument \code{sel} defaults to the second half of the MCMC iterations.
+  \item If \code{method == "exact"}, the argument \code{sel} defaults to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept
 }
 For guided examples and additional information, go to \url{https://jenfb.github.io/bkmr/overview.html}
 }
