@@ -1,9 +1,13 @@
-Package: bkmr
+Package: bkmrDEV
 Title: Bayesian Kernel Machine Regression
 Version: 0.2.2.9000
-Authors@R: person("Jennifer F.", "Bobb", 
+Authors@R: c(person("Jennifer F.", "Bobb", 
                   email = "jenniferfederbobb@gmail.com", 
-                  role = c("aut", "cre"))
+                  role = c("aut", "cre")),
+          person('Luke', 'Duttweiler',
+                  email = 'lduttweiler@hsph.harvard.edu',
+                  role = c('ctb'),
+                  comment = c(ORCID = "0000-0002-0467-995X")))
 Description: Implementation of a statistical approach 
   for estimating the joint health effects of multiple 
   concurrent exposures, as described in Bobb et al (2015) 
@@ -23,4 +27,5 @@ Imports:
     MASS,
     tmvtnorm,
     tibble
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.1
+Encoding: UTF-8

@@ -234,8 +234,13 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     ztest <- NULL
   }
   
-  ## control parameters
-  control.params.default <- list(lambda.jump = rep(10, data.comps$nlambda), mu.lambda = rep(10, data.comps$nlambda), sigma.lambda = rep(10, data.comps$nlambda), a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3, b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1, r.jump = 0.1, r.jump1 = 2, r.jump2 = 0.1, r.a = 0, r.b = 100)
+  ## control parameters (lambda.jump default lower for probit model to improve mixing)
+  control.params.default <- list(lambda.jump = rep(ifelse(family == 'binomial', sqrt(10), 10), data.comps$nlambda),
+                                 mu.lambda = rep(10, data.comps$nlambda),
+                                 sigma.lambda = rep(10, data.comps$nlambda),
+                                 a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3,
+                                 b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1,
+                                 r.jump = 0.1, r.jump1 = 2, r.jump2 = 0.1, r.a = 0, r.b = 100)
   if (!is.null(control.params)){
     control.params <- modifyList(control.params.default, as.list(control.params))
     validateControlParams(varsel, family, id, control.params)

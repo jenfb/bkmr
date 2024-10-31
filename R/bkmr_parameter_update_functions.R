@@ -25,6 +25,7 @@ ystar.update.noh <- function(y, X, beta, Vinv, ystar) {
   mu <-  drop(X %*% beta)
   lower <- ifelse(y == 1, 0, -Inf)
   upper <- ifelse(y == 0, 0,  Inf)
+  stop('Currently must set est.h = TRUE for probit model.')
   samp <- tmvtnorm::rtmvnorm(1, mean = mu, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
   #samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
   drop(samp)
@@ -194,15 +195,22 @@ lambda.update <- function(r, delta, lambda, whichcomp=1, y, X, Z = Z, beta, sigs
 	mu.lambda <- control.params$mu.lambda[whichcomp]
 	sigma.lambda <- control.params$sigma.lambda[whichcomp]
 	lambdacomp <- lambda[whichcomp]
+	
+	#Get lambdacomp adjusted by lamAdj function (to correct for very small lambdas)
+	adjLambdaComp <- lamAdj(lambdacomp)
 
-	## generate a proposal
-	lambdacomp.star <- rgamma(1, shape=lambdacomp^2/lambda.jump^2, rate=lambdacomp/lambda.jump^2)
+	## generate a proposal for lambda
+	#lambdacomp.star <- rgamma(1, shape=lambdacomp^2/lambda.jump^2, rate=lambdacomp/lambda.jump^2)
+	lambdacomp.star <- rgamma(1, shape = adjLambdaComp^2/lambda.jump^2,
+	                          rate = adjLambdaComp/lambda.jump^2)
 	r.star <- r
 	delta.star <- delta
 	move.type <- NA
 
 	## part of M-H ratio that depends on the proposal distribution
-	negdifflogproposal <- -dgamma(lambdacomp.star, shape=lambdacomp^2/lambda.jump^2, rate=lambdacomp/lambda.jump^2, log=TRUE) + dgamma(lambdacomp, shape=lambdacomp.star^2/lambda.jump^2, rate=lambdacomp.star/lambda.jump^2, log=TRUE)
+	#negdifflogproposal <- -dgamma(lambdacomp.star, shape=lambdacomp^2/lambda.jump^2, rate=lambdacomp/lambda.jump^2, log=TRUE) + dgamma(lambdacomp, shape=lambdacomp.star^2/lambda.jump^2, rate=lambdacomp.star/lambda.jump^2, log=TRUE)
+	negdifflogproposal <- -dgamma(lambdacomp.star, shape= adjLambdaComp^2/lambda.jump^2, rate=adjLambdaComp/lambda.jump^2, log=TRUE) + dgamma(lambdacomp, shape=lamAdj(lambdacomp.star)^2/lambda.jump^2, rate=lamAdj(lambdacomp.star)/lambda.jump^2, log=TRUE)
+	
 
 	## prior distribution
 	diffpriors <- dgamma(lambdacomp.star, shape=mu.lambda^2/sigma.lambda^2, rate=mu.lambda/sigma.lambda^2, log=TRUE) - dgamma(lambdacomp, shape=mu.lambda^2/sigma.lambda^2, rate=mu.lambda/sigma.lambda^2, log=TRUE)
@@ -382,4 +390,19 @@ newh.postmean <- function(fit, Znew, sel) {
 
 	ret <- list(postmean = drop(mu.hnew), postvar = Sigma.hnew)
 	ret
+}
+
+#####################
+#LAMBDA UPDATE HELPER
+#####################
+#This function chooses the mean of the proposal function for the lambda MH step based on
+#the most recent iteration of lambda
+#If this is the identity then E[lambda_star] = lambda_t
+#Otherwise we have E[lambda_star] = lamAdj(lambda_t).
+lamAdj <- function(lam){
+  if(lam <=2 ){
+    return(3)
+  }else{
+    return((lam^2)/(lam-1)-1)
+  }
 }
