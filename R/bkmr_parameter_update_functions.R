@@ -25,7 +25,6 @@ ystar.update.noh <- function(y, X, beta, Vinv, ystar) {
   mu <-  drop(X %*% beta)
   lower <- ifelse(y == 1, 0, -Inf)
   upper <- ifelse(y == 0, 0,  Inf)
-  stop('Currently must set est.h = TRUE for probit model.')
   samp <- tmvtnorm::rtmvnorm(1, mean = mu, H = Vinv, lower = lower, upper = upper, algorithm = "gibbs", start.value = ystar)
   #samp <- truncnorm::rtruncnorm(1, a = lower, b = upper, mean = mu, sd = 1)
   drop(samp)
