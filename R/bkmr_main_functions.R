@@ -3,13 +3,13 @@
 # Kpart
 # }
 makeKpart <- function(r, Z1, Z2 = NULL) {
-  Z1r <- sweep(Z1, 2, sqrt(r), "*")
+  Z1r <- t(t(Z1) * c(sqrt(r)))
   if (is.null(Z2)) {
-    Z2r <- Z1r
+    Kpart <- fields::rdist(Z1r)^2
   } else {
-    Z2r <- sweep(Z2, 2, sqrt(r), "*")
+    Z2r <- t(t(Z2) * c(sqrt(r)))
+    Kpart <- fields::rdist(Z1r, Z2r)^2
   }
-  Kpart <- fields::rdist(Z1r, Z2r)^2
   Kpart
 }
 makeVcomps <- function(r, lambda, Z, data.comps) {
@@ -362,6 +362,14 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
   ## components
   Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
 
+  # set print progress options
+  opts <- set_verbose_opts(
+    verbose_freq = control.params$verbose_freq, 
+    verbose_digits = control.params$verbose_digits,
+    verbose_show_ests = control.params$verbose_show_ests,
+    tot_iter=nsamp
+  )
+  
   ## start sampling ####
   chain$time1 <- Sys.time()
   for (s in 2:nsamp) {
@@ -407,7 +415,14 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     comp <- which(!1:ncol(Z) %in% ztest)
     if (length(comp) != 0) {
       if (rmethod == "equal") { ## common r for those variables not being selected
-        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,],
+                             lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
+                             sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
+                             data.comps = data.comps, control.params = control.params,
+                             rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
+                             rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
+                             rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
+                             rprop.logdens = rprop.logdens)
         rSim <- varcomps$r
         if (varcomps$acc) {
           Vcomps <- varcomps$Vcomps
@@ -415,7 +430,14 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
         }
       } else if (rmethod == "varying") { ## allow a different r_m
         for (whichr in comp) {
-          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,],
+                               lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
+                               sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
+                               data.comps = data.comps, control.params = control.params,
+                               rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
+                               rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
+                               rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
+                               rprop.logdens = rprop.logdens)
           rSim <- varcomps$r
           if (varcomps$acc) {
             Vcomps <- varcomps$Vcomps
@@ -426,7 +448,15 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     }
     ## for those variables being selected: joint posterior of (r,delta)
     if (varsel) {
-      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,], lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z, ztest = ztest, data.comps = data.comps, control.params = control.params, rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1, rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2, rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen, rprop.logdens = rprop.logdens)
+      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,],
+                                lambda = chain$lambda[s,], y = ycont, X = X,
+                                beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s],
+                                Vcomps = Vcomps, Z = Z, ztest = ztest,
+                                data.comps = data.comps, control.params = control.params,
+                                rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
+                                rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
+                                rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
+                                rprop.logdens = rprop.logdens)
       chain$delta[s,] <- varcomps$delta
       rSim <- varcomps$r
       chain$move.type[s] <- varcomps$move.type
@@ -458,11 +488,6 @@ kmbayes <- function(y, Z, X = NULL, iter = 1000, family = "gaussian", id = NULL,
     
     ###################################################
     ## print details of the model fit so far
-    opts <- set_verbose_opts(
-      verbose_freq = control.params$verbose_freq, 
-      verbose_digits = control.params$verbose_digits,
-      verbose_show_ests = control.params$verbose_show_ests
-      )
     print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = nsamp, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z, groups = groups)
    
   }

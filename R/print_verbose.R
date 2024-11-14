@@ -5,31 +5,40 @@
 #' @param verbose_freq After this percentage of iterations has been completed the summary of the model fit so far will be printed to the console 
 #' @param verbose_show_ests TRUE or FALSE: flag indicating whether to print out summary statistics of all posterior samples obtained up until this point, for select parameters
 #' @param verbose_digits Number of digits to be printed to the console 
-#' 
-#' @noRd
-set_verbose_opts <- function(verbose_freq = NULL, verbose_show_ests = NULL, verbose_digits = NULL) {
+#'
+#' @export
+#'
+
+set_verbose_opts <- function(verbose_freq = NULL, verbose_show_ests = NULL, verbose_digits = NULL,
+                             tot_iter) {
   if (is.null(verbose_freq)) verbose_freq <- 10
   if (is.null(verbose_digits)) verbose_digits <- 5
   if (is.null(verbose_show_ests)) verbose_show_ests <- FALSE
+  
+  all_iter <- 100*(1:tot_iter)/tot_iter
+  sel_iter <- seq(verbose_freq, 100, by = verbose_freq)
+  print_iter <- sapply(sel_iter, function(x) min(which(all_iter >= x)))
+  
   opts <- list(
     verbose_freq = verbose_freq,
     verbose_digits = verbose_digits,
-    verbose_show_ests = verbose_show_ests
-    )
+    verbose_show_ests = verbose_show_ests,
+    print_iter = print_iter
+  )
   opts
 }
+
+
 
 print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel, hier_varsel, ztest, Z, groups) {
   verbose_freq <- opts$verbose_freq
   verbose_digits <- opts$verbose_digits
   verbose_show_ests <- opts$verbose_show_ests
+  print_iter <- opts$print_iter
+
   s <- curr_iter
   nsamp <- tot_iter
   perc_iter_completed <- round(100*curr_iter/tot_iter, 1)
-  
-  all_iter <- 100*(1:nsamp)/nsamp
-  sel_iter <- seq(verbose_freq, 100, by = verbose_freq)
-  print_iter <- sapply(sel_iter, function(x) min(which(all_iter >= x)))
   
   elapsed_time <- difftime(Sys.time(), chain$time1)
   
