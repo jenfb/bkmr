@@ -4,6 +4,14 @@
 
 * Updated MCMC step for parameter lambda to improve MCMC convergence for probit model
 
+## Minor changes
+
+* Modifications to speed up running time 
+
+  * Optimized the `makeKpart` function
+  
+  * Print diagnostics options moved outside of main loops
+
 # bkmr 0.2.2
 
 ## Bug fixes
