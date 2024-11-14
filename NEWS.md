@@ -1,3 +1,9 @@
+# bkmr 0.2.2.9000
+
+## Bug fixes
+
+* Updated MCMC step for parameter lambda to improve MCMC convergence for probit model
+
 # bkmr 0.2.2
 
 ## Bug fixes
