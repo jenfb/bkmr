@@ -19,10 +19,13 @@ export(SingVarIntSummaries)
 export(SingVarRiskSummaries)
 export(TracePlot)
 export(kmbayes)
+export(set_verbose_opts)
 import(graphics)
 import(nlme)
 import(stats)
 import(utils)
-importFrom(magrittr,"%<>%")
-importFrom(magrittr,"%>%")
+importFrom(magrittr,
+  "%<>%",
+  "%>%"
+)
 importFrom(tmvtnorm,rtmvnorm)
