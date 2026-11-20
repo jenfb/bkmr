@@ -2,6 +2,16 @@
 
 ## Bug fixes
 
+* Corrected a sign error in the Metropolis-Hastings acceptance ratio for component-wise and hierarchical (grouped) variable selection
+
+  * In versions through 0.2.2, this issue could lead to underestimating the posterior probability of the null model, in which no exposures or exposure groups are selected, and consequently overestimating posterior inclusion probabilities
+  
+  * For hierarchical variable selection, this issue could also affect the relative inclusion probabilities of singleton and multicomponent groups
+  
+  * The correction is expected to have the greatest impact in null or weak-signal settings; results may change little when there is strong evidence that at least one exposure should be included
+  
+  * See [GitHub Issue #43](https://github.com/jenfb/bkmr/issues/43) for additional details
+
 * Updated MCMC step for parameter lambda to improve MCMC convergence for probit model
 
 ## Minor changes
